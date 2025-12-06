@@ -40,6 +40,17 @@ android {
 }
 
 dependencies {
+    // OpenCV (assuming you have imported the module as 'opencv')
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+
+    // CameraX untuk merekam video
+    implementation("androidx.camera:camera-camera2:1.3.0")
+    implementation("androidx.camera:camera-lifecycle:1.3.0")
+    implementation("androidx.camera:camera-video:1.3.0")
+    implementation("androidx.camera:camera-view:1.3.0")
+
+    // Coil untuk load thumbnail/image
+    implementation("io.coil-kt:coil:2.5.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
