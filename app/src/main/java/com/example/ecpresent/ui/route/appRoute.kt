@@ -34,6 +34,7 @@ import com.example.ecpresent.ui.view.components.elements.MyNavigationBar
 import com.example.ecpresent.ui.view.pages.GetStartedView
 import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
+import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
 
 enum class AppView(
     val title: String,
@@ -171,7 +172,10 @@ fun AppRoute() {
                 LearningIndexView()
             }
             composable(route = AppView.Presentation.name) {
-                PresentationIndexView()
+                PresentationIndexView(navController = navController)
+            }
+            composable(route = AppView.TakePresentation.name) {
+                PresentationUploadVideoView()
             }
         }
     }
