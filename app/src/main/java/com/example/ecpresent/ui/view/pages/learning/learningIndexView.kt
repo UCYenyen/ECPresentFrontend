@@ -18,8 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.theme.ECPresentTheme
-import com.example.ecpresent.ui.view.components.elements.Title
-import com.example.ecpresent.ui.view.components.pages.auth.SignInSection
 import com.example.ecpresent.ui.view.components.pages.learning.LearningProgressSection
 import com.example.ecpresent.ui.view.components.pages.learning.TheBasicsSection
 
