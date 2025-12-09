@@ -17,7 +17,8 @@ private val DarkColorScheme = darkColorScheme(
     surface = MainBackground,
     onSurface = Color.Black,
     primaryContainer = ButtonColor,
-    onPrimaryContainer = Color.White
+    onPrimaryContainer = Color.White,
+    onSecondary = labelLabelColors
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -26,7 +27,8 @@ private val LightColorScheme = lightColorScheme(
     surface = MainBackground,
     onSurface = Color.Black,
     primaryContainer = ButtonColor,
-    onPrimaryContainer = Color.White
+    onPrimaryContainer = Color.White,
+    onSecondary = labelLabelColors
 )
 @Composable
 fun ECPresentTheme(

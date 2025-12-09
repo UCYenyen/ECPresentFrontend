@@ -34,104 +34,100 @@ fun SignUpSection() {
     var emailText by remember { mutableStateOf("") }
     var passwordDummy by remember { mutableStateOf("") }
 
-    Box(
+    Card(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Card(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                .padding(32.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp) // Padding dalam card agar lega
+            Text(
+                text = "Sign Up",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Email",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = emailText,
+                onValueChange = { emailText = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Examplename@gmail.com") },
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Password",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = passwordDummy,
+                onValueChange = { passwordDummy = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Password123") },
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "Confirm Password",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = passwordDummy,
+                onValueChange = { passwordDummy = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Password123") },
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = { },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF3478E4)
+                )
             ) {
                 Text(
-                    text = "Sign Up",
-                    fontSize = 35.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    "Sign Up",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
                 )
-
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "Email",
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = emailText,
-                    onValueChange = { emailText = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Examplename@gmail.com") },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "Password",
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = passwordDummy,
-                    onValueChange = { passwordDummy = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Password123") },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Text(
-                    text = "Confirm Password",
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = passwordDummy,
-                    onValueChange = { passwordDummy = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Password123") },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Button(
-                    onClick = { },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF3478E4) // Warna biru mirip gambar
-                    )
-                ) {
-                    Text(
-                        "Sign In",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
