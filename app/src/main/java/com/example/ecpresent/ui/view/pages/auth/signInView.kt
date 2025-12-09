@@ -42,7 +42,7 @@ fun SignInView(navController: NavController = rememberNavController()) {
         Spacer(Modifier.height(0.dp))
         Title("EC Present", "Start presenting easily!")
 
-        SignInSection()
+        SignInSection(navController)
     }
 }
 

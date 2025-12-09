@@ -27,12 +27,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 
 @Composable
-fun SignInSection(navController: NavController = rememberNavController()) {
+fun SignInSection(navController: NavController) {
     var emailText by remember { mutableStateOf("") }
     var passwordDummy by remember { mutableStateOf("") }
 
@@ -139,7 +138,7 @@ fun SignInSection(navController: NavController = rememberNavController()) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {navController.navigate(AppView.Landing.name)},
+                onClick = {navController.navigate(AppView.Learning.name)},
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -157,10 +156,10 @@ fun SignInSection(navController: NavController = rememberNavController()) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun SignInSectionPreview() {
-    ECPresentTheme {
-        SignInSection()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun SignInSectionPreview() {
+//    ECPresentTheme {
+//        SignInSection()
+//    }
+//}

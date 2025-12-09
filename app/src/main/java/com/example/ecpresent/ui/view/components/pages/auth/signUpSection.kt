@@ -28,12 +28,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 
 @Composable
-fun SignUpSection(navController: NavController = rememberNavController()) {
+fun SignUpSection(navController: NavController) {
     var emailText by remember { mutableStateOf("") }
     var passwordDummy by remember { mutableStateOf("") }
 
@@ -138,7 +137,7 @@ fun SignUpSection(navController: NavController = rememberNavController()) {
 @Preview(showBackground = true)
 @Composable
 private fun SignUpSectionPreview() {
-    ECPresentTheme {
-        SignUpSection()
-    }
+//    ECPresentTheme {
+//        SignUpSection()
+//    }
 }
