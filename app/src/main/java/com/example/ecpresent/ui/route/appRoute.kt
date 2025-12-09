@@ -32,6 +32,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.ui.view.components.elements.MyNavigationBar
 import com.example.ecpresent.ui.view.pages.GetStartedView
+import com.example.ecpresent.ui.view.pages.auth.SignInView
+import com.example.ecpresent.ui.view.pages.auth.SignUpView
 import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
@@ -43,8 +45,8 @@ enum class AppView(
 ) {
     Landing("Landing"),
 
-    SignUp("Sign Up", canNavigateBack = true),
-    SignIn("Sign In", canNavigateBack = true),
+    SignUp("Sign Up", canNavigateBack = false),
+    SignIn("Sign In", canNavigateBack = false),
     Profile("Profile", Icons.Filled.ManageAccounts),
     OverallFeedback("Overall Feedback", canNavigateBack = true),
 
@@ -80,9 +82,13 @@ fun AppRoute() {
         AppView.Profile.name
     )
 
+    val showBars = currentRoute != AppView.Landing.name &&
+            currentRoute != AppView.SignIn.name &&
+            currentRoute != AppView.SignUp.name
+
     Scaffold(
         topBar = {
-            if (currentRoute != AppView.Landing.name) {
+            if (showBars) {
                 MyTopAppBar(
                     currentView = currentView,
                     canNavigateBack = (currentView?.canNavigateBack == true) && (navController.previousBackStackEntry != null),
@@ -91,7 +97,7 @@ fun AppRoute() {
             }
         },
         bottomBar = {
-            if (currentRoute != AppView.Landing.name) {
+            if (showBars) {
                 MyBottomNavigationBar(
                     navController = navController,
                     currentDestination = currentDestination,
@@ -101,7 +107,8 @@ fun AppRoute() {
         }
     ) { innerPadding ->
         NavHost(
-            modifier = Modifier.padding(innerPadding),
+
+            modifier = if(showBars) Modifier.padding(innerPadding) else Modifier.fillMaxWidth(),
             navController = navController,
             startDestination = AppView.Landing.name,
 
@@ -168,6 +175,12 @@ fun AppRoute() {
             composable(route = AppView.Landing.name) {
                 GetStartedView(navController = navController)
             }
+            composable(route = AppView.SignIn.name) {
+                SignInView(navController = navController)
+            }
+            composable(route = AppView.SignUp.name) {
+                SignUpView(navController = navController)
+            }
             composable(route = AppView.Learning.name) {
                 LearningIndexView()
             }
@@ -175,7 +188,7 @@ fun AppRoute() {
                 PresentationIndexView(navController = navController)
             }
             composable(route = AppView.TakePresentation.name) {
-                PresentationUploadVideoView()
+                PresentationUploadVideoView(navController = navController)
             }
         }
     }

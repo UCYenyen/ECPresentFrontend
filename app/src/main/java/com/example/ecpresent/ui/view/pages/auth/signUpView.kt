@@ -17,13 +17,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.Title
 import com.example.ecpresent.ui.view.components.pages.auth.SignUpSection
 
 @Composable
-fun SignUpView() {
+fun SignUpView(navController: NavController = rememberNavController()) {
     Box(
         modifier = Modifier
             .fillMaxSize()

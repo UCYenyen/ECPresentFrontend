@@ -60,7 +60,7 @@ fun GetStartedView(navController: NavController = rememberNavController()) {
                 imageList = myImages
             )
             Button(
-                onClick = {navController.navigate(AppView.Learning.name)},
+                onClick = {navController.navigate(AppView.SignIn.name)},
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonColors(

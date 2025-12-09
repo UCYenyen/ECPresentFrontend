@@ -19,8 +19,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -45,7 +47,7 @@ import kotlinx.coroutines.delay
 import java.util.concurrent.Executors
 
 @Composable
-fun CameraScreen() {
+fun CameraScreen(onNavigateBack: () -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -235,6 +237,23 @@ fun CameraScreen() {
                 .padding(16.dp)
                 .border(4.dp, boxColor, RoundedCornerShape(16.dp))
         ) {
+            // Tombol Back (Hanya muncul jika TIDAK sedang merekam)
+            if (!isRecording) {
+                IconButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White
+                    )
+                }
+            }
+
             if (!isSystemReady && !isRecording) {
                 Column(
                     modifier = Modifier.align(Alignment.Center),
