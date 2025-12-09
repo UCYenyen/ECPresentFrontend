@@ -9,3 +9,4 @@ val ComponentBackground = Color(0xFF3478E4)
 val PresentActionButtonStroke = Color(0XFFF4F4F4).copy(.6f)
 
 val PresentActionButtonBackground = Color(0XFFFFFFFF).copy(.25f)
+val ButtonColor = Color(0xFF3478E4)

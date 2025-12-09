@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.example.ecpresent"
         minSdk = 28
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -40,17 +40,26 @@ android {
 }
 
 dependencies {
-    // OpenCV (assuming you have imported the module as 'opencv')
-    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
-
     // CameraX untuk merekam video
-    implementation("androidx.camera:camera-camera2:1.3.0")
-    implementation("androidx.camera:camera-lifecycle:1.3.0")
-    implementation("androidx.camera:camera-video:1.3.0")
-    implementation("androidx.camera:camera-view:1.3.0")
+    val cameraxVersion = "1.3.4"
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-view:$cameraxVersion")
 
     // Coil untuk load thumbnail/image
-    implementation("io.coil-kt:coil:2.5.0")
+    implementation("com.google.mediapipe:tasks-vision:0.10.14")
+    implementation("com.google.mediapipe:tasks-audio:0.10.14")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
 
     //Icon
     implementation("androidx.compose.material:material-icons-extended")

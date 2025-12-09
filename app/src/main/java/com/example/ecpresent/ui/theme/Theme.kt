@@ -15,14 +15,18 @@ private val DarkColorScheme = darkColorScheme(
     background = LandingBackground,
     onBackground = Color.White,
     surface = MainBackground,
-    onSurface = Color.Black
+    onSurface = Color.Black,
+    primaryContainer = ButtonColor,
+    onPrimaryContainer = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
     background = LandingBackground,
     onBackground = Color.White,
     surface = MainBackground,
-    onSurface = Color.Black
+    onSurface = Color.Black,
+    primaryContainer = ButtonColor,
+    onPrimaryContainer = Color.White
 )
 @Composable
 fun ECPresentTheme(
