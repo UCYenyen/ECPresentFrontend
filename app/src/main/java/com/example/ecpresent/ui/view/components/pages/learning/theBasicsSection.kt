@@ -18,12 +18,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.ecpresent.R
+import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.LearningVideoCard
 
 @Composable
-fun TheBasicsSection() {
+fun TheBasicsSection(navController: NavController) {
     // Data dummy untuk simulasi list
     val dummyData = listOf(
         Pair("How to present?", "In this module you will learn basic presentation skills."),
@@ -55,7 +57,7 @@ fun TheBasicsSection() {
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF4A7DFF),
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { /* Handle click */ }
+                modifier = Modifier.clickable { navController.navigate(AppView.PresentationFeedback.name) }
             )
         }
 
@@ -77,7 +79,7 @@ fun TheBasicsSection() {
 @Preview(showBackground = true)
 @Composable
 private fun TheBasicsSectionPreview() {
-    ECPresentTheme {
-        TheBasicsSection()
-    }
+//    ECPresentTheme {
+//        TheBasicsSection()
+//    }
 }

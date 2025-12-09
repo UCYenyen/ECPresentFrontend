@@ -16,6 +16,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.Title
@@ -24,7 +26,7 @@ import com.example.ecpresent.ui.view.components.pages.learning.LearningProgressS
 import com.example.ecpresent.ui.view.components.pages.learning.TheBasicsSection
 
 @Composable
-fun LearningIndexView() {
+fun LearningIndexView(navController: NavController = rememberNavController()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -40,8 +42,8 @@ fun LearningIndexView() {
             contentScale = ContentScale.FillWidth
         )
         Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
-            TheBasicsSection()
-            LearningProgressSection()
+            TheBasicsSection(navController)
+            LearningProgressSection(navController)
         }
     }
 }

@@ -23,15 +23,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.view.components.pages.learning.LearningProgressSection
 
 @Composable
-fun PresentationLearningView(){
+fun LearningProgressView(navController: NavController){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = MaterialTheme.colorScheme.surface).padding(horizontal = 12.dp)
     ) {
         Image(
             painter = painterResource(R.drawable.filler_top_right),
@@ -40,20 +41,7 @@ fun PresentationLearningView(){
             contentScale = ContentScale.FillWidth
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp, vertical = 64.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                Text("Learning Progress", modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            }
-        }
-        LearningProgressSection()
+        LearningProgressSection(navController = navController, showAll = false)
         Image(
             painter = painterResource(R.drawable.filler_bottom_left),
             contentDescription = null,
@@ -65,6 +53,6 @@ fun PresentationLearningView(){
 
 @Composable
 @Preview(showBackground = true)
-fun PresentationLearningViewPreview(){
-    PresentationLearningView()
+private fun LearningProgressViewViewPreview(){
+//    LearningProgressView()
 }

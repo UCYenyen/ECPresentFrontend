@@ -15,37 +15,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.LearningProgressCard
 
 @Composable
-fun LearningProgressSection() {
+fun LearningProgressSection(navController: NavController, showAll: Boolean = true) {
     Column(
         modifier = Modifier
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Learning Progress",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+        if(showAll){
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Learning Progress",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
 
-            Text(
-                text = "View More",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF4A7DFF),
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { /* Handle click */ }
-            )
+                Text(
+                    text = "View More",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF4A7DFF),
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clickable { navController.navigate(AppView.LearningProgress.name) }
+                )
+            }
         }
+
         LazyColumn {
             item {
                 LearningProgressCard()
@@ -57,7 +62,7 @@ fun LearningProgressSection() {
 @Preview(showBackground = true)
 @Composable
 private fun LearningProgressSectionPreview() {
-    ECPresentTheme {
-        LearningProgressSection()
-    }
+//    ECPresentTheme {
+//        LearningProgressSection()
+//    }
 }

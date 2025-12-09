@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -35,6 +36,8 @@ import com.example.ecpresent.ui.view.pages.GetStartedView
 import com.example.ecpresent.ui.view.pages.auth.SignInView
 import com.example.ecpresent.ui.view.pages.auth.SignUpView
 import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
+import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
+import com.example.ecpresent.ui.view.pages.presentation.PresentationHistoryView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
 
@@ -182,10 +185,16 @@ fun AppRoute() {
                 SignUpView(navController = navController)
             }
             composable(route = AppView.Learning.name) {
-                LearningIndexView()
+                LearningIndexView(navController = navController)
+            }
+            composable(route = AppView.LearningProgress.name){
+                LearningProgressView(navController = navController)
             }
             composable(route = AppView.Presentation.name) {
                 PresentationIndexView(navController = navController)
+            }
+            composable(route = AppView.PresentationHistory.name){
+                PresentationHistoryView()
             }
             composable(route = AppView.TakePresentation.name) {
                 PresentationUploadVideoView(navController = navController)
