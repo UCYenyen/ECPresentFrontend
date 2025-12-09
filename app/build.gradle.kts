@@ -52,6 +52,9 @@ dependencies {
     // Coil untuk load thumbnail/image
     implementation("io.coil-kt:coil:2.5.0")
 
+    //Icon
+    implementation("androidx.compose.material:material-icons-extended")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
