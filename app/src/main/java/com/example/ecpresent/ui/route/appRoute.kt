@@ -33,6 +33,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.ui.view.components.elements.MyNavigationBar
 import com.example.ecpresent.ui.view.pages.GetStartedView
 import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
+import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
+import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
 
 enum class AppView(
     val title: String,
@@ -49,7 +51,7 @@ enum class AppView(
     Learning("Learning", Icons.Filled.CollectionsBookmark),
     LearningProgress("Learning Progress", canNavigateBack = true),
 
-    Present("Presentations", Icons.Filled.CameraAlt),
+    Presentation("Presentations", Icons.Filled.CameraAlt),
     PresentationHistory("Presentations", canNavigateBack = true),
     TakePresentation("Presentation"),
     FollowUpQuestion("QNA"),
@@ -68,14 +70,13 @@ fun AppRoute() {
 
     val bottomNavItems = listOf(
         BottomNavItem(AppView.Learning, label = "Learning"),
-        BottomNavItem(AppView.Present, label = "Presentation"),
+        BottomNavItem(AppView.Presentation, label = "Presentation"),
         BottomNavItem(AppView.Profile, label = "Profile"),
     )
 
-    // Definisikan urutan Tab untuk logika animasi swipe
     val tabOrder = listOf(
         AppView.Learning.name,
-        AppView.Present.name,
+        AppView.Presentation.name,
         AppView.Profile.name
     )
 
@@ -104,30 +105,23 @@ fun AppRoute() {
             navController = navController,
             startDestination = AppView.Landing.name,
 
-            // --- LOGIKA ANIMASI DIMULAI ---
             enterTransition = {
                 val fromIndex = tabOrder.indexOf(initialState.destination.route)
                 val toIndex = tabOrder.indexOf(targetState.destination.route)
 
-                // Cek apakah perpindahan terjadi ANTAR TAB (Learning <-> Present <-> Profile)
                 if (fromIndex != -1 && toIndex != -1) {
                     if (toIndex > fromIndex) {
-                        // Pindah ke KANAN (misal: Learning -> Present)
-                        // Konten masuk dari kanan ke kiri
                         slideIntoContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Left,
                             animationSpec = tween(400)
                         )
                     } else {
-                        // Pindah ke KIRI (misal: Present -> Learning)
-                        // Konten masuk dari kiri ke kanan
                         slideIntoContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Right,
                             animationSpec = tween(400)
                         )
                     }
                 } else {
-                    // Animasi default (misal dari Landing Page)
                     slideIntoContainer(
                         towards = AnimatedContentTransitionScope.SlideDirection.Left,
                         animationSpec = tween(400)
@@ -140,13 +134,11 @@ fun AppRoute() {
 
                 if (fromIndex != -1 && toIndex != -1) {
                     if (toIndex > fromIndex) {
-                        // Pindah ke KANAN: Layar lama geser ke kiri
                         slideOutOfContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Left,
                             animationSpec = tween(400)
                         )
                     } else {
-                        // Pindah ke KIRI: Layar lama geser ke kanan
                         slideOutOfContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Right,
                             animationSpec = tween(400)
@@ -159,7 +151,6 @@ fun AppRoute() {
                     )
                 }
             },
-            // Tambahkan popEnter/popExit agar tombol BACK juga punya animasi yang sesuai
             popEnterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
@@ -172,7 +163,6 @@ fun AppRoute() {
                     animationSpec = tween(400)
                 )
             }
-            // --- LOGIKA ANIMASI SELESAI ---
 
         ) {
             composable(route = AppView.Landing.name) {
@@ -181,8 +171,11 @@ fun AppRoute() {
             composable(route = AppView.Learning.name) {
                 LearningIndexView()
             }
-            composable(route = AppView.Present.name) {
-                // Placeholder Screen untuk Presentation
+            composable(route = AppView.Presentation.name) {
+                PresentationIndexView(navController = navController)
+            }
+            composable(route = AppView.TakePresentation.name) {
+                PresentationUploadVideoView()
             }
         }
     }
