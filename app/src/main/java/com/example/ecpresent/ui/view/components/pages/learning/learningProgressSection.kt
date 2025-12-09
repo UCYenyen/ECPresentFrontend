@@ -19,7 +19,7 @@ import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.LearningProgressCard
 
 @Composable
-fun LearningProgressSection() {
+fun LearningProgressSection(itemCount: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -43,11 +43,13 @@ fun LearningProgressSection() {
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF4A7DFF),
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { /* Handle click */ }
+                modifier = Modifier.clickable { }
             )
         }
-        LazyColumn {
-            item {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(count = itemCount) {
                 LearningProgressCard()
             }
         }
@@ -58,6 +60,6 @@ fun LearningProgressSection() {
 @Composable
 private fun LearningProgressSectionPreview() {
     ECPresentTheme {
-        LearningProgressSection()
+        LearningProgressSection(itemCount = 5)
     }
 }

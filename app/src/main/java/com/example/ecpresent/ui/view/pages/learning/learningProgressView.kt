@@ -53,7 +53,7 @@ fun PresentationLearningView(){
                 Text("Learning Progress", modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.Bold, fontSize = 20.sp)
             }
         }
-        LearningProgressSection()
+        LearningProgressSection(itemCount = 2)
         Image(
             painter = painterResource(R.drawable.filler_bottom_left),
             contentDescription = null,

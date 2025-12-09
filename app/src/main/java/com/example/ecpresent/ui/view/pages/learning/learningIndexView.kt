@@ -41,7 +41,7 @@ fun LearningIndexView() {
         )
         Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
             TheBasicsSection()
-            LearningProgressSection()
+            LearningProgressSection(itemCount = 5)
         }
     }
 }
