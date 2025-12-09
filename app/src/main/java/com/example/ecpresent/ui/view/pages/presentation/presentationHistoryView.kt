@@ -32,41 +32,21 @@ import androidx.compose.ui.unit.sp
 
 import com.example.ecpresent.R
 
-import com.example.ecpresent.ui.view.components.pages.presentation.presentationHistorySection
+import com.example.ecpresent.ui.view.components.pages.presentation.PresentationHistorySection
 
 
 @Composable
-fun presentationHistoryView(){
+fun PresentationHistoryView(){
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = MaterialTheme.colorScheme.surface)
     ) {
+        PresentationHistorySection(showAll = true)
         Image(
-            painter = painterResource(R.drawable.filler_top_right),
+            painter = painterResource(R.drawable.blue_filler_top_right),
             contentDescription = null,
             modifier = Modifier.align(Alignment.TopEnd).width(200.dp),
-            contentScale = ContentScale.FillWidth
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp, vertical = 64.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                Text("Presentations", modifier = Modifier.padding(start = 8.dp), fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            }
-        }
-        presentationHistorySection()
-        Image(
-            painter = painterResource(R.drawable.filler_bottom_left),
-            contentDescription = null,
-            modifier = Modifier.align(Alignment.BottomStart).width(200.dp),
             contentScale = ContentScale.FillWidth
         )
     }
@@ -74,6 +54,6 @@ fun presentationHistoryView(){
 
 @Composable
 @Preview(showBackground = true)
-fun presentationHistoryViewPreview(){
-    presentationHistoryView()
+private fun PresentationHistoryViewPreview(){
+    PresentationHistoryView()
 }

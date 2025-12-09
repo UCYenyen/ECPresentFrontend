@@ -25,10 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.view.components.pages.learning.LearningProgressSection
-import com.example.ecpresent.ui.view.pages.presentation.presentationHistoryView
 
 @Composable
-fun presentationLearningView(){
+fun PresentationLearningView(){
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -66,6 +65,6 @@ fun presentationLearningView(){
 
 @Composable
 @Preview(showBackground = true)
-fun presentationLearningViewPreview(){
-    presentationLearningView()
+fun PresentationLearningViewPreview(){
+    PresentationLearningView()
 }
