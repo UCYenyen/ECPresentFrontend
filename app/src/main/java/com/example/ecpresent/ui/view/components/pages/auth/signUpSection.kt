@@ -27,10 +27,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 
 @Composable
-fun SignUpSection() {
+fun SignUpSection(navController: NavController = rememberNavController()) {
     var emailText by remember { mutableStateOf("") }
     var passwordDummy by remember { mutableStateOf("") }
 
@@ -114,7 +117,7 @@ fun SignUpSection() {
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { },
+                onClick = {navController.navigate(AppView.Learning.name)},
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = androidx.compose.material3.ButtonDefaults.buttonColors(

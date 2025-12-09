@@ -26,10 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 
 @Composable
-fun SignInSection() {
+fun SignInSection(navController: NavController = rememberNavController()) {
     var emailText by remember { mutableStateOf("") }
     var passwordDummy by remember { mutableStateOf("") }
 
@@ -136,7 +139,7 @@ fun SignInSection() {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { },
+                onClick = {navController.navigate(AppView.Landing.name)},
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -144,7 +147,7 @@ fun SignInSection() {
                 )
             ) {
                 Text(
-                    "Sign In With Google",
+                    "Continue as a guest",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
