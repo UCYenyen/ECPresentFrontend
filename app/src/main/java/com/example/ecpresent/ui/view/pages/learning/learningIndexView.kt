@@ -2,7 +2,9 @@ package com.example.ecpresent.ui.view.pages.learning
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,12 +34,15 @@ fun LearningIndexView() {
         Image(
             painter = painterResource(R.drawable.blue_filler_top_right),
             contentDescription = null,
-            modifier = Modifier.align(Alignment.TopEnd).fillMaxWidth(0.8f),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .fillMaxWidth(0.8f),
             contentScale = ContentScale.FillWidth
         )
-
-        TheBasicsSection()
-        LearningProgressSection()
+        Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
+            TheBasicsSection()
+            LearningProgressSection()
+        }
     }
 }
 

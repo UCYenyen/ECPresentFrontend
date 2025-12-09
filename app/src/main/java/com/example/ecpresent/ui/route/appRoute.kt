@@ -120,7 +120,7 @@ fun MyTopAppBar(
         title = {
             Text(
                 text = currentView?.title ?: "ECPresent",
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold
             )
         },
