@@ -23,14 +23,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.ui.view.components.elements.CameraScreen
 import com.example.ecpresent.R
+import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.Carousel
 import com.example.ecpresent.ui.view.components.elements.Title
 
 @Composable
-fun GetStartedView() {
+fun GetStartedView(navController: NavController = rememberNavController()) {
     val myImages = listOf(
         R.drawable.ecpresenthero1,
         R.drawable.ecpresenthero2,
@@ -59,7 +62,7 @@ fun GetStartedView() {
                 imageList = myImages
             )
             Button(
-                onClick = {},
+                onClick = {navController.navigate(AppView.Learning.name)},
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonColors(

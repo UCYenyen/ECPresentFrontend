@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AgentMigrationStateService">
+    <option name="pendingSessionIds">
+      <option value="3fe24559-6174-49bf-88c9-64856714cff4" />
+    </option>
     <option name="migrationStatus" value="COMPLETED" />
   </component>
 </project>
