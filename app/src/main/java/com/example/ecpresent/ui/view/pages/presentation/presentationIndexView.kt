@@ -52,7 +52,7 @@ fun PresentationIndexView() {
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
-        PresentationHistorySection(showAll = false)
+        PresentationHistorySection(showAll = false, itemCount = 5)
     }
 }
 

@@ -27,7 +27,7 @@ fun PresentationHistoryView(){
             .background(color = MaterialTheme.colorScheme.surface)
             .padding(horizontal = 12.dp),
     ) {
-        PresentationHistorySection(showAll = true)
+        PresentationHistorySection(showAll = true, itemCount = 5)
         Image(
             painter = painterResource(R.drawable.blue_filler_top_right),
             contentDescription = null,

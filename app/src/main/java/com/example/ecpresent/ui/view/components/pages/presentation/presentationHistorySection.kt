@@ -18,13 +18,13 @@ import androidx.compose.ui.unit.dp
 import com.example.ecpresent.ui.view.components.elements.PresentationHistoryCard
 
 @Composable
-fun PresentationHistorySection(showAll: Boolean){
+fun PresentationHistorySection(showAll: Boolean, itemCount: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        if(!showAll) {
+        if (!showAll) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -43,13 +43,15 @@ fun PresentationHistorySection(showAll: Boolean){
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF4A7DFF),
                     fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.clickable { /* Handle click */ }
+                    modifier = Modifier.clickable { }
                 )
             }
         }
 
-        LazyColumn {
-            item {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(count = itemCount) {
                 PresentationHistoryCard()
             }
         }
@@ -58,6 +60,6 @@ fun PresentationHistorySection(showAll: Boolean){
 
 @Preview(showBackground = true)
 @Composable
-private fun PresentationHistorySectionPreview(){
-    PresentationHistorySection(showAll = true)
+private fun PresentationHistorySectionPreview() {
+    PresentationHistorySection(showAll = false, itemCount = 5)
 }
