@@ -40,6 +40,7 @@ import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationHistoryView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
+import com.example.ecpresent.ui.view.pages.profile.ProfileIndexView
 
 enum class AppView(
     val title: String,
@@ -198,6 +199,9 @@ fun AppRoute() {
             }
             composable(route = AppView.TakePresentation.name) {
                 PresentationUploadVideoView(navController = navController)
+            }
+            composable(route = AppView.Profile.name) {
+                ProfileIndexView()
             }
         }
     }

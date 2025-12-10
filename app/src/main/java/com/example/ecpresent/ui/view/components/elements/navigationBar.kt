@@ -42,7 +42,7 @@ fun MyNavigationBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 24.dp)
+            .padding(horizontal = 12.dp, vertical = 24.dp)
             .background(Color.Transparent)
     ) {
         Surface(

@@ -23,8 +23,7 @@ import com.example.ecpresent.ui.theme.ECPresentTheme
 fun LearningProgressCard() {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 4.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
