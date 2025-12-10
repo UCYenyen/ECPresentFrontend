@@ -20,7 +20,7 @@ fun PresentationQNAView(){
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 36.dp, vertical = 24.dp)
+            .padding(horizontal = 14.dp)
 
     ){
         Text(
