@@ -16,7 +16,6 @@ import com.example.ecpresent.R
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.pages.profile.OverallRatingSection
 import com.example.ecpresent.ui.view.components.pages.profile.PersonalInformationSection
-import com.example.ecpresent.ui.view.components.pages.profile.PresentationHistorySection
 
 @Composable
 fun ProfileIndexView() {
@@ -34,11 +33,10 @@ fun ProfileIndexView() {
 
         PersonalInformationSection()
         OverallRatingSection()
-        PresentationHistorySection()
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 private fun ProfileIndexViewPreview() {
     ECPresentTheme {
