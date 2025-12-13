@@ -1,6 +1,7 @@
 package com.example.ecpresent.ui.view.components.elements
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,9 +29,10 @@ fun FeedbackTier(){
         modifier = Modifier
             .fillMaxWidth()
             .background(MainBackground),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
 
-    ){
+    ) {
         Box(
             modifier = Modifier
                 .size(75.dp)
@@ -44,14 +46,15 @@ fun FeedbackTier(){
                 fontSize = 20.sp
             )
         }
-        Spacer(modifier = Modifier.width(14.dp))
-        Column {
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
             Text(
                 text = "Overall",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-            Spacer(modifier = Modifier.height(14.dp))
             Text(
                 text = "S tier is a good, Great Job!",
                 fontWeight = FontWeight.Medium,

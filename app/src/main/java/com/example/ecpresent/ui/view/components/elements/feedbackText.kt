@@ -1,5 +1,6 @@
 package com.example.ecpresent.ui.view.components.elements
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,21 +21,20 @@ fun FeedbackText(
 ){
 
     Column (
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ){
         Text(
             text = indicatorType,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp
         )
-        Spacer(modifier = Modifier.height(14.dp))
         Text(
             text = indicatorDescription,
             fontWeight = FontWeight.Medium,
             fontSize = 20.sp,
             maxLines = 1
         )
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 

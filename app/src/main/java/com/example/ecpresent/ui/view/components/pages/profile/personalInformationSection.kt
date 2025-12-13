@@ -1,9 +1,11 @@
 package com.example.ecpresent.ui.view.components.pages.profile
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,49 +29,44 @@ fun PersonalInformationSection() {
         Pair("Email" ,"bryanfernandodinata@gmail.com")
     )
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ){
-        Text(
-            text = "Personal Information",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(
-            modifier = Modifier
-                .height(14.dp)
-        )
-        LazyColumn(){
+        LazyColumn{
             items(dummyFieldInputPlaceholderText) { item ->
-                Text(
-                    text = item.first,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(
-                    modifier = Modifier
-                        .height(8.dp)
-                )
-                TextField(
-                    value = item.second,
-                    onValueChange = {},
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.LightGray,
-                        disabledIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        errorIndicatorColor = Color.Transparent,
-                        focusedPlaceholderColor = Color.DarkGray
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(
-                        12.dp
-                    ),
-                    textStyle = TextStyle(
+                Column(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ){
+                    Text(
+                        text = item.first,
                         fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
                     )
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+                    TextField(
+                        value = item.second,
+                        onValueChange = {},
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.LightGray,
+                            disabledIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            errorIndicatorColor = Color.Transparent,
+                            focusedPlaceholderColor = Color.DarkGray
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(
+                            12.dp
+                        ),
+                        textStyle = TextStyle(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    )
+                }
+
             }
         }
 

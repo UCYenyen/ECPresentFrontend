@@ -29,7 +29,7 @@ fun PresentationIndicatorSummaryCard(
 ){
     Card (
         modifier = Modifier
-            .width(126.dp)
+            .width(122.dp)
             .height(82.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -40,7 +40,7 @@ fun PresentationIndicatorSummaryCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 15.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             Text(
@@ -49,7 +49,6 @@ fun PresentationIndicatorSummaryCard(
                 fontWeight = FontWeight.SemiBold,
                 style = TextStyle(color = Color.Black)
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = topic,
                 fontSize = 16.sp,

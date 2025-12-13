@@ -1,11 +1,10 @@
 package com.example.ecpresent.ui.view.components.pages.profile
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -13,6 +12,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,29 +36,34 @@ fun OverallRatingSection() {
         ),
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(
+                elevation = 12.dp,
+                spotColor = Color(0xFF000000),
+                ambientColor = Color(0xFF000000)
+            )
     ){
         Column (
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp)
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ){
             Text(
                 text = "Great Job !",
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
             )
-            Spacer(modifier = Modifier.height(14.dp))
             LazyRow (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
+                    .height(100.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ){
                 items(dummyDataIndicatorSummary) { item ->
                     PresentationIndicatorSummaryCard(
                         result = item.first,
                         topic = item.second
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
                 }
             }
         }

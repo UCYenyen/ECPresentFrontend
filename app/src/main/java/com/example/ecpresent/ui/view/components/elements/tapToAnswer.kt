@@ -44,7 +44,7 @@ fun TapToAnswerCard(){
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
         ){
             OutlinedIconButton(
                 border = BorderStroke(
@@ -65,12 +65,6 @@ fun TapToAnswerCard(){
                     tint = PresentActionButtonStroke
                 )
             }
-
-            Spacer(
-                modifier = Modifier
-                    .height(10.dp)
-            )
-
             Text(
                 text= "Tap to answer",
                 fontSize = 24.sp,
