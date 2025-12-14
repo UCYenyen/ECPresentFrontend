@@ -22,4 +22,7 @@ class ServerRepository(private val service: ServerService) {
         return service.guest()
     }
 
+    suspend fun getAllLearnings(): Response<BaseResponse<List<LearningResponseItem>>> {
+        return service.getAllLearnings()
+    }
 }
