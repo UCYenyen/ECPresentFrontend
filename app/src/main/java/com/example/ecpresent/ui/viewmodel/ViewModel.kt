@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class ViewModel : ViewModel() {
 
-//    private val repository = ServerContainer().weatherServerRepository
+    private val repository = ServerContainer().serverRepository
     private val _learningUIState = MutableStateFlow<LearningUIState>(LearningUIState.Initial)
     val learningUIState: StateFlow<LearningUIState> = _learningUIState.asStateFlow()
     private val _learningProgressUIState = MutableStateFlow<LearningProgressUIState>(

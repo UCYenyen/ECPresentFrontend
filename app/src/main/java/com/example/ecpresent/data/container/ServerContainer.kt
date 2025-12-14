@@ -21,4 +21,8 @@ class ServerContainer {
         retrofit.create(ServerService::class.java)
     }
 
+    val serverRepository: ServerRepository by lazy {
+        ServerRepository(retrofitService)
+    }
+
 }
