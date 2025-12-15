@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class ServerContainer {
     companion object {
-        const val BASE_URL = "http://10.0.182.156/api/"
+        const val BASE_URL = "http://localhost:3000/api/"
     }
 
     private val retrofit = Retrofit.Builder()
