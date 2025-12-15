@@ -8,5 +8,13 @@ data class UserResponse(
     @SerializedName("email")
     val email: String,
     @SerializedName("token")
-    val token: String
+    val token: String,
+    @SerializedName("avatar_id")
+    val avatarId: Int,
+    @SerializedName("image_url")
+    val imageUrl: String,
+    @SerializedName("createdAt")
+    val createdAt: String,
+    @SerializedName("updatedAt")
+    val updatedAt: String
 )

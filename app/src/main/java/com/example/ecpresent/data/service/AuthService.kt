@@ -10,7 +10,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
-interface ServerService {
+interface AuthService {
     @POST("register")
     suspend fun register(
         @Body request: RegisterUserRequest
@@ -20,9 +20,5 @@ interface ServerService {
         @Body request: LoginUserRequest
     ): Response<BaseResponse<UserResponse>>
     @POST("guest")
-    suspend fun guest(): Response<BaseResponse<UserResponse>>
-
-
-    @GET("get-all-learnings")
-    suspend fun getAllLearnings(): Response<BaseResponse<List<LearningResponseItem>>>
+    suspend fun continueAsGuest(): Response<BaseResponse<UserResponse>>
 }

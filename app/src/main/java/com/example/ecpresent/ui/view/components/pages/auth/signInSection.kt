@@ -128,7 +128,7 @@ fun SignInSection(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.guestLogin() },
+                onClick = { viewModel.continueAsGuest() },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 enabled = loginState !is LoginUIState.Loading,

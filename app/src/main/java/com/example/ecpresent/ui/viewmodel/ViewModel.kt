@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
+import com.example.ecpresent.data.dto.UserResponse
 import com.example.ecpresent.ui.model.Avatar
 import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class ViewModel : ViewModel() {
 
-    private val repository = ServerContainer().serverRepository
+    private val authRepository = ServerContainer().serverAuthRepository
+    private val learningRepository = ServerContainer().serverLearningRepository
 
     private val _learningUIState = MutableStateFlow<LearningUIState>(LearningUIState.Initial)
     val learningUIState: StateFlow<LearningUIState> = _learningUIState.asStateFlow()
@@ -33,7 +35,7 @@ class ViewModel : ViewModel() {
             _loginUIState.value = LoginUIState.Loading
             try {
                 val request = LoginUserRequest(email, pass)
-                val response = repository.login(request)
+                val response = authRepository.login(request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val userResponse = response.body()!!.data
@@ -41,9 +43,9 @@ class ViewModel : ViewModel() {
                         id = userResponse.id.toString(),
                         username = userResponse.username,
                         email = userResponse.email,
-                        imageUrl = "",
-                        createdAt = "2",
-                        updatedAt = "2",
+                        imageUrl = userResponse.imageUrl,
+                        createdAt = userResponse.createdAt,
+                        updatedAt = userResponse.updatedAt,
                         avatar = Avatar(id="2", imageUrl = "", createdAt = "2", updatedAt = "2"),
                         token = userResponse.token
                     )
@@ -67,7 +69,7 @@ class ViewModel : ViewModel() {
             _loginUIState.value = LoginUIState.Loading
             try {
                 val request = RegisterUserRequest(email, pass, username)
-                val response = repository.register(request)
+                val response = authRepository.register(request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val userResponse = response.body()!!.data
@@ -91,26 +93,27 @@ class ViewModel : ViewModel() {
         }
     }
 
-    fun guestLogin() {
+    fun continueAsGuest() {
         viewModelScope.launch {
             _loginUIState.value = LoginUIState.Loading
             try {
-                val response = repository.guest()
+                val response = authRepository.continueAsGuest()
+
                 if (response.isSuccessful && response.body() != null) {
                     val userResponse = response.body()!!.data
                     val user = User(
                         id = userResponse.id.toString(),
                         username = userResponse.username,
                         email = userResponse.email,
-                        imageUrl = "",
-                        createdAt = "2",
-                        updatedAt = "2",
-                        avatar = Avatar(id="2", imageUrl = "", createdAt = "2", updatedAt = "2"),
+                        imageUrl = userResponse.imageUrl,
+                        createdAt = userResponse.createdAt,
+                        updatedAt = userResponse.updatedAt,
+                        avatar = Avatar(id="1", imageUrl = "", createdAt = "123123", updatedAt = "1231231"),
                         token = userResponse.token
                     )
                     _loginUIState.value = LoginUIState.Success(user)
                 } else {
-                    _loginUIState.value = LoginUIState.Error("Guest login failed")
+                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()}")
                 }
             } catch (e: Exception) {
                 _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
