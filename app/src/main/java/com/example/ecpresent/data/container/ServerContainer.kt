@@ -2,12 +2,10 @@ package com.example.ecpresent.data.container
 
 
 import com.example.ecpresent.data.Env
-import com.example.ecpresent.data.env
 import com.example.ecpresent.data.service.AuthService
 import com.example.ecpresent.data.repository.AuthRepository
 import com.example.ecpresent.data.repository.LearningRepository
 import com.example.ecpresent.data.service.LearningService
-import com.example.ecpresent.ui.model.Learning
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
