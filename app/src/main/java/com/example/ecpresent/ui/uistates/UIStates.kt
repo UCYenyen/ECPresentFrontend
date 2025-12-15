@@ -25,3 +25,11 @@ sealed interface LearningProgressUIState {
     data class Success(val data: LearningProgress) : LearningProgressUIState
     data class Error(val message: String) : LearningUIState
 }
+
+sealed interface ProfileUIState {
+    object Initial : ProfileUIState
+    object Loading : ProfileUIState
+    object LoggedOut : ProfileUIState
+    data class Success(val data: User) : ProfileUIState
+    data class Error(val message: String) : ProfileUIState
+}
