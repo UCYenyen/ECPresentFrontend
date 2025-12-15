@@ -112,7 +112,9 @@ fun ProfileIndexView(
                     }
                 }
             }
-            else -> {}
+            else -> {
+
+            }
         }
     }
 }

@@ -30,7 +30,7 @@ fun PresentationIndicatorSummaryCard(
     Card (
         modifier = Modifier
             .width(122.dp)
-            .height(82.dp),
+            .height(100.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFFFFFF).copy(.8f)
