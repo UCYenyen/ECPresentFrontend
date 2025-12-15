@@ -1,6 +1,7 @@
 package com.example.ecpresent.data.container
 
 
+import com.example.ecpresent.data.env
 import com.example.ecpresent.data.service.AuthService
 import com.example.ecpresent.data.repository.AuthRepository
 import com.example.ecpresent.data.repository.LearningRepository
@@ -12,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class ServerContainer {
     companion object {
-        const val BASE_URL = "http://10.0.2.2:3000/api/"
+        const val BASE_URL = env.BASE_URL
     }
 
     private val retrofit = Retrofit.Builder()

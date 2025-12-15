@@ -10,15 +10,15 @@ data class LearningProgress(
     val createdAt: String,
     val updatedAt: String
 )
-//fun LearningProgressResponse.toLearningProgress(): LearningProgress {
-//    return LearningProgress(
-//        id = this.id,
-//       status = this.status,
-//        createdAt = this.createdAt,
-//        updatedAt = this.updatedAt,
-//
-//    )
-//}
+fun LearningProgressResponse.toLearningProgress(): LearningProgress {
+    return LearningProgress(
+        id = this.id,
+       status = this.status,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt,
+
+    )
+}
 //enum class LearningStatus{
 //    LOCKED,
 //    ONPROGRESS,

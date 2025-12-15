@@ -220,26 +220,26 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-//    fun getMyLearningProgresses() {
-//        viewModelScope.launch {
-//            _learningProgressUIState.value = LearningProgressUIState.Loading
-//            try {
-//                val token = dataStoreManager.tokenFlow.first()
-//                if (token.isNullOrEmpty()) return@launch
-//
-//                val response = learningRepository.getMyLearningProgresses("bearer $token")
-//                if (response.isSuccessful && response.body() != null) {
-//                    val learningProgressResponse = response.body()!!
-//                    val learningProgressList = learningProgressResponse.map {it.toLearningProgress()}
-//                    _learningProgressUIState.value = LearningProgressUIState.Success(learningProgressList)
-//                } else {
-//                    val errorBody = response.errorBody()?.string()
-//                    _learningProgressUIState.value = LearningProgressUIState.Error("Fetch failed: ${response.code()} - $errorBody")
-//                }
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//                _learningProgressUIState.value = LearningProgressUIState.Error(e.message ?: "Unknown error")
-//            }
-//        }
-//    }
+    fun getMyLearningProgresses() {
+        viewModelScope.launch {
+            _learningProgressUIState.value = LearningProgressUIState.Loading
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) return@launch
+
+                val response = learningRepository.getMyLearningProgresses("bearer $token")
+                if (response.isSuccessful && response.body() != null) {
+                    val learningProgressResponse = response.body()!!
+                    val learningProgressList = learningProgressResponse.map {it.toLearningProgress()}
+                    _learningProgressUIState.value = LearningProgressUIState.Success(learningProgressList)
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    _learningProgressUIState.value = LearningProgressUIState.Error("Fetch failed: ${response.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _learningProgressUIState.value = LearningProgressUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
 }
