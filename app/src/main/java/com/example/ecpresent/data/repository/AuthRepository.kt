@@ -5,11 +5,10 @@ import com.example.ecpresent.data.dto.LearningResponseItem
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.dto.UserResponse
-import com.example.ecpresent.data.service.ServerService
+import com.example.ecpresent.data.service.AuthService
 import retrofit2.Response
 
-class ServerRepository(private val service: ServerService) {
-
+class AuthRepository(private val service: AuthService) {
     suspend fun register(request: RegisterUserRequest): Response<BaseResponse<UserResponse>> {
         return service.register(request)
     }
@@ -18,11 +17,7 @@ class ServerRepository(private val service: ServerService) {
         return service.login(request)
     }
 
-    suspend fun guest(): Response<BaseResponse<UserResponse>> {
-        return service.guest()
-    }
-
-    suspend fun getAllLearnings(): Response<BaseResponse<List<LearningResponseItem>>> {
-        return service.getAllLearnings()
+    suspend fun continueAsGuest(): Response<BaseResponse<UserResponse>> {
+        return service.continueAsGuest()
     }
 }

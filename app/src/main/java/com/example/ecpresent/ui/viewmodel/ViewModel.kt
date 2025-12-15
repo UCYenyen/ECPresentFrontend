@@ -3,9 +3,14 @@ package com.example.ecpresent.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
+import com.example.ecpresent.data.dto.LoginUserRequest
+import com.example.ecpresent.data.dto.RegisterUserRequest
+import com.example.ecpresent.data.dto.UserResponse
+import com.example.ecpresent.ui.model.Avatar
+import com.example.ecpresent.ui.model.User
+import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.uistates.LoginUIState
-import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,41 +18,110 @@ import kotlinx.coroutines.launch
 
 class ViewModel : ViewModel() {
 
-    private val repository = ServerContainer().serverRepository
+    private val authRepository = ServerContainer().serverAuthRepository
+    private val learningRepository = ServerContainer().serverLearningRepository
+
     private val _learningUIState = MutableStateFlow<LearningUIState>(LearningUIState.Initial)
     val learningUIState: StateFlow<LearningUIState> = _learningUIState.asStateFlow()
-    private val _learningProgressUIState = MutableStateFlow<LearningProgressUIState>(
-        LearningProgressUIState.Initial
-    )
-    val learningProgressUIState: StateFlow<LearningProgressUIState> =
-        _learningProgressUIState.asStateFlow()
 
-    private val _loginUIState = MutableStateFlow<LoginUIState>(
-        LoginUIState.Initial
-    )
-    val loginUIState: StateFlow<LoginUIState> =
-        _loginUIState.asStateFlow()
+    private val _learningProgressUIState = MutableStateFlow<LearningProgressUIState>(LearningProgressUIState.Initial)
+    val learningProgressUIState: StateFlow<LearningProgressUIState> = _learningProgressUIState.asStateFlow()
 
+    private val _loginUIState = MutableStateFlow<LoginUIState>(LoginUIState.Initial)
+    val loginUIState: StateFlow<LoginUIState> = _loginUIState.asStateFlow()
 
-
-    fun getLoginData() {
+    fun login(email: String, pass: String) {
         viewModelScope.launch {
             _loginUIState.value = LoginUIState.Loading
-//            try {
-//                val result = repository.getArtist()
-//                if (result == null) {
-//                    _artistUIState.value = ArtistUIState.Error("Artist not found")
-//                    return@launch
-//                }
-//                _artistUIState.value = ArtistUIState.Success(result)
-//            } catch (e: Exception) {
-//                if (e.message == "timeout" || e.message == "Unable to resolve host \"www.theaudiodb.com\": No address associated with hostname") {
-//                    _artistUIState.value = ArtistUIState.Error("Error: Tidak ada koneksi internet")
-//                    return@launch
-//                }
-//                _artistUIState.value =
-//                    ArtistUIState.Error(e.message ?: "Tidak ada koneksi internet")
-//            }
+            try {
+                val request = LoginUserRequest(email, pass)
+                val response = authRepository.login(request)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val userResponse = response.body()!!.data
+                    val user = User(
+                        id = userResponse.id.toString(),
+                        username = userResponse.username,
+                        email = userResponse.email,
+                        imageUrl = userResponse.imageUrl,
+                        createdAt = userResponse.createdAt,
+                        updatedAt = userResponse.updatedAt,
+                        avatar = Avatar(id="2", imageUrl = "", createdAt = "2", updatedAt = "2"),
+                        token = userResponse.token
+                    )
+                    _loginUIState.value = LoginUIState.Success(user)
+                } else {
+                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
+            }
         }
+    }
+
+    fun register(username: String, email: String, pass: String, confirmPass: String) {
+        viewModelScope.launch {
+            if (pass != confirmPass) {
+                _loginUIState.value = LoginUIState.Error("Password mismatch")
+                return@launch
+            }
+
+            _loginUIState.value = LoginUIState.Loading
+            try {
+                val request = RegisterUserRequest(email, pass, username)
+                val response = authRepository.register(request)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val userResponse = response.body()!!.data
+                    val user = User(
+                        id = userResponse.id.toString(),
+                        username = userResponse.username,
+                        email = userResponse.email,
+                        imageUrl = "",
+                        createdAt = "2",
+                        updatedAt = "2",
+                        avatar = Avatar(id="2", imageUrl = "", createdAt = "2", updatedAt = "2"),
+                        token = userResponse.token
+                    )
+                    _loginUIState.value = LoginUIState.Success(user)
+                } else {
+                    _loginUIState.value = LoginUIState.Error("Register failed: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun continueAsGuest() {
+        viewModelScope.launch {
+            _loginUIState.value = LoginUIState.Loading
+            try {
+                val response = authRepository.continueAsGuest()
+
+                if (response.isSuccessful && response.body() != null) {
+                    val userResponse = response.body()!!.data
+                    val user = User(
+                        id = userResponse.id.toString(),
+                        username = userResponse.username,
+                        email = userResponse.email,
+                        imageUrl = userResponse.imageUrl,
+                        createdAt = userResponse.createdAt,
+                        updatedAt = userResponse.updatedAt,
+                        avatar = Avatar(id="1", imageUrl = "", createdAt = "123123", updatedAt = "1231231"),
+                        token = userResponse.token
+                    )
+                    _loginUIState.value = LoginUIState.Success(user)
+                } else {
+                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun resetLoginState() {
+        _loginUIState.value = LoginUIState.Initial
     }
 }

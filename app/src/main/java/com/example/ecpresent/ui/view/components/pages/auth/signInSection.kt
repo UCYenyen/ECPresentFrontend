@@ -24,30 +24,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.ecpresent.ui.route.AppView
+import com.example.ecpresent.ui.theme.ECPresentTheme
 
 @Composable
-fun SignInSection(navController: NavController) {
+fun SignInSection(
+    navController: NavController,
+    viewModel: ViewModel = viewModel()
+) {
     var emailText by remember { mutableStateOf("") }
-    var passwordDummy by remember { mutableStateOf("") }
+    var passwordText by remember { mutableStateOf("") }
+    val loginState by viewModel.loginUIState.collectAsState()
+
+    LaunchedEffect(loginState) {
+        if (loginState is LoginUIState.Success) {
+            navController.navigate(AppView.Learning.name) {
+                popUpTo(AppView.SignIn.name) { inclusive = true }
+            }
+            viewModel.resetLoginState()
+        }
+    }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(32.dp)) {
             Text(
                 text = "Sign In",
                 style = MaterialTheme.typography.headlineLarge,
@@ -56,99 +63,72 @@ fun SignInSection(navController: NavController) {
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Email",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSecondary
-            )
 
+            Text("Email", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-
             OutlinedTextField(
                 value = emailText,
                 onValueChange = { emailText = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("examplename@gmail.com", style = MaterialTheme.typography.titleMedium) },
+                label = { Text("examplename@gmail.com") },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Password",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSecondary
-            )
 
+            Text("Password", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-
             OutlinedTextField(
-                value = passwordDummy,
-                onValueChange = { passwordDummy = it },
+                value = passwordText,
+                onValueChange = { passwordText = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("your password", style = MaterialTheme.typography.titleMedium) },
+                label = { Text("your password") },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
+
             Spacer(modifier = Modifier.height(32.dp))
 
+            if (loginState is LoginUIState.Error) {
+                Text(
+                    text = (loginState as LoginUIState.Error).message,
+                    color = Color.Red,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
             Button(
-                onClick = { },
+                onClick = { viewModel.login(emailText, passwordText) },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF3478E4)
-                )
+                enabled = loginState !is LoginUIState.Loading,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3478E4))
             ) {
-                Text(
-                    "Sign In",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                if (loginState is LoginUIState.Loading) {
+                    Text("Loading...", fontWeight = FontWeight.Bold)
+                } else {
+                    Text("Sign In", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                HorizontalDivider(
-                    modifier = Modifier.weight(1f),
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "Or",
-                    modifier = Modifier.padding(horizontal = 10.dp),
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                HorizontalDivider(
-                    modifier = Modifier.weight(1f),
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface)
+                Text("Or", modifier = Modifier.padding(horizontal = 10.dp), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+                HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {navController.navigate(AppView.Learning.name)},
+                onClick = { viewModel.continueAsGuest() },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF3478E4)
-                )
+                enabled = loginState !is LoginUIState.Loading,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3478E4))
             ) {
-                Text(
-                    "Continue as a guest",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Text("Continue as a guest", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -163,10 +143,11 @@ fun SignInSection(navController: NavController) {
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun SignInSectionPreview() {
-//    ECPresentTheme {
-//        SignInSection()
-//    }
-//}
+@Preview(showBackground = true)
+@Composable
+private fun SignInSectionPreview() {
+   ECPresentTheme {
+        val dummyNavController = rememberNavController()
+        SignInSection(navController = dummyNavController)
+    }
+}
