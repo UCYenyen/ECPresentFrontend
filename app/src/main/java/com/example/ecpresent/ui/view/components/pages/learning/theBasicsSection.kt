@@ -3,45 +3,36 @@ package com.example.ecpresent.ui.view.components.pages.learning
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.ecpresent.R
 import com.example.ecpresent.ui.route.AppView
-import com.example.ecpresent.ui.theme.ECPresentTheme
+import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.view.components.elements.LearningVideoCard
+import com.example.ecpresent.ui.viewmodel.ViewModel
 
 @Composable
-fun TheBasicsSection(navController: NavController) {
-    // Data dummy untuk simulasi list
-    val dummyData = listOf(
-        Pair("How to present?", "In this module you will learn basic presentation skills."),
-        Pair("Body Language", "Master your gestures and posture on stage."),
-        Pair("Voice Control", "Learn how to project your voice clearly."),
-        Pair("Visual Aids", "Designing effective slides for your audience.")
-    )
+fun TheBasicsSection(navController: NavController, viewModel: ViewModel) {
+    val learningState by viewModel.learningUIState.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -61,25 +52,35 @@ fun TheBasicsSection(navController: NavController) {
             )
         }
 
-        // Horizontal Scrollable List
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(dummyData) { item ->
-                LearningVideoCard(
-                    title = item.first,
-                    description = item.second,
-                    imageRes = R.drawable.ecpresenthero1
+        when (val state = learningState) {
+            is LearningUIState.Success -> {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(state.data) { learning ->
+                        // Perbaikan: Wajib mengirim navController agar tidak crash
+                        LearningVideoCard(
+                            learning = learning,
+                            navController = navController,
+                            viewModel = viewModel
+                        )
+                    }
+                }
+            }
+            is LearningUIState.Error -> {
+                Text(
+                    text = state.message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
+            is LearningUIState.Loading -> {
+                Text(
+                    text = "Loading...",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            else -> {}
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun TheBasicsSectionPreview() {
-//    ECPresentTheme {
-//        TheBasicsSection()
-//    }
 }

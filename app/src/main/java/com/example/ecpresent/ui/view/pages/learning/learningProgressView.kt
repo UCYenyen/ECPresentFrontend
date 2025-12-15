@@ -23,12 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.view.components.pages.learning.LearningProgressSection
+import com.example.ecpresent.ui.viewmodel.ViewModel
 
 @Composable
-fun LearningProgressView(navController: NavController){
+fun LearningProgressView(navController: NavController, viewModel: ViewModel = viewModel()){
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -41,7 +43,7 @@ fun LearningProgressView(navController: NavController){
             contentScale = ContentScale.FillWidth
         )
 
-        LearningProgressSection(navController = navController, showAll = false)
+        LearningProgressSection(navController = navController, viewModel = viewModel, showAll = false)
         Image(
             painter = painterResource(R.drawable.filler_bottom_left),
             contentDescription = null,

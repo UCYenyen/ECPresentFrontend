@@ -1,5 +1,7 @@
 package com.example.ecpresent.data.service
 
+import com.example.ecpresent.data.dto.BaseResponse
+import com.example.ecpresent.data.dto.LearningProgressResponse
 import com.example.ecpresent.data.dto.LearningResponseItem
 import retrofit2.Response
 import retrofit2.http.GET
@@ -13,15 +15,25 @@ interface LearningService {
     suspend fun getLearning(@Path("id") id: String): Response<LearningResponseItem>
 
     @GET("getAllLearnings")
-    suspend fun getAllLearnings(): Response<List<LearningResponseItem>>
+    suspend fun getAllLearnings(): Response<BaseResponse<List<LearningResponseItem>>>
 
     @GET("myLearningProgresses")
-    suspend fun getMyLearningProgresses(@Header("Authorization") token: String): Response<List<LearningResponseItem>>
+    suspend fun getMyLearningProgresses(
+        @Header("Authorization") token: String
+    ): Response<BaseResponse<List<LearningProgressResponse>>>
 
     @GET("myLearningProgress/{id}")
-    suspend fun getMyLearningProgress(@Path("id") id: String): Response<LearningResponseItem>
+    suspend fun getMyLearningProgress(@Path("id") id: String): Response<LearningProgressResponse>
+
     @POST("startLearning/{id}")
-    suspend fun startLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<LearningResponseItem>
+    suspend fun startLearning(
+        @Header("Authorization") token: String,
+        @Path("id") id: String
+    ): Response<BaseResponse<LearningProgressResponse>>
+
     @PUT("completeLearning/{id}")
-    suspend fun completeLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<LearningResponseItem>
+    suspend fun completeLearning(
+        @Header("Authorization") token: String,
+        @Path("id") id: String
+    ): Response<BaseResponse<LearningProgressResponse>>
 }

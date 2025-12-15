@@ -1,6 +1,6 @@
 package com.example.ecpresent.ui.view.components.elements
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,21 +14,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ecpresent.R
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.ecpresent.ui.model.Learning
+import com.example.ecpresent.ui.route.AppView
+import com.example.ecpresent.ui.viewmodel.ViewModel
 
 @Composable
 fun LearningVideoCard(
-    title: String = "How to present?",
-    description: String = "In this module you will learn how to present properly.",
-    imageRes: Int = R.drawable.ecpresenthero1
+    learning: Learning,
+    navController: NavController,
+    viewModel: ViewModel = viewModel()
 ) {
     Card(
         modifier = Modifier
@@ -36,23 +40,26 @@ fun LearningVideoCard(
             .height(260.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF4A7DFF) // Warna biru sesuai tema
+            containerColor = Color(0xFF4A7DFF)
         ),
+        onClick = { navController.navigate("${AppView.Learning.name}/${learning.id}")},
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
-            Image(
-                painter = painterResource(id = imageRes),
+            AsyncImage(
+                model = viewModel.getYoutubeThumbnailUrl(learning.videoUrl),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp),
+                    .height(140.dp)
+                    .background(Color.Gray.copy(alpha = 0.3f))
+                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
                 contentScale = ContentScale.Crop
             )
 
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = title,
+                    text = learning.title,
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
@@ -63,9 +70,9 @@ fun LearningVideoCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = description,
+                    text = learning.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = Color.White,
                     fontSize = 12.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -73,10 +80,4 @@ fun LearningVideoCard(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun LearningVideoCardPreview() {
-    LearningVideoCard()
 }

@@ -23,7 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
@@ -37,10 +37,13 @@ import com.example.ecpresent.ui.view.pages.auth.SignInView
 import com.example.ecpresent.ui.view.pages.auth.SignUpView
 import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
 import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
+import com.example.ecpresent.ui.view.pages.learning.LearningDetailView
+import com.example.ecpresent.ui.view.pages.learning.LearningProgressDetailView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationHistoryView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
 import com.example.ecpresent.ui.view.pages.profile.ProfileIndexView
+import com.example.ecpresent.ui.viewmodel.ViewModel
 
 enum class AppView(
     val title: String,
@@ -64,15 +67,18 @@ enum class AppView(
     PresentationFeedback("Presentation Feedback"),
 }
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AppRoute() {
     val navController = rememberNavController()
+    // Shared ViewModel
+    val viewModel: ViewModel = viewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val currentRoute = currentDestination?.route
-    val currentView = AppView.entries.find { it.name == currentRoute }
+
+    val currentRouteString = currentDestination?.route
+    val currentView = AppView.entries.find { it.name == currentRouteString?.split("/")?.firstOrNull() }
+        ?: AppView.entries.find { it.name == currentRouteString }
 
     val bottomNavItems = listOf(
         BottomNavItem(AppView.Learning, label = "Learning"),
@@ -80,22 +86,29 @@ fun AppRoute() {
         BottomNavItem(AppView.Profile, label = "Profile"),
     )
 
-    val tabOrder = listOf(
+    // --- LOGIKA BARU UNTUK TOMBOL BACK ---
+    // Daftar halaman yang TIDAK boleh ada tombol back (Halaman Utama)
+    val topLevelRoutes = listOf(
         AppView.Learning.name,
         AppView.Presentation.name,
-        AppView.Profile.name
+        AppView.Profile.name,
+        AppView.Landing.name,
+        AppView.SignIn.name,
+        AppView.SignUp.name
     )
 
-    val showBars = currentRoute != AppView.Landing.name &&
-            currentRoute != AppView.SignIn.name &&
-            currentRoute != AppView.SignUp.name
+    val showBackButton = (currentRouteString !in topLevelRoutes) && (navController.previousBackStackEntry != null)
+
+    val showBars = currentRouteString != AppView.Landing.name &&
+            currentRouteString != AppView.SignIn.name &&
+            currentRouteString != AppView.SignUp.name
 
     Scaffold(
         topBar = {
             if (showBars) {
                 MyTopAppBar(
                     currentView = currentView,
-                    canNavigateBack = (currentView?.canNavigateBack == true) && (navController.previousBackStackEntry != null),
+                    canNavigateBack = showBackButton,
                     navigateUp = { navController.navigateUp() }
                 )
             }
@@ -111,56 +124,20 @@ fun AppRoute() {
         }
     ) { innerPadding ->
         NavHost(
-
             modifier = if(showBars) Modifier.padding(innerPadding) else Modifier.fillMaxWidth(),
             navController = navController,
             startDestination = AppView.Landing.name,
-
             enterTransition = {
-                val fromIndex = tabOrder.indexOf(initialState.destination.route)
-                val toIndex = tabOrder.indexOf(targetState.destination.route)
-
-                if (fromIndex != -1 && toIndex != -1) {
-                    if (toIndex > fromIndex) {
-                        slideIntoContainer(
-                            towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec = tween(400)
-                        )
-                    } else {
-                        slideIntoContainer(
-                            towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(400)
-                        )
-                    }
-                } else {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(400)
-                    )
-                }
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(400)
+                )
             },
             exitTransition = {
-                val fromIndex = tabOrder.indexOf(initialState.destination.route)
-                val toIndex = tabOrder.indexOf(targetState.destination.route)
-
-                if (fromIndex != -1 && toIndex != -1) {
-                    if (toIndex > fromIndex) {
-                        slideOutOfContainer(
-                            towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec = tween(400)
-                        )
-                    } else {
-                        slideOutOfContainer(
-                            towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(400)
-                        )
-                    }
-                } else {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(400)
-                    )
-                }
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(400)
+                )
             },
             popEnterTransition = {
                 slideIntoContainer(
@@ -174,7 +151,6 @@ fun AppRoute() {
                     animationSpec = tween(400)
                 )
             }
-
         ) {
             composable(route = AppView.Landing.name) {
                 GetStartedView(navController = navController)
@@ -186,10 +162,18 @@ fun AppRoute() {
                 SignUpView(navController = navController)
             }
             composable(route = AppView.Learning.name) {
-                LearningIndexView(navController = navController)
+                LearningIndexView(navController = navController, viewModel = viewModel)
+            }
+            composable(route = "${AppView.Learning.name}/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
+                LearningDetailView(id = id, navController = navController, viewModel = viewModel)
             }
             composable(route = AppView.LearningProgress.name){
-                LearningProgressView(navController = navController)
+                LearningProgressView(navController = navController, viewModel = viewModel)
+            }
+            composable(route = "${AppView.LearningProgress.name}/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
+                LearningProgressDetailView(progressId = id, navController = navController, viewModel = viewModel)
             }
             composable(route = AppView.Presentation.name) {
                 PresentationIndexView(navController = navController)

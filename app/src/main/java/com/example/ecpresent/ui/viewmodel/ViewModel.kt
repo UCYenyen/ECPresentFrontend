@@ -4,15 +4,15 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
-import com.example.ecpresent.data.dto.LearningResponseItem
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
 import com.example.ecpresent.ui.model.Avatar
+import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.model.Learning
 import com.example.ecpresent.ui.model.LearningProgress
-import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.model.toLearning
+import com.example.ecpresent.ui.model.toLearningProgress
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.uistates.LoginUIState
@@ -32,8 +32,10 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     private val _learningUIState = MutableStateFlow<LearningUIState>(LearningUIState.Initial)
     val learningUIState: StateFlow<LearningUIState> = _learningUIState.asStateFlow()
 
-    private val _learningProgressUIState = MutableStateFlow<LearningProgressUIState>(LearningProgressUIState.Initial)
-    val learningProgressUIState: StateFlow<LearningProgressUIState> = _learningProgressUIState.asStateFlow()
+    private val _learningProgressUIState =
+        MutableStateFlow<LearningProgressUIState>(LearningProgressUIState.Initial)
+    val learningProgressUIState: StateFlow<LearningProgressUIState> =
+        _learningProgressUIState.asStateFlow()
 
     private val _loginUIState = MutableStateFlow<LoginUIState>(LoginUIState.Initial)
     val loginUIState: StateFlow<LoginUIState> = _loginUIState.asStateFlow()
@@ -41,8 +43,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     private val _profileUIState = MutableStateFlow<ProfileUIState>(ProfileUIState.Initial)
     val profileUIState: StateFlow<ProfileUIState> = _profileUIState.asStateFlow()
 
-    val allLearnings = mutableListOf<LearningProgress>()
-    val myLearningProgress = mutableListOf<LearningProgress>()
     init {
         viewModelScope.launch {
             val token = dataStoreManager.tokenFlow.first()
@@ -60,6 +60,9 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 )
                 _loginUIState.value = LoginUIState.Success(user)
                 _profileUIState.value = ProfileUIState.Success(user)
+
+                getAllLearnings()
+                getMyLearningProgresses()
             }
         }
     }
@@ -92,9 +95,13 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     )
                     _loginUIState.value = LoginUIState.Success(user)
                     _profileUIState.value = ProfileUIState.Success(user)
+
+                    getAllLearnings()
+                    getMyLearningProgresses()
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()} - $errorBody")
+                    _loginUIState.value =
+                        LoginUIState.Error("Login failed: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -112,7 +119,8 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
             _loginUIState.value = LoginUIState.Loading
             try {
-                val request = RegisterUserRequest(username = username, email = email, password = pass)
+                val request =
+                    RegisterUserRequest(username = username, email = email, password = pass)
                 val response = authRepository.register(request)
 
                 if (response.isSuccessful && response.body() != null) {
@@ -136,9 +144,13 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     )
                     _loginUIState.value = LoginUIState.Success(user)
                     _profileUIState.value = ProfileUIState.Success(user)
+
+                    getAllLearnings()
+                    getMyLearningProgresses()
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    _loginUIState.value = LoginUIState.Error("Register failed: ${response.code()} - $errorBody")
+                    _loginUIState.value =
+                        LoginUIState.Error("Register failed: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -174,9 +186,12 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     )
                     _loginUIState.value = LoginUIState.Success(user)
                     _profileUIState.value = ProfileUIState.Success(user)
+
+                    getAllLearnings()
                 } else {
                     val errorMsg = response.errorBody()?.string() ?: "Unknown Server Error"
-                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()} - $errorMsg")
+                    _loginUIState.value =
+                        LoginUIState.Error("Login failed: ${response.code()} - $errorMsg")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -199,19 +214,19 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         _loginUIState.value = LoginUIState.Initial
     }
 
-
     fun getAllLearnings() {
         viewModelScope.launch {
             _learningUIState.value = LearningUIState.Loading
             try {
                 val response = learningRepository.getAllLearnings()
                 if (response.isSuccessful && response.body() != null) {
-                    val learningResponse = response.body()!!
-                    val learningList = learningResponse.map { it.toLearning() }
+                    val baseResponse = response.body()!!
+                    val learningList = baseResponse.data.map { it.toLearning() }
                     _learningUIState.value = LearningUIState.Success(learningList)
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    _learningUIState.value = LearningUIState.Error("Fetch failed: ${response.code()} - $errorBody")
+                    _learningUIState.value =
+                        LearningUIState.Error("Fetch failed: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -227,19 +242,73 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 val token = dataStoreManager.tokenFlow.first()
                 if (token.isNullOrEmpty()) return@launch
 
-                val response = learningRepository.getMyLearningProgresses("bearer $token")
+                val response = learningRepository.getMyLearningProgresses(token)
+
                 if (response.isSuccessful && response.body() != null) {
-                    val learningProgressResponse = response.body()!!
-                    val learningProgressList = learningProgressResponse.map {it.toLearningProgress()}
-                    _learningProgressUIState.value = LearningProgressUIState.Success(learningProgressList)
+                    val baseResponse = response.body()!!
+                    val progressResponseList = baseResponse.data
+                    val mappedList = progressResponseList.map { it.toLearningProgress() }
+
+                    _learningProgressUIState.value = LearningProgressUIState.Success(mappedList)
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    _learningProgressUIState.value = LearningProgressUIState.Error("Fetch failed: ${response.code()} - $errorBody")
+                    _learningProgressUIState.value =
+                        LearningProgressUIState.Error("Fetch failed: ${response.code()} - $errorBody")
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _learningProgressUIState.value =
+                    LearningProgressUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun startLearning(learningId: String, onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) return@launch
+
+                val response = learningRepository.startLearning(token, learningId)
+
+                if (response.isSuccessful && response.body() != null) {
+                    getMyLearningProgresses()
+                    onSuccess()
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    println("Start Learning failed: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _learningProgressUIState.value = LearningProgressUIState.Error(e.message ?: "Unknown error")
             }
         }
+    }
+
+    fun getLearningById(id: String): Learning? {
+        val currentState = learningUIState.value
+        return if (currentState is LearningUIState.Success) {
+            currentState.data.find { it.id == id }
+        } else null
+    }
+
+    fun getLearningProgressById(id: Int): LearningProgress? {
+        val currentState = learningProgressUIState.value
+        return if (currentState is LearningProgressUIState.Success) {
+            currentState.data.find { it.id == id }
+        } else null
+    }
+
+    fun getYoutubeThumbnailUrl(videoUrl: String): String {
+        val videoId = extractYoutubeId(videoUrl)
+        return if (videoId != null) "https://img.youtube.com/vi/$videoId/mqdefault.jpg" else ""
+    }
+
+    fun extractYoutubeId(url: String): String? {
+        val pattern =
+            "(?<=watch\\?v=|/videos/|embed\\/|youtu.be\\/|\\/v\\/|\\/e\\/|watch\\?v%3D|watch\\?feature=player_embedded&v=|%2Fvideos%2F|embed%\u200C\u200B2F|youtu.be%2F|%2Fv%2F)[^#\\&\\?\\n]*"
+        val compiledPattern = java.util.regex.Pattern.compile(pattern)
+        val matcher = compiledPattern.matcher(url)
+        return if (matcher.find()) matcher.group() else null
     }
 }
