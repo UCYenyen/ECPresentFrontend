@@ -15,16 +15,31 @@ sealed interface LoginUIState {
 sealed interface LearningUIState {
     object Initial : LearningUIState
     object Loading : LearningUIState
-    data class Success(val data: Learning) : LearningUIState
+    data class Success(val data: List<Learning>) : LearningUIState
     data class Error(val message: String) : LearningUIState
+}
+
+sealed interface LearningDetailsUIState {
+    object Initial : LearningDetailsUIState
+    object Loading : LearningDetailsUIState
+    data class Success(val data: Learning) : LearningDetailsUIState
+    data class Error(val message: String) : LearningDetailsUIState
 }
 
 sealed interface LearningProgressUIState {
     object Initial : LearningProgressUIState
     object Loading : LearningProgressUIState
-    data class Success(val data: LearningProgress) : LearningProgressUIState
-    data class Error(val message: String) : LearningUIState
+    data class Success(val data: List<LearningProgress>) : LearningProgressUIState
+    data class Error(val message: String) : LearningProgressUIState
 }
+
+sealed interface LearningProgressDetailsUIState {
+    object Initial : LearningProgressDetailsUIState
+    object Loading : LearningProgressDetailsUIState
+    data class Success(val data: LearningProgress) : LearningProgressDetailsUIState
+    data class Error(val message: String) : LearningProgressDetailsUIState
+}
+
 
 sealed interface ProfileUIState {
     object Initial : ProfileUIState

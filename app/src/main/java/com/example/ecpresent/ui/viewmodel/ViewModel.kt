@@ -4,16 +4,19 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
+import com.example.ecpresent.data.dto.LearningResponseItem
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
 import com.example.ecpresent.ui.model.Avatar
+import com.example.ecpresent.ui.model.Learning
+import com.example.ecpresent.ui.model.LearningProgress
 import com.example.ecpresent.ui.model.User
+import com.example.ecpresent.ui.model.toLearning
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.uistates.LoginUIState
 import com.example.ecpresent.ui.uistates.ProfileUIState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +26,7 @@ import kotlinx.coroutines.launch
 class ViewModel(application: Application) : AndroidViewModel(application) {
 
     private val authRepository = ServerContainer().serverAuthRepository
+    private val learningRepository = ServerContainer().serverLearningRepository
     private val dataStoreManager = DataStoreManager(application)
 
     private val _learningUIState = MutableStateFlow<LearningUIState>(LearningUIState.Initial)
@@ -37,6 +41,8 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     private val _profileUIState = MutableStateFlow<ProfileUIState>(ProfileUIState.Initial)
     val profileUIState: StateFlow<ProfileUIState> = _profileUIState.asStateFlow()
 
+    val allLearnings = mutableListOf<LearningProgress>()
+    val myLearningProgress = mutableListOf<LearningProgress>()
     init {
         viewModelScope.launch {
             val token = dataStoreManager.tokenFlow.first()
@@ -185,11 +191,55 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             _learningUIState.value = LearningUIState.Initial
             _learningProgressUIState.value = LearningProgressUIState.Initial
             _loginUIState.value = LoginUIState.Initial
-            _profileUIState.value = ProfileUIState.LoggedOut
+            _profileUIState.value = ProfileUIState.Initial
         }
     }
 
     fun resetLoginState() {
         _loginUIState.value = LoginUIState.Initial
     }
+
+
+    fun getAllLearnings() {
+        viewModelScope.launch {
+            _learningUIState.value = LearningUIState.Loading
+            try {
+                val response = learningRepository.getAllLearnings()
+                if (response.isSuccessful && response.body() != null) {
+                    val learningResponse = response.body()!!
+                    val learningList = learningResponse.map { it.toLearning() }
+                    _learningUIState.value = LearningUIState.Success(learningList)
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    _learningUIState.value = LearningUIState.Error("Fetch failed: ${response.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _learningUIState.value = LearningUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+//    fun getMyLearningProgresses() {
+//        viewModelScope.launch {
+//            _learningProgressUIState.value = LearningProgressUIState.Loading
+//            try {
+//                val token = dataStoreManager.tokenFlow.first()
+//                if (token.isNullOrEmpty()) return@launch
+//
+//                val response = learningRepository.getMyLearningProgresses("bearer $token")
+//                if (response.isSuccessful && response.body() != null) {
+//                    val learningProgressResponse = response.body()!!
+//                    val learningProgressList = learningProgressResponse.map {it.toLearningProgress()}
+//                    _learningProgressUIState.value = LearningProgressUIState.Success(learningProgressList)
+//                } else {
+//                    val errorBody = response.errorBody()?.string()
+//                    _learningProgressUIState.value = LearningProgressUIState.Error("Fetch failed: ${response.code()} - $errorBody")
+//                }
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                _learningProgressUIState.value = LearningProgressUIState.Error(e.message ?: "Unknown error")
+//            }
+//        }
+//    }
 }

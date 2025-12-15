@@ -6,6 +6,29 @@ import retrofit2.Response
 
 class LearningRepository(private val service: LearningService) {
     suspend fun getAllLearnings(): Response<List<LearningResponseItem>> {
-        return service.getLearningData()
+        return service.getAllLearnings()
+    }
+    suspend fun getLearningById(id: String): Response<LearningResponseItem> {
+        return service.getLearning(id)
+    }
+
+    suspend fun getMyLearningProgresses(token: String): Response<List<LearningResponseItem>> {
+        val formattedToken = "Bearer $token"
+        return service.getMyLearningProgresses(token = formattedToken)
+    }
+
+    suspend fun getMyLearningProgress(token: String): Response<LearningResponseItem> {
+        val formattedToken = "Bearer $token"
+        return service.getMyLearningProgress(formattedToken)
+    }
+
+    suspend fun startLearning(token: String, learningId: String): Response<LearningResponseItem> {
+        val formattedToken = "Bearer $token"
+        return service.startLearning(formattedToken, learningId)
+    }
+
+    suspend fun completeLearning(token: String, learningId: String): Response<LearningResponseItem> {
+        val formattedToken = "Bearer $token"
+        return service.completeLearning(formattedToken, learningId)
     }
 }

@@ -1,15 +1,26 @@
 package com.example.ecpresent.ui.model
 
+import com.example.ecpresent.data.dto.LearningProgressResponse
+import com.example.ecpresent.data.dto.LearningResponseItem
+
 data class LearningProgress(
     val id: Int,
     val learning: Learning,
-    val status: LearningStatus,
+    val status: String,
     val createdAt: String,
     val updatedAt: String
 )
-
-enum class LearningStatus{
-    LOCKED,
-    ONPROGRESS,
-    COMPLETED
-}
+//fun LearningProgressResponse.toLearningProgress(): LearningProgress {
+//    return LearningProgress(
+//        id = this.id,
+//       status = this.status,
+//        createdAt = this.createdAt,
+//        updatedAt = this.updatedAt,
+//
+//    )
+//}
+//enum class LearningStatus{
+//    LOCKED,
+//    ONPROGRESS,
+//    COMPLETED
+//}

@@ -17,7 +17,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,7 +32,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.R
-import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.view.components.pages.profile.OverallRatingSection
@@ -46,14 +44,6 @@ fun ProfileIndexView(
     navController: NavController = rememberNavController()
 ) {
     val profileState by viewModel.profileUIState.collectAsState()
-
-    LaunchedEffect(profileState) {
-        if (profileState is ProfileUIState.LoggedOut) {
-            navController.navigate(AppView.Landing.name) {
-                popUpTo(0) { inclusive = true }
-            }
-        }
-    }
 
     Box(
         modifier = Modifier
