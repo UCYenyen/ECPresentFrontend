@@ -1,2 +1,2 @@
 /build
-/app/src/main/java/com/example/ecpresent/data/env.kt
+app/src/main/java/com/example/ecpresent/data/Env.kt
