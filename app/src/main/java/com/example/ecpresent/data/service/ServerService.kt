@@ -21,8 +21,6 @@ interface ServerService {
     ): Response<BaseResponse<UserResponse>>
     @POST("guest")
     suspend fun guest(): Response<BaseResponse<UserResponse>>
-
-
     @GET("get-all-learnings")
     suspend fun getAllLearnings(): Response<BaseResponse<List<LearningResponseItem>>>
 }

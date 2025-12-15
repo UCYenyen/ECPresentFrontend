@@ -3,7 +3,6 @@ package com.example.ecpresent.ui.view.pages.auth
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,15 +16,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.Title
 import com.example.ecpresent.ui.view.components.pages.auth.SignInSection
+import com.example.ecpresent.ui.viewmodel.ViewModel
 
 @Composable
-fun SignInView(navController: NavController = rememberNavController()) {
+fun SignInView(navController: NavController = rememberNavController(), viewModel: ViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
