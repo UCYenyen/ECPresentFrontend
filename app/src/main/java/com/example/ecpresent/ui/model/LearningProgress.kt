@@ -1,7 +1,6 @@
 package com.example.ecpresent.ui.model
 
 import com.example.ecpresent.data.dto.LearningProgressResponse
-import com.example.ecpresent.data.dto.LearningResponseItem
 
 data class LearningProgress(
     val id: Int,
@@ -16,7 +15,6 @@ fun LearningProgressResponse.toLearningProgress(): LearningProgress {
        status = this.status,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
-
     )
 }
 //enum class LearningStatus{
