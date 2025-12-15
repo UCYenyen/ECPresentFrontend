@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
-import com.example.ecpresent.data.dto.UserResponse
 import com.example.ecpresent.ui.model.Avatar
 import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
@@ -41,17 +40,19 @@ class ViewModel : ViewModel() {
                     val userResponse = response.body()!!.data
                     val user = User(
                         id = userResponse.id.toString(),
-                        username = userResponse.username,
-                        email = userResponse.email,
-                        imageUrl = userResponse.imageUrl,
+                        username = userResponse.username!!,
+                        email = userResponse.email!!,
+                        imageUrl = userResponse.imageUrl!!,
                         createdAt = userResponse.createdAt,
                         updatedAt = userResponse.updatedAt,
+                        role = userResponse.userRole ?: "GUEST",
                         avatar = Avatar(id="2", imageUrl = "", createdAt = "2", updatedAt = "2"),
                         token = userResponse.token
                     )
                     _loginUIState.value = LoginUIState.Success(user)
                 } else {
-                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()}")
+                    val errorBody = response.errorBody()?.string()
+                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
                 _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
@@ -68,27 +69,32 @@ class ViewModel : ViewModel() {
 
             _loginUIState.value = LoginUIState.Loading
             try {
-                val request = RegisterUserRequest(email, pass, username)
+                val request = RegisterUserRequest(username = username, email = email, password = pass)
+
                 val response = authRepository.register(request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val userResponse = response.body()!!.data
+
                     val user = User(
                         id = userResponse.id.toString(),
-                        username = userResponse.username,
-                        email = userResponse.email,
-                        imageUrl = "",
-                        createdAt = "2",
-                        updatedAt = "2",
+                        username = userResponse.username ?: "",
+                        email = userResponse.email ?: "",
+                        imageUrl = userResponse.imageUrl ?: "",
+                        createdAt = userResponse.createdAt ?: "",
+                        updatedAt = userResponse.updatedAt ?: "",
+                        role = "USER",
                         avatar = Avatar(id="2", imageUrl = "", createdAt = "2", updatedAt = "2"),
                         token = userResponse.token
                     )
                     _loginUIState.value = LoginUIState.Success(user)
                 } else {
-                    _loginUIState.value = LoginUIState.Error("Register failed: ${response.code()}")
+                    val errorBody = response.errorBody()?.string()
+                    _loginUIState.value = LoginUIState.Error("Register failed: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
-                _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
+                e.printStackTrace()
+                _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error (Cek Logcat)")
             }
         }
     }
@@ -101,22 +107,26 @@ class ViewModel : ViewModel() {
 
                 if (response.isSuccessful && response.body() != null) {
                     val userResponse = response.body()!!.data
+
                     val user = User(
                         id = userResponse.id.toString(),
-                        username = userResponse.username,
-                        email = userResponse.email,
-                        imageUrl = userResponse.imageUrl,
-                        createdAt = userResponse.createdAt,
-                        updatedAt = userResponse.updatedAt,
-                        avatar = Avatar(id="1", imageUrl = "", createdAt = "123123", updatedAt = "1231231"),
+                        username = userResponse.username ?: "Guest",
+                        email = userResponse.email ?: "",
+                        imageUrl = userResponse.imageUrl ?: "",
+                        createdAt = userResponse.createdAt ?: "",
+                        updatedAt = userResponse.updatedAt ?: "",
+                        avatar = Avatar(id="1", imageUrl = "", createdAt = "", updatedAt = ""),
+                        role = "GUEST",
                         token = userResponse.token
                     )
                     _loginUIState.value = LoginUIState.Success(user)
                 } else {
-                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()}")
+                    val errorMsg = response.errorBody()?.string() ?: "Unknown Server Error"
+                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()} - $errorMsg")
                 }
             } catch (e: Exception) {
-                _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
+                e.printStackTrace()
+                _loginUIState.value = LoginUIState.Error(e.localizedMessage ?: "Connection error")
             }
         }
     }

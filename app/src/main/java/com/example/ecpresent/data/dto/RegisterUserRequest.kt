@@ -1,7 +1,8 @@
 package com.example.ecpresent.data.dto
 
+import com.google.gson.annotations.SerializedName
 data class RegisterUserRequest(
-    val username: String,
-    val email: String,
-    val password: String
+    @SerializedName("username") val username: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("password")  val password: String
 )
