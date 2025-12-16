@@ -1,5 +1,6 @@
 package com.example.ecpresent.data.service
 
+import com.example.ecpresent.data.dto.AvatarResponse
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.LearningResponseItem
 import com.example.ecpresent.data.dto.LoginUserRequest
@@ -12,8 +13,11 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AvatarService {
+
+    @GET("avatars")
+    suspend fun getAllAvatars(): Response<BaseResponse<List<LearningResponseItem>>>
     @GET("avatar/{id}")
-    suspend fun getAvatarById(@Path("id") id: Int)
+    suspend fun getAvatarById(@Path("id") id: Int): Response<BaseResponse<AvatarResponse>>
     @GET("get-user-avatar/{id}")
-    suspend fun getUserAvatar(@Path("id") id: Int)
+    suspend fun getUserAvatar(@Path("id") id: Int): Response<BaseResponse<AvatarResponse>>
 }

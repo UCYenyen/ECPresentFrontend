@@ -11,4 +11,9 @@ import retrofit2.Response
 
 class AvatarRepository(private val service: AvatarService) {
 
+
+    suspend fun getAllAvatars() = service.getAllAvatars()
+
+    suspend fun getAvatarById(id: Int) = service.getAvatarById(id)
+
 }
