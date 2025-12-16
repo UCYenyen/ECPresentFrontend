@@ -2,7 +2,7 @@ package com.example.ecpresent.data.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class Feedback(
+data class PresentationFeedbackResponse(
     val id: Int,
     @SerializedName("presentation_id")
     val presentationId: Int,
@@ -23,6 +23,12 @@ data class Feedback(
     val videoSuggestion: String,
     @SerializedName("audio_suggestion")
     val audioSuggestion: String?,
+
+    val question: String,
+
+    @SerializedName("audio_url")
+    val audioUrl: String?,
+    val status: String,
 
     val createdAt: String,
     val updatedAt: String,
