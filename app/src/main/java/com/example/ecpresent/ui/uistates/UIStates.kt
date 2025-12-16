@@ -22,7 +22,7 @@ sealed interface LearningUIState {
 sealed interface LearningDetailsUIState {
     object Initial : LearningDetailsUIState
     object Loading : LearningDetailsUIState
-    data class Success(val data: Learning) : LearningDetailsUIState
+    data class Success(val data: Learning, val isAdded : Boolean) : LearningDetailsUIState
     data class Error(val message: String) : LearningDetailsUIState
 }
 

@@ -23,11 +23,11 @@ interface LearningService {
     ): Response<BaseResponse<List<LearningProgressResponse>>>
 
     @GET("myLearningProgress/{id}")
-    suspend fun getMyLearningProgress(@Path("id") id: String): Response<LearningProgressResponse>
+    suspend fun getMyLearningProgress(@Path("id") id: String): Response<BaseResponse<LearningProgressResponse>>
 
     @POST("startLearning/{id}")
-    suspend fun startLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<LearningProgressResponse>
+    suspend fun startLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<BaseResponse<LearningProgressResponse>>
 
     @PUT("completeLearning/{id}")
-    suspend fun completeLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<LearningProgressResponse>
+    suspend fun completeLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<BaseResponse<LearningProgressResponse>>
 }

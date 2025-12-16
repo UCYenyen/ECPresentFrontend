@@ -48,135 +48,130 @@ fun LearningProgressDetailView(
     val uriHandler = LocalUriHandler.current
 
     val progress = if (progressState is LearningProgressUIState.Success) {
-        (progressState as LearningProgressUIState.Success).data.find { it.id == progressId }
+        (progressState as LearningProgressUIState.Success).data.find { it.id == progressId.toString() }
     } else null
 
-    Scaffold(
-        containerColor = Color.White
-    ) { padding ->
-        if (progress != null) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                item {
-                    Box(
+    if (progress != null) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surface)
+        ) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .background(Color.Black),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        model = viewModel.getYoutubeThumbnailUrl(progress.learning.videoUrl),
+                        contentDescription = null,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(220.dp)
-                            .background(Color.Black),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AsyncImage(
-                            model = viewModel.getYoutubeThumbnailUrl(progress.learning.videoUrl),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable {
-                                    try {
-                                        uriHandler.openUri(progress.learning.videoUrl)
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                    }
-                                },
-                            contentScale = ContentScale.Crop,
-                            alpha = 0.7f
-                        )
-
-                        Icon(
-                            imageVector = Icons.Default.PlayCircle,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier
-                                .size(64.dp)
-                                .clickable {
-                                    try {
-                                        uriHandler.openUri(progress.learning.videoUrl)
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                    }
-                                }
-                        )
-                    }
-                }
-
-                item {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = progress.learning.title,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Surface(
-                            color = if (progress.status == "COMPLETED") Color.Green else Color(0xFFFFC107),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = progress.status,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            "Description",
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-
-                        Text(
-                            text = progress.learning.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.DarkGray
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            text = "Started at: ${progress.createdAt}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(
-                            enabled = progress.status != "COMPLETED" && progress.status != "LOCKED",
-                            onClick = {
-                                viewModel.markAsDoneLearningProgress(progressId.toString()) {
-                                    navController.navigate(AppView.LearningProgresses.name)
+                            .fillMaxSize()
+                            .clickable {
+                                try {
+                                    uriHandler.openUri(progress.learning.videoUrl)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF4A7DFF),
-                                disabledContainerColor = Color.Gray,
-                                disabledContentColor = Color.White
-                            )
-                        ) {
-                            Text(
-                                text = if  (progress.status == "COMPLETED" || progress.status == "LOCKED") "Done" else "Mark As Done",
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                        contentScale = ContentScale.Crop,
+                        alpha = 0.7f
+                    )
+
+                    Icon(
+                        imageVector = Icons.Default.PlayCircle,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clickable {
+                                try {
+                                    uriHandler.openUri(progress.learning.videoUrl)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                    )
+                }
+            }
+
+            item {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = progress.learning.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Column(
+                        modifier = Modifier.background(color = Color(0xFF2D6FF3), shape = RoundedCornerShape(8.dp))
+                    ) {
+                        Text(
+                            text = progress.status,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        "Description",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Text(
+                        text = progress.learning.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.DarkGray
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Started at: ${progress.createdAt}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        enabled = progress.status != "COMPLETED",
+                        onClick = {
+                            viewModel.markAsDoneLearningProgress(progressId.toString()) {
+                                navController.navigate(AppView.LearningProgresses.name)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4A7DFF),
+                            disabledContainerColor = Color.Gray,
+                            disabledContentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            text = if  (progress.status == "COMPLETED") "Done" else "Mark As Done",
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
-        } else {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                if (progressState is LearningProgressUIState.Loading) {
-                    Text("Loading Progress...", color = Color.Black)
-                } else {
-                    Text("Progress data not found", color = Color.Black)
-                }
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            if (progressState is LearningProgressUIState.Loading) {
+                Text("Loading Progress...", color = Color.Black)
+            } else {
+                Text("Progress data not found", color = Color.Black)
             }
         }
     }

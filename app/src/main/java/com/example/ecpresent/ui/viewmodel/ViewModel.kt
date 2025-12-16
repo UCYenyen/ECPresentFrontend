@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
-import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
@@ -15,6 +14,7 @@ import com.example.ecpresent.ui.model.Learning
 import com.example.ecpresent.ui.model.LearningProgress
 import com.example.ecpresent.ui.model.toLearning
 import com.example.ecpresent.ui.model.toLearningProgress
+import com.example.ecpresent.ui.uistates.LearningDetailsUIState
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.uistates.LoginUIState
@@ -38,6 +38,11 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         MutableStateFlow<LearningProgressUIState>(LearningProgressUIState.Initial)
     val learningProgressUIState: StateFlow<LearningProgressUIState> =
         _learningProgressUIState.asStateFlow()
+
+    private val _learningDetailUIState =
+        MutableStateFlow<LearningDetailsUIState>(LearningDetailsUIState.Initial)
+    val learningDetailUIState: StateFlow<LearningDetailsUIState> =
+        _learningDetailUIState.asStateFlow()
 
     private val _loginUIState = MutableStateFlow<LoginUIState>(LoginUIState.Initial)
     val loginUIState: StateFlow<LoginUIState> = _loginUIState.asStateFlow()
@@ -223,7 +228,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val response = learningRepository.getAllLearnings()
                 if (response.isSuccessful && response.body() != null) {
-                    // Mengambil data dari BaseResponse
                     val baseResponse = response.body()!!
                     val learningList = baseResponse.data.map { it.toLearning() }
                     _learningUIState.value = LearningUIState.Success(learningList)
@@ -249,11 +253,9 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 val response = learningRepository.getMyLearningProgresses(token)
 
                 if (response.isSuccessful && response.body() != null) {
-                    // Mengambil data dari BaseResponse
                     val baseResponse = response.body()!!
                     val progressResponseList = baseResponse.data
 
-                    // Mapping menggunakan fungsi extension yang SUDAH DIPERBARUI (tanpa parameter)
                     val mappedList = progressResponseList.map { it.toLearningProgress() }
 
                     _learningProgressUIState.value = LearningProgressUIState.Success(mappedList)
@@ -314,13 +316,32 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getLearningById(id: String): Learning? {
-        val currentState = learningUIState.value
-        return if (currentState is LearningUIState.Success) {
-            currentState.data.find { it.id == id }
-        } else null
+        val learningState = _learningUIState.value
+
+        val allLearnings = if (learningState is LearningUIState.Success) {
+            learningState.data
+        } else {
+            return null
+        }
+        val learning = allLearnings.find { it.id == id }
+
+        if (learning == null) {
+            return null
+        }
+
+        val progressState = _learningProgressUIState.value
+
+        val isAdded = if (progressState is LearningProgressUIState.Success) {
+            progressState.data.any { progress -> progress.learning.id == id }
+        } else {
+            false
+        }
+        
+        _learningDetailUIState.value = LearningDetailsUIState.Success(learning, isAdded)
+        return learning
     }
 
-    fun getLearningProgressById(id: Int): LearningProgress? {
+    fun getLearningProgressById(id: String): LearningProgress? {
         val currentState = learningProgressUIState.value
         return if (currentState is LearningProgressUIState.Success) {
             currentState.data.find { it.id == id }

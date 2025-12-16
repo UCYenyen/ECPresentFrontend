@@ -4,7 +4,7 @@ import com.example.ecpresent.data.dto.LearningProgressResponse
 import com.example.ecpresent.data.dto.LearningResponseItem
 
 data class LearningProgress(
-    val id: Int,
+    val id: String,
     val learning: Learning,
     val status: String,
     val createdAt: String,
@@ -20,8 +20,3 @@ fun LearningProgressResponse.toLearningProgress(): LearningProgress {
         updatedAt = this.updatedAt
     )
 }
-//enum class LearningStatus{
-//    LOCKED,
-//    ONPROGRESS,
-//    COMPLETED
-//}

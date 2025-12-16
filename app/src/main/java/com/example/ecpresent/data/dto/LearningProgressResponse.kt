@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class LearningProgressResponse(
     val createdAt: String,
-    val id: Int,
+    val id: String,
     @SerializedName("learning")
     val learning: LearningResponseItem,
     val status: String,

@@ -12,9 +12,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ecpresent.ui.route.AppView
+import com.example.ecpresent.ui.uistates.LearningDetailsUIState
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.viewmodel.ViewModel
@@ -37,80 +40,87 @@ fun LearningDetailView(
     navController: NavController,
     viewModel: ViewModel = viewModel()
 ) {
-    val learningState by viewModel.learningUIState.collectAsState()
-    val progressState by viewModel.learningProgressUIState.collectAsState()
-
-    val learning = if (learningState is LearningUIState.Success) {
-        (learningState as LearningUIState.Success).data.find { it.id == id }
-    } else null
-
-    val isStarted = if (progressState is LearningProgressUIState.Success) {
-        (progressState as LearningProgressUIState.Success).data.any { it.learning.id == id }
-    } else {
-        false
+    LaunchedEffect(Unit) {
+        viewModel.getLearningById(id)
     }
+    val learningDetailState by viewModel.learningDetailUIState.collectAsState()
 
-    if (learning != null) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            item {
-                Box(modifier = Modifier.fillMaxWidth().height(220.dp)) {
-                    AsyncImage(
-                        model = viewModel.getYoutubeThumbnailUrl(learning.videoUrl),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize().background(Color.Black),
-                        contentScale = ContentScale.Crop
-                    )
-                }
+    when (learningDetailState) {
+        is LearningDetailsUIState.Initial -> {
+            CircularProgressIndicator()
+        }
+        is LearningDetailsUIState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
+        }
+        is LearningDetailsUIState.Success -> {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surface)
+            ) {
+                val learning = (learningDetailState as LearningDetailsUIState.Success).data
 
-            item {
-                Column(modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)) {
-                    Text(
-                        text = learning.title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = learning.description,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Button(
-                        enabled = !isStarted,
-                        onClick = {
-                            viewModel.startLearning(learning.id) {
-                                navController.navigate(AppView.LearningProgresses.name)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4A7DFF),
-                            disabledContainerColor = Color.Gray,
-                            disabledContentColor = Color.White
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().height(220.dp)) {
+                        AsyncImage(
+                            model = viewModel.getYoutubeThumbnailUrl(learning.videoUrl),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize().background(Color.Black),
+                            contentScale = ContentScale.Crop
                         )
-                    ) {
+                    }
+                }
+
+                item {
+                    Column(modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)) {
                         Text(
-                            text = if (isStarted) "Added" else "Start Learning",
+                            text = learning.title,
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Bold
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = learning.description,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Button(
+                            enabled = !(learningDetailState as LearningDetailsUIState.Success).isAdded,
+                            onClick = {
+                                viewModel.startLearning(learning.id) {
+                                    navController.navigate(AppView.LearningProgresses.name)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF4A7DFF),
+                                disabledContainerColor = Color.Gray,
+                                disabledContentColor = Color.White
+                            )
+                        ) {
+                            Text(
+                                text = if ((learningDetailState as LearningDetailsUIState.Success).isAdded) "Added" else "Start Learning",
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
         }
-    } else {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (learningState is LearningUIState.Loading) {
-                Text("Loading...")
-            } else {
+        is LearningDetailsUIState.Error ->{
+            Box(
+                modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surface),
+                contentAlignment = Alignment.Center
+            ) {
                 Text("Learning data not found")
             }
         }

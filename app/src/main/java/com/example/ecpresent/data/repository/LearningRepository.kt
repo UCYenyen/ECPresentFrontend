@@ -19,17 +19,17 @@ class LearningRepository(private val service: LearningService) {
         return service.getMyLearningProgresses(token = formattedToken)
     }
 
-    suspend fun getMyLearningProgress(token: String): Response<LearningProgressResponse> {
+    suspend fun getMyLearningProgress(token: String): Response<BaseResponse<LearningProgressResponse>> {
         val formattedToken = "Bearer $token"
         return service.getMyLearningProgress(formattedToken)
     }
 
-    suspend fun startLearning(token: String, learningId: String): Response<LearningProgressResponse> {
+    suspend fun startLearning(token: String, learningId: String): Response<BaseResponse<LearningProgressResponse>> {
         val formattedToken = "Bearer $token"
         return service.startLearning(formattedToken, learningId)
     }
 
-    suspend fun completeLearning(token: String, learningProgressID: String): Response<LearningProgressResponse> {
+    suspend fun completeLearning(token: String, learningProgressID: String): Response<BaseResponse<LearningProgressResponse>> {
         val formattedToken = "Bearer $token"
         return service.completeLearning(formattedToken, learningProgressID)
     }
