@@ -51,20 +51,19 @@ import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 enum class AppView(
     val title: String,
     val icon: ImageVector? = null,
-    val canNavigateBack: Boolean = false
 ) {
     Landing("Landing"),
-    SignUp("Sign Up", canNavigateBack = false),
-    SignIn("Sign In", canNavigateBack = false),
+    SignUp("Sign Up"),
+    SignIn("Sign In"),
     Profile("Profile", Icons.Filled.ManageAccounts),
-    OverallFeedback("Overall Feedback", canNavigateBack = true),
+    OverallFeedback("Overall Feedback"),
 
     Learning("Learning", Icons.Filled.CollectionsBookmark),
-    Learnings("Learnings", canNavigateBack = true),
-    LearningProgresses("Learning Progress", canNavigateBack = true),
+    Learnings("Learnings"),
+    LearningProgresses("Learning Progress"),
 
     Presentation("Presentations", Icons.Filled.CameraAlt),
-    PresentationHistory("Presentations", canNavigateBack = true),
+    PresentationHistory("Presentations"),
     TakePresentation("Presentation"),
     FollowUpQuestion("QNA"),
     PresentationFeedback("Presentation Feedback"),
