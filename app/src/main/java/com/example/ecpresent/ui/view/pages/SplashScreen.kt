@@ -48,7 +48,11 @@ fun SplashScreen(
                         popUpTo(0) { inclusive = true }
                     }
                 }
-                else -> { }
+                else -> {
+                    navController.navigate(AppView.Landing.name) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             }
         }
     }
