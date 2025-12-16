@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.viewmodel.ViewModel
 
@@ -141,6 +144,29 @@ fun LearningProgressDetailView(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Button(
+                            enabled = progress.status != "COMPLETED" && progress.status != "LOCKED",
+                            onClick = {
+                                viewModel.markAsDoneLearningProgress(progressId.toString()) {
+                                    navController.navigate(AppView.LearningProgresses.name)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF4A7DFF),
+                                disabledContainerColor = Color.Gray,
+                                disabledContentColor = Color.White
+                            )
+                        ) {
+                            Text(
+                                text = if  (progress.status == "COMPLETED" || progress.status == "LOCKED") "Done" else "Mark As Done",
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }

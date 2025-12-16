@@ -292,6 +292,27 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun markAsDoneLearningProgress(learningProgressId: String, onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) return@launch
+
+                val response = learningRepository.completeLearning(token, learningProgressId)
+
+                if (response.isSuccessful && response.body() != null) {
+                    getMyLearningProgresses()
+                    onSuccess()
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    println("Complete Learning failed: ${response.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun getLearningById(id: String): Learning? {
         val currentState = learningUIState.value
         return if (currentState is LearningUIState.Success) {

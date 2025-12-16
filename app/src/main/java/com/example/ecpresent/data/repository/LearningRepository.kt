@@ -29,8 +29,8 @@ class LearningRepository(private val service: LearningService) {
         return service.startLearning(formattedToken, learningId)
     }
 
-    suspend fun completeLearning(token: String, learningId: String): Response<LearningProgressResponse> {
+    suspend fun completeLearning(token: String, learningProgressID: String): Response<LearningProgressResponse> {
         val formattedToken = "Bearer $token"
-        return service.completeLearning(formattedToken, learningId)
+        return service.completeLearning(formattedToken, learningProgressID)
     }
 }
