@@ -200,13 +200,14 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun logout() {
+    fun logout(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             dataStoreManager.clearToken()
             _learningUIState.value = LearningUIState.Initial
             _learningProgressUIState.value = LearningProgressUIState.Initial
             _loginUIState.value = LoginUIState.Initial
             _profileUIState.value = ProfileUIState.Initial
+            onSuccess()
         }
     }
 

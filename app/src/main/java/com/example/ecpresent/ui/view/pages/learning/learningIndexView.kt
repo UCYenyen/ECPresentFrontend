@@ -45,7 +45,7 @@ fun LearningIndexView(navController: NavController = rememberNavController(), vi
         )
         Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
             TheBasicsSection(navController, viewModel)
-            LearningProgressSection(navController, viewModel = viewModel)
+            LearningProgressSection(navController, viewModel = viewModel, showAll = false)
         }
     }
 }

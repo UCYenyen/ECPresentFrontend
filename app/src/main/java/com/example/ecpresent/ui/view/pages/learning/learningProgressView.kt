@@ -43,7 +43,7 @@ fun LearningProgressView(navController: NavController, viewModel: ViewModel = vi
             contentScale = ContentScale.FillWidth
         )
 
-        LearningProgressSection(navController = navController, viewModel = viewModel, showAll = false)
+        LearningProgressSection(navController = navController, viewModel = viewModel, showAll = true)
         Image(
             painter = painterResource(R.drawable.filler_bottom_left),
             contentDescription = null,

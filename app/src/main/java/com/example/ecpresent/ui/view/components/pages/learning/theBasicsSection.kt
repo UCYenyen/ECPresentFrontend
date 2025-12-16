@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,7 +27,9 @@ import com.example.ecpresent.ui.viewmodel.ViewModel
 @Composable
 fun TheBasicsSection(navController: NavController, viewModel: ViewModel) {
     val learningState by viewModel.learningUIState.collectAsState()
-
+    LaunchedEffect(Unit) {
+        viewModel.getAllLearnings()
+    }
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -58,7 +61,6 @@ fun TheBasicsSection(navController: NavController, viewModel: ViewModel) {
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(state.data) { learning ->
-                        // Perbaikan: Wajib mengirim navController agar tidak crash
                         LearningVideoCard(
                             learning = learning,
                             navController = navController,

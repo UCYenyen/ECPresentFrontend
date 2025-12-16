@@ -70,7 +70,6 @@ enum class AppView(
 @Composable
 fun AppRoute() {
     val navController = rememberNavController()
-    // Shared ViewModel
     val viewModel: ViewModel = viewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -86,8 +85,6 @@ fun AppRoute() {
         BottomNavItem(AppView.Profile, label = "Profile"),
     )
 
-    // --- LOGIKA BARU UNTUK TOMBOL BACK ---
-    // Daftar halaman yang TIDAK boleh ada tombol back (Halaman Utama)
     val topLevelRoutes = listOf(
         AppView.Learning.name,
         AppView.Presentation.name,
@@ -185,7 +182,7 @@ fun AppRoute() {
                 PresentationUploadVideoView(navController = navController)
             }
             composable(route = AppView.Profile.name) {
-                ProfileIndexView()
+                ProfileIndexView(navController = navController, viewModel = viewModel)
             }
         }
     }

@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.R
+import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.view.components.pages.profile.OverallRatingSection
@@ -40,8 +41,8 @@ import com.example.ecpresent.ui.viewmodel.ViewModel
 
 @Composable
 fun ProfileIndexView(
-    viewModel: ViewModel = viewModel(),
-    navController: NavController = rememberNavController()
+    viewModel: ViewModel,
+    navController: NavController
 ) {
     val profileState by viewModel.profileUIState.collectAsState()
 
@@ -91,7 +92,14 @@ fun ProfileIndexView(
                             PersonalInformationSection()
                             OverallRatingSection()
                             Button(
-                                onClick = { viewModel.logout() },
+                                onClick = {
+                                    viewModel.logout(onSuccess = {
+                                        navController.navigate(AppView.Landing.name) {
+                                            popUpTo(0) { inclusive = true }
+                                            launchSingleTop = true
+                                        }
+                                    })
+                                },
                                 modifier = Modifier.fillMaxWidth().height(50.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3478E4))
@@ -111,6 +119,9 @@ fun ProfileIndexView(
 @Composable
 private fun ProfileIndexViewPreview() {
     ECPresentTheme {
-        ProfileIndexView()
+        ProfileIndexView(
+            viewModel = viewModel(),
+            navController = rememberNavController()
+        )
     }
 }

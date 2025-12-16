@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,6 +34,9 @@ fun LearningProgressSection(
     viewModel: ViewModel
 ) {
     val progressState by viewModel.learningProgressUIState.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.getMyLearningProgresses()
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -46,18 +50,16 @@ fun LearningProgressSection(
                 ) {
                     if (state.data.isEmpty()) {
                         item {
-                            if (showAll) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Learning Progress",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Learning Progress",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -69,11 +71,36 @@ fun LearningProgressSection(
                             )
                         }
                     } else {
-                        items(state.data) { progress ->
-                            // Header hanya muncul sekali di item pertama atau logic bisa disesuaikan
-                            // Di sini saya hapus header di dalam loop agar tidak berulang
+                        if (!showAll) {
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "The basics",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
 
-                            // PERBAIKAN: Mengirimkan parameter yang dibutuhkan ke Card
+                                    Text(
+                                        text = "View More",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color(0xFF4A7DFF),
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.clickable {
+                                            navController.navigate(
+                                                AppView.LearningProgress.name
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        items(state.data) {
+                            progress ->
                             LearningProgressCard(
                                 progress = progress,
                                 navController = navController,
