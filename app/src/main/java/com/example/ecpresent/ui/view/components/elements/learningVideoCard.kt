@@ -32,12 +32,21 @@ import com.example.ecpresent.ui.viewmodel.ViewModel
 fun LearningVideoCard(
     learning: Learning,
     navController: NavController,
-    viewModel: ViewModel = viewModel()
+    viewModel: ViewModel = viewModel(),
+    showingAll: Boolean = false
 ) {
-    Card(
-        modifier = Modifier
+    val cardModifier = if (showingAll) {
+        Modifier
+            .fillMaxWidth()
+            .height(260.dp)
+    } else {
+        Modifier
             .width(240.dp)
-            .height(260.dp),
+            .height(260.dp)
+    }
+
+    Card(
+        modifier = cardModifier,
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF4A7DFF)

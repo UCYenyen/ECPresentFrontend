@@ -10,7 +10,6 @@ class LearningRepository(private val service: LearningService) {
     suspend fun getAllLearnings(): Response<BaseResponse<List<LearningResponseItem>>> {
         return service.getAllLearnings()
     }
-
     suspend fun getLearningById(id: String): Response<LearningResponseItem> {
         return service.getLearning(id)
     }
@@ -25,12 +24,12 @@ class LearningRepository(private val service: LearningService) {
         return service.getMyLearningProgress(formattedToken)
     }
 
-    suspend fun startLearning(token: String, learningId: String): Response<BaseResponse<LearningProgressResponse>> {
+    suspend fun startLearning(token: String, learningId: String): Response<LearningProgressResponse> {
         val formattedToken = "Bearer $token"
         return service.startLearning(formattedToken, learningId)
     }
 
-    suspend fun completeLearning(token: String, learningId: String): Response<BaseResponse<LearningProgressResponse>> {
+    suspend fun completeLearning(token: String, learningId: String): Response<LearningProgressResponse> {
         val formattedToken = "Bearer $token"
         return service.completeLearning(formattedToken, learningId)
     }

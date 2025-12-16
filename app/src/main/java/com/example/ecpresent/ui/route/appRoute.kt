@@ -39,6 +39,7 @@ import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
 import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
 import com.example.ecpresent.ui.view.pages.learning.LearningDetailView
 import com.example.ecpresent.ui.view.pages.learning.LearningProgressDetailView
+import com.example.ecpresent.ui.view.pages.learning.LearningsView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationHistoryView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
@@ -58,7 +59,8 @@ enum class AppView(
     OverallFeedback("Overall Feedback", canNavigateBack = true),
 
     Learning("Learning", Icons.Filled.CollectionsBookmark),
-    LearningProgress("Learning Progress", canNavigateBack = true),
+    Learnings("Learnings", canNavigateBack = true),
+    LearningProgresses("Learning Progress", canNavigateBack = true),
 
     Presentation("Presentations", Icons.Filled.CameraAlt),
     PresentationHistory("Presentations", canNavigateBack = true),
@@ -161,14 +163,17 @@ fun AppRoute() {
             composable(route = AppView.Learning.name) {
                 LearningIndexView(navController = navController, viewModel = viewModel)
             }
+            composable(route = AppView.Learnings.name) {
+                LearningsView(navController = navController, viewModel = viewModel)
+            }
             composable(route = "${AppView.Learning.name}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id") ?: ""
                 LearningDetailView(id = id, navController = navController, viewModel = viewModel)
             }
-            composable(route = AppView.LearningProgress.name){
+            composable(route = AppView.LearningProgresses.name){
                 LearningProgressView(navController = navController, viewModel = viewModel)
             }
-            composable(route = "${AppView.LearningProgress.name}/{id}") { backStackEntry ->
+            composable(route = "${AppView.LearningProgresses.name}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
                 LearningProgressDetailView(progressId = id, navController = navController, viewModel = viewModel)
             }

@@ -46,7 +46,7 @@ fun LearningProgressCard(
             containerColor = Color(0xff3478E4)
         ),
         onClick = {
-            navController.navigate("${AppView.LearningProgress.name}/${progress.id}")
+            navController.navigate("${AppView.LearningProgresses.name}/${progress.id}")
         }
     ) {
         Row(

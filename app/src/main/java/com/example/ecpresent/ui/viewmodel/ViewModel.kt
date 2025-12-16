@@ -1,9 +1,11 @@
 package com.example.ecpresent.ui.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
+import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
@@ -221,6 +223,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val response = learningRepository.getAllLearnings()
                 if (response.isSuccessful && response.body() != null) {
+                    // Mengambil data dari BaseResponse
                     val baseResponse = response.body()!!
                     val learningList = baseResponse.data.map { it.toLearning() }
                     _learningUIState.value = LearningUIState.Success(learningList)
@@ -246,8 +249,11 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 val response = learningRepository.getMyLearningProgresses(token)
 
                 if (response.isSuccessful && response.body() != null) {
+                    // Mengambil data dari BaseResponse
                     val baseResponse = response.body()!!
                     val progressResponseList = baseResponse.data
+
+                    // Mapping menggunakan fungsi extension yang SUDAH DIPERBARUI (tanpa parameter)
                     val mappedList = progressResponseList.map { it.toLearningProgress() }
 
                     _learningProgressUIState.value = LearningProgressUIState.Success(mappedList)
@@ -304,12 +310,25 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         val videoId = extractYoutubeId(videoUrl)
         return if (videoId != null) "https://img.youtube.com/vi/$videoId/mqdefault.jpg" else ""
     }
-
     fun extractYoutubeId(url: String): String? {
-        val pattern =
-            "(?<=watch\\?v=|/videos/|embed\\/|youtu.be\\/|\\/v\\/|\\/e\\/|watch\\?v%3D|watch\\?feature=player_embedded&v=|%2Fvideos%2F|embed%\u200C\u200B2F|youtu.be%2F|%2Fv%2F)[^#\\&\\?\\n]*"
-        val compiledPattern = java.util.regex.Pattern.compile(pattern)
-        val matcher = compiledPattern.matcher(url)
-        return if (matcher.find()) matcher.group() else null
+        try {
+            val uri = Uri.parse(url)
+            val host = uri.host?.lowercase()
+
+            return when {
+                host != null && host.contains("youtu.be") -> {
+                    uri.lastPathSegment
+                }
+                host != null && host.contains("youtube.com") -> {
+                    uri.getQueryParameter("v")
+                }
+                url.contains("embed/") -> {
+                    url.split("embed/")[1].split("?")[0]
+                }
+                else -> null
+            }
+        } catch (e: Exception) {
+            return null
+        }
     }
 }

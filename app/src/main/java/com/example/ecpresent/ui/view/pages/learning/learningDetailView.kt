@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ecpresent.ui.route.AppView
+import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.viewmodel.ViewModel
 
@@ -38,10 +38,17 @@ fun LearningDetailView(
     viewModel: ViewModel = viewModel()
 ) {
     val learningState by viewModel.learningUIState.collectAsState()
+    val progressState by viewModel.learningProgressUIState.collectAsState()
 
     val learning = if (learningState is LearningUIState.Success) {
         (learningState as LearningUIState.Success).data.find { it.id == id }
     } else null
+
+    val isStarted = if (progressState is LearningProgressUIState.Success) {
+        (progressState as LearningProgressUIState.Success).data.any { it.learning.id == id }
+    } else {
+        false
+    }
 
     if (learning != null) {
         LazyColumn(
@@ -52,15 +59,15 @@ fun LearningDetailView(
                 Box(modifier = Modifier.fillMaxWidth().height(220.dp)) {
                     AsyncImage(
                         model = viewModel.getYoutubeThumbnailUrl(learning.videoUrl),
-                        contentDescription = "Thumbnail",
-                        modifier = Modifier.fillMaxSize(),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().background(Color.Black),
                         contentScale = ContentScale.Crop
                     )
                 }
             }
 
             item {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)) {
                     Text(
                         text = learning.title,
                         style = MaterialTheme.typography.headlineMedium,
@@ -77,16 +84,24 @@ fun LearningDetailView(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
+                        enabled = !isStarted,
                         onClick = {
                             viewModel.startLearning(learning.id) {
-                                navController.navigate(AppView.LearningProgress.name)
+                                navController.navigate(AppView.LearningProgresses.name)
                             }
                         },
                         modifier = Modifier.fillMaxWidth().height(50.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4A7DFF))
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4A7DFF),
+                            disabledContainerColor = Color.Gray,
+                            disabledContentColor = Color.White
+                        )
                     ) {
-                        Text("Start Learning", fontWeight = FontWeight.Bold)
+                        Text(
+                            text = if (isStarted) "Added" else "Start Learning",
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }

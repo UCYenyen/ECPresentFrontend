@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +26,7 @@ import com.example.ecpresent.ui.view.components.elements.LearningVideoCard
 import com.example.ecpresent.ui.viewmodel.ViewModel
 
 @Composable
-fun TheBasicsSection(navController: NavController, viewModel: ViewModel) {
+fun TheBasicsSection(navController: NavController, viewModel: ViewModel, showAll: Boolean = false) {
     val learningState by viewModel.learningUIState.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.getAllLearnings()
@@ -51,23 +52,37 @@ fun TheBasicsSection(navController: NavController, viewModel: ViewModel) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color(0xFF4A7DFF),
                 fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { navController.navigate(AppView.PresentationFeedback.name) }
+                modifier = Modifier.clickable { navController.navigate(AppView.Learnings.name) }
             )
         }
 
         when (val state = learningState) {
             is LearningUIState.Success -> {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(state.data) { learning ->
-                        LearningVideoCard(
-                            learning = learning,
-                            navController = navController,
-                            viewModel = viewModel
-                        )
+                if(!showAll){
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(state.data) { learning ->
+                            LearningVideoCard(
+                                learning = learning,
+                                navController = navController,
+                                viewModel = viewModel
+                            )
+                        }
+                    }
+                }else{
+                    LazyColumn (verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        items(state.data) { learning ->
+                            LearningVideoCard(
+                                learning = learning,
+                                navController = navController,
+                                viewModel = viewModel,
+                                showingAll = true
+                            )
+                        }
                     }
                 }
+
             }
             is LearningUIState.Error -> {
                 Text(

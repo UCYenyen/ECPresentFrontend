@@ -79,7 +79,7 @@ fun LearningProgressSection(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "The basics",
+                                        text = "My Learnings",
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface
@@ -92,7 +92,7 @@ fun LearningProgressSection(
                                         fontWeight = FontWeight.SemiBold,
                                         modifier = Modifier.clickable {
                                             navController.navigate(
-                                                AppView.LearningProgress.name
+                                                AppView.LearningProgresses.name
                                             )
                                         }
                                     )

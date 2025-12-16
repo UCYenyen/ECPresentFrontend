@@ -26,14 +26,8 @@ interface LearningService {
     suspend fun getMyLearningProgress(@Path("id") id: String): Response<LearningProgressResponse>
 
     @POST("startLearning/{id}")
-    suspend fun startLearning(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<BaseResponse<LearningProgressResponse>>
+    suspend fun startLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<LearningProgressResponse>
 
     @PUT("completeLearning/{id}")
-    suspend fun completeLearning(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<BaseResponse<LearningProgressResponse>>
+    suspend fun completeLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<LearningProgressResponse>
 }
