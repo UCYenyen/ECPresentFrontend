@@ -1,9 +1,9 @@
 package com.example.ecpresent.data.service
 
-import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.BaseResponse
-import com.example.ecpresent.data.dto.Feedback
+import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
+import com.example.ecpresent.data.dto.PresentationListResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -27,14 +27,26 @@ interface PresentationService {
         @Header("Authorization") token: String,
         @Path("id") id: String,
         @Part audio: MultipartBody.Part,
-    ): Response<BaseResponse<Answer>>
+    ): Response<BaseResponse<PresentationFeedbackResponse>>
 
     @GET("presentations/{id}/feedback")
     suspend fun getFinalFeedback(
         @Header("Authorization") token: String,
         @Path("id") id: String
-    ): Response<BaseResponse<Feedback>>
+    ): Response<BaseResponse<PresentationFeedbackResponse>>
 
+    @FormUrlEncoded
+    @PATCH("presentations/{id}")
+    suspend fun updateNotes(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int,
+        @Field("notes") notes: String
+    ): Response<BaseResponse<PresentationFeedbackResponse>>
 
+    @DELETE("presentations/{id}")
+    suspend fun deletePresentation(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<BaseResponse<PresentationListResponse>>
 }
 
