@@ -6,6 +6,7 @@ data class Presentation(
     val videoUrl: String,
     val title: String,
     val status: PresentationStatus,
+    val personalNotes: String? = null,
     val createdAt: String,
     val updatedAt: String,
     val questions: List<Question>
