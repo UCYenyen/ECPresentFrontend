@@ -42,6 +42,7 @@ import com.example.ecpresent.ui.view.pages.learning.LearningProgressDetailView
 import com.example.ecpresent.ui.view.pages.learning.LearningsView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationHistoryView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
+import com.example.ecpresent.ui.view.pages.presentation.PresentationQNAView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
 import com.example.ecpresent.ui.view.pages.profile.ProfileIndexView
 import com.example.ecpresent.ui.viewmodel.ViewModel
@@ -52,7 +53,6 @@ enum class AppView(
     val canNavigateBack: Boolean = false
 ) {
     Landing("Landing"),
-
     SignUp("Sign Up", canNavigateBack = false),
     SignIn("Sign In", canNavigateBack = false),
     Profile("Profile", Icons.Filled.ManageAccounts),
@@ -184,7 +184,10 @@ fun AppRoute() {
                 PresentationHistoryView()
             }
             composable(route = AppView.TakePresentation.name) {
-                PresentationUploadVideoView(navController = navController)
+                PresentationUploadVideoView(navController = navController, viewModel = viewModel)
+            }
+            composable(route = AppView.FollowUpQuestion.name) {
+                PresentationQNAView()
             }
             composable(route = AppView.Profile.name) {
                 ProfileIndexView(navController = navController, viewModel = viewModel)

@@ -5,7 +5,9 @@ import com.example.ecpresent.data.Env
 import com.example.ecpresent.data.service.AuthService
 import com.example.ecpresent.data.repository.AuthRepository
 import com.example.ecpresent.data.repository.LearningRepository
+import com.example.ecpresent.data.repository.PresentationRepository
 import com.example.ecpresent.data.service.LearningService
+import com.example.ecpresent.data.service.PresentationService
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -36,4 +38,11 @@ class ServerContainer {
         LearningRepository(retrofitLearningService)
     }
 
+    private val retrofitPresentationService: PresentationService by lazy {
+        retrofit.create(PresentationService::class.java)
+    }
+
+    val serverPresentationRepository: PresentationRepository by lazy {
+        PresentationRepository(retrofitPresentationService)
+    }
 }

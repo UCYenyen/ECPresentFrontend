@@ -19,6 +19,7 @@ import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.uistates.LoginUIState
 import com.example.ecpresent.ui.uistates.ProfileUIState
+import com.example.ecpresent.ui.uistates.UploadPresentationUIState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,8 +30,10 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     private val authRepository = ServerContainer().serverAuthRepository
     private val learningRepository = ServerContainer().serverLearningRepository
+    private val presentationRepository = ServerContainer().serverPresentationRepository
     private val dataStoreManager = DataStoreManager(application)
-
+    private val _uploadPresentationUIState = MutableStateFlow<UploadPresentationUIState>(UploadPresentationUIState.Initial)
+    val uploadPresentationUIState: StateFlow<UploadPresentationUIState> = _uploadPresentationUIState.asStateFlow()
     private val _learningUIState = MutableStateFlow<LearningUIState>(LearningUIState.Initial)
     val learningUIState: StateFlow<LearningUIState> = _learningUIState.asStateFlow()
 
@@ -372,5 +375,40 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         } catch (e: Exception) {
             return null
         }
+    }
+
+    fun uploadPresentation(fileUri: Uri, title: String) {
+        viewModelScope.launch {
+            _uploadPresentationUIState.value = UploadPresentationUIState.Loading
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _uploadPresentationUIState.value = UploadPresentationUIState.Error("User not logged in")
+                    return@launch
+                }
+
+                val response = presentationRepository.uploadPresentation(
+                    token = token,
+                    fileUri = fileUri,
+                    context = getApplication(),
+                    title = title
+                )
+
+                if (response.isSuccessful && response.body() != null) {
+                    val analysisData = response.body()!!.data
+                    _uploadPresentationUIState.value = UploadPresentationUIState.Success(analysisData)
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    _uploadPresentationUIState.value =
+                        UploadPresentationUIState.Error("Upload failed: ${response.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _uploadPresentationUIState.value = UploadPresentationUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+    fun resetUploadState() {
+        _uploadPresentationUIState.value = UploadPresentationUIState.Initial
     }
 }
