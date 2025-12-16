@@ -1,4 +1,5 @@
 package com.example.ecpresent.data.dto
+import com.example.ecpresent.ui.model.Avatar
 import com.google.gson.annotations.SerializedName
 data class UserResponse(
     @SerializedName("id")
@@ -9,8 +10,8 @@ data class UserResponse(
     val email: String?,
     @SerializedName("token")
     val token: String,
-    @SerializedName("avatar_id")
-    val avatarId: Int?,
+    @SerializedName("avatar")
+    val avatar: Avatar,
     @SerializedName("image_url")
     val imageUrl: String?,
     @SerializedName("createdAt")
