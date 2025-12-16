@@ -19,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -30,8 +32,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.ecpresent.ui.uistates.LoginUIState
 import com.example.ecpresent.ui.view.components.elements.MyNavigationBar
 import com.example.ecpresent.ui.view.pages.GetStartedView
+import com.example.ecpresent.ui.view.pages.SplashScreen
 import com.example.ecpresent.ui.view.pages.auth.SignInView
 import com.example.ecpresent.ui.view.pages.auth.SignUpView
 import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
@@ -52,6 +56,7 @@ enum class AppView(
     val title: String,
     val icon: ImageVector? = null,
 ) {
+    SplashScreen("Splash Screen"),
     Landing("Landing"),
     SignUp("Sign Up"),
     SignIn("Sign In"),
@@ -80,8 +85,9 @@ fun AppRoute() {
     val currentDestination = navBackStackEntry?.destination
 
     val currentRouteString = currentDestination?.route
-    val currentView = AppView.entries.find { it.name == currentRouteString?.split("/")?.firstOrNull() }
-        ?: AppView.entries.find { it.name == currentRouteString }
+    val currentView =
+        AppView.entries.find { it.name == currentRouteString?.split("/")?.firstOrNull() }
+            ?: AppView.entries.find { it.name == currentRouteString }
 
     val bottomNavItems = listOf(
         BottomNavItem(AppView.Learning, label = "Learning"),
@@ -94,15 +100,18 @@ fun AppRoute() {
         AppView.Presentation.name,
         AppView.Profile.name,
         AppView.Landing.name,
+        AppView.SplashScreen.name,
         AppView.SignIn.name,
         AppView.SignUp.name
     )
 
-    val showBackButton = (currentRouteString !in topLevelRoutes) && (navController.previousBackStackEntry != null)
+    val showBackButton =
+        (currentRouteString !in topLevelRoutes) && (navController.previousBackStackEntry != null)
 
     val showBars = currentRouteString != AppView.Landing.name &&
             currentRouteString != AppView.SignIn.name &&
-            currentRouteString != AppView.SignUp.name
+            currentRouteString != AppView.SignUp.name &&
+            currentRouteString != AppView.SplashScreen.name
 
     Scaffold(
         topBar = {
@@ -125,9 +134,9 @@ fun AppRoute() {
         }
     ) { innerPadding ->
         NavHost(
-            modifier = if(showBars) Modifier.padding(innerPadding) else Modifier.fillMaxWidth(),
+            modifier = if (showBars) Modifier.padding(innerPadding) else Modifier.fillMaxWidth(),
             navController = navController,
-            startDestination = AppView.Landing.name,
+            startDestination = AppView.SplashScreen.name,
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
@@ -153,6 +162,9 @@ fun AppRoute() {
                 )
             }
         ) {
+            composable(route = AppView.SplashScreen.name) {
+                SplashScreen(navController = navController)
+            }
             composable(route = AppView.Landing.name) {
                 GetStartedView(navController = navController)
             }
@@ -163,30 +175,47 @@ fun AppRoute() {
                 SignUpView(navController = navController)
             }
             composable(route = AppView.Learning.name) {
-                LearningIndexView(navController = navController, learningViewModel = learningViewModel)
+                LearningIndexView(
+                    navController = navController,
+                    learningViewModel = learningViewModel
+                )
             }
             composable(route = AppView.Learnings.name) {
                 LearningsView(navController = navController, learningViewModel = learningViewModel)
             }
             composable(route = "${AppView.Learning.name}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id") ?: ""
-                LearningDetailView(id = id, navController = navController, learningViewModel = learningViewModel)
+                LearningDetailView(
+                    id = id,
+                    navController = navController,
+                    learningViewModel = learningViewModel
+                )
             }
-            composable(route = AppView.LearningProgresses.name){
-                LearningProgressView(navController = navController, learningViewModel = learningViewModel)
+            composable(route = AppView.LearningProgresses.name) {
+                LearningProgressView(
+                    navController = navController,
+                    learningViewModel = learningViewModel
+                )
             }
             composable(route = "${AppView.LearningProgresses.name}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
-                LearningProgressDetailView(progressId = id, navController = navController, learningViewModel = learningViewModel)
+                LearningProgressDetailView(
+                    progressId = id,
+                    navController = navController,
+                    learningViewModel = learningViewModel
+                )
             }
             composable(route = AppView.Presentation.name) {
                 PresentationIndexView(navController = navController)
             }
-            composable(route = AppView.PresentationHistory.name){
+            composable(route = AppView.PresentationHistory.name) {
                 PresentationHistoryView()
             }
             composable(route = AppView.TakePresentation.name) {
-                PresentationUploadVideoView(navController = navController, presentationViewModel = presentationViewModel)
+                PresentationUploadVideoView(
+                    navController = navController,
+                    presentationViewModel = presentationViewModel
+                )
             }
             composable(route = AppView.FollowUpQuestion.name) {
                 PresentationQNAView()
@@ -234,7 +263,9 @@ fun MyBottomNavigationBar(
     currentDestination: NavDestination?,
     items: List<BottomNavItem>,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .background(MaterialTheme.colorScheme.surface)) {
         MyNavigationBar(
             navController = navController,
             currentDestination = currentDestination,
