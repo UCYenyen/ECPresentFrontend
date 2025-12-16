@@ -2,9 +2,9 @@ package com.example.ecpresent.data.repository
 
 import android.content.Context
 import android.net.Uri
-import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
+import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.service.PresentationService
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -33,7 +33,7 @@ class PresentationRepository(private val service: PresentationService) {
 
 
 
-    suspend fun submitAnswer(token: String, presentationId: String, audioUri: Uri, context: Context): Response<BaseResponse<Answer>> {
+    suspend fun submitAnswer(token: String, presentationId: String, audioUri: Uri, context: Context): Response<BaseResponse<PresentationFeedbackResponse>> {
         val formattedToken = "Bearer $token"
 
         val file = getFileFromUri(context, audioUri, "temp_answer.mp3") ?: throw Exception("Gagal memproses file audio")
