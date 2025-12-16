@@ -1,11 +1,15 @@
 package com.example.ecpresent.data.dto
 
+import com.google.gson.annotations.SerializedName
+
 data class Question(
-    val answer: Answer,
-    val createdAt: String,
     val id: Int,
-    val presentation_id: Int,
+    @SerializedName("presentation_id")
+    val presentationId: Int,
+    val answer: Answer?,
     val question: String,
-    val time_limit_seconds: Int,
+    @SerializedName("time_limit_seconds")
+    val timeLimitSeconds: Int,
+    val createdAt: String,
     val updatedAt: String
 )

@@ -2,6 +2,7 @@ package com.example.ecpresent.ui.uistates
 
 
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
+import com.example.ecpresent.ui.model.Answer
 import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.model.LearningProgress
 import com.example.ecpresent.ui.model.Learning
@@ -53,7 +54,15 @@ sealed interface ProfileUIState {
 sealed interface UploadPresentationUIState {
     object Initial : UploadPresentationUIState
     object Loading : UploadPresentationUIState
-        data class Success(val data: PresentationAnalysisResponse) : UploadPresentationUIState
+    data class Success(val data: PresentationAnalysisResponse) : UploadPresentationUIState
     data class Error(val message: String) : UploadPresentationUIState
+
+}
+
+sealed interface AnswerUIState {
+    object Initial : AnswerUIState
+    object Loading : AnswerUIState
+    data class Success(val data: Answer) : AnswerUIState
+    data class Error(val message: String) : AnswerUIState
 
 }

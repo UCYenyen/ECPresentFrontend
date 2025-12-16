@@ -1,6 +1,8 @@
 package com.example.ecpresent.data.service
 
+import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.BaseResponse
+import com.example.ecpresent.data.dto.Feedback
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -18,4 +20,21 @@ interface PresentationService {
         @Part video: MultipartBody.Part,
         @Part("title") title: RequestBody
     ): Response<BaseResponse<PresentationAnalysisResponse>>
+
+    @Multipart
+    @POST("presentations/{id}/answer")
+    suspend fun submitAnswer(
+        @Header("Authorization") token: String,
+        @Path("id") id: String,
+        @Part audio: MultipartBody.Part,
+    ): Response<BaseResponse<Answer>>
+
+    @GET("presentations/{id}/feedback")
+    suspend fun getFinalFeedback(
+        @Header("Authorization") token: String,
+        @Path("id") id: String
+    ): Response<BaseResponse<Feedback>>
+
+
 }
+
