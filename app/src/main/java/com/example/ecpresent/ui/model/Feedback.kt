@@ -1,7 +1,7 @@
 package com.example.ecpresent.ui.model
 
 import com.example.ecpresent.enum.GradeEnum
-import com.example.ecpresent.data.dto.Feedback as FeedbackDto
+import com.example.ecpresent.data.dto.PresentationFeedbackResponse as FeedbackDto
 data class Feedback (
     val id: Int,
     val presentationId: Int,
