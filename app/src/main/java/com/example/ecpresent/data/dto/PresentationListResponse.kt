@@ -1,12 +1,16 @@
 package com.example.ecpresent.data.dto
 
+import com.google.gson.annotations.SerializedName
+
 data class PresentationListResponse(
     val createdAt: String,
     val id: Int,
     val status: String,
     val title: String,
     val updatedAt: String,
-    val user_id: Int,
-    val video_url: String,
+    @SerializedName("user_id")
+    val userId: Int,
+    @SerializedName("video_url")
+    val videoUrl: String,
     val success: Boolean
 )
