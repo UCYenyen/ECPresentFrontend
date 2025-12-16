@@ -4,8 +4,10 @@ package com.example.ecpresent.data.container
 import com.example.ecpresent.data.Env
 import com.example.ecpresent.data.service.AuthService
 import com.example.ecpresent.data.repository.AuthRepository
+import com.example.ecpresent.data.repository.AvatarRepository
 import com.example.ecpresent.data.repository.LearningRepository
 import com.example.ecpresent.data.repository.PresentationRepository
+import com.example.ecpresent.data.service.AvatarService
 import com.example.ecpresent.data.service.LearningService
 import com.example.ecpresent.data.service.PresentationService
 import com.google.gson.GsonBuilder
@@ -44,5 +46,13 @@ class ServerContainer {
 
     val serverPresentationRepository: PresentationRepository by lazy {
         PresentationRepository(retrofitPresentationService)
+    }
+
+    private val retrofitAvatarService: AvatarService by lazy {
+        retrofit.create(AvatarService::class.java)
+    }
+
+    val serverAvatarRepository: AvatarRepository by lazy {
+        AvatarRepository(retrofitAvatarService)
     }
 }

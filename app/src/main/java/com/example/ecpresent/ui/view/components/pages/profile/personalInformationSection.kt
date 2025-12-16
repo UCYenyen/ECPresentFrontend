@@ -10,10 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,14 +28,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage // Pastikan library Coil sudah di-sync
+import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.theme.ECPresentTheme
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
 
 @Composable
 fun PersonalInformationSection(
-    username: String = "Loading...",
-    email: String = "Loading...",
-    avatarUrl: String = ""
+    user: User
 ) {
     Column(
         modifier = Modifier
@@ -42,7 +47,7 @@ fun PersonalInformationSection(
     ){
         // 1. Bagian Avatar (Menggunakan Coil untuk URL)
         AsyncImage(
-            model = avatarUrl,
+            model = user.imageUrl,
             contentDescription = "User Avatar",
             modifier = Modifier
                 .size(100.dp) // Ukuran Avatar
@@ -59,13 +64,13 @@ fun PersonalInformationSection(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ){
             Text(
-                text = "Name",
+                text = "Username",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black
             )
             TextField(
-                value = username, // Data dari Backend masuk sini
+                value = user.username, // Data dari Backend masuk sini
                 onValueChange = {}, // Read Only
                 readOnly = true,
                 colors = TextFieldDefaults.colors(
@@ -81,7 +86,8 @@ fun PersonalInformationSection(
                 shape = RoundedCornerShape(12.dp),
                 textStyle = TextStyle(
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -98,7 +104,7 @@ fun PersonalInformationSection(
                 color = Color.Black
             )
             TextField(
-                value = email, // Data dari Backend masuk sini
+                value = user.email, // Data dari Backend masuk sini
                 onValueChange = {}, // Read Only
                 readOnly = true,
                 colors = TextFieldDefaults.colors(
@@ -114,7 +120,8 @@ fun PersonalInformationSection(
                 shape = RoundedCornerShape(12.dp),
                 textStyle = TextStyle(
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -125,10 +132,10 @@ fun PersonalInformationSection(
 @Composable
 private fun PersonalInformationSectionPreview() {
     ECPresentTheme {
-        PersonalInformationSection(
-            username = "Bryan Fernando Dinata",
-            email = "bryanfernandodinata@gmail.com",
-            avatarUrl = "https://res.cloudinary.com/demo/image/upload/sample.jpg"
-        )
+//        PersonalInformationSection(
+//            username = "Bryan Fernando Dinata",
+//            email = "bryanfernandodinata@gmail.com",
+//            avatarUrl = "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+//        )
     }
 }

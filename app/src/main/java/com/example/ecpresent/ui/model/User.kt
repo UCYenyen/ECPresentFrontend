@@ -1,7 +1,7 @@
 package com.example.ecpresent.ui.model
 
 data class User(
-    val id: String = "",
+    val id: String = "s",
     val username: String = "",
     val email: String = "",
     val token: String = "",

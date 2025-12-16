@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     private val authRepository = ServerContainer().serverAuthRepository
+    private val avatarRepository = ServerContainer().serverAvatarRepository
     private val dataStoreManager = DataStoreManager(application)
     private val _loginUIState = MutableStateFlow<LoginUIState>(LoginUIState.Initial)
     val loginUIState: StateFlow<LoginUIState> = _loginUIState.asStateFlow()
@@ -189,5 +190,40 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetLoginState() {
         _loginUIState.value = LoginUIState.Initial
+    }
+
+    fun getUserProfile(){
+        viewModelScope.launch {
+            _profileUIState.value = ProfileUIState.Loading
+            try {
+                val userProfile =
+                    authRepository.getUserProfile(dataStoreManager.tokenFlow.first()!!)
+
+                if (userProfile.isSuccessful && userProfile.body() != null) {
+                    val userResponse = userProfile.body()!!.data
+
+                    val user = User(
+                        id = userResponse.id.toString(),
+                        username = userResponse.username ?: "",
+                        email = userResponse.email ?: "",
+                        imageUrl = userResponse.imageUrl ?: "",
+                        createdAt = userResponse.createdAt ?: "",
+                        updatedAt = userResponse.updatedAt ?: "",
+                        role = "USER",
+                        avatar = Avatar(id = "2", imageUrl = "", createdAt = "2", updatedAt = "2"),
+                        token = userResponse.token
+                    )
+                    _profileUIState.value = ProfileUIState.Success(user)
+
+                } else {
+                    val errorBody = userProfile.errorBody()?.string()
+                    _profileUIState.value =
+                        ProfileUIState.Error("Get User Data failed: ${userProfile.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _profileUIState.value = ProfileUIState.Error(e.message ?: "Unknown error")
+            }
+        }
     }
 }

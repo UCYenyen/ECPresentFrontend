@@ -20,4 +20,9 @@ class AuthRepository(private val service: AuthService) {
     suspend fun continueAsGuest(): Response<BaseResponse<UserResponse>> {
         return service.continueAsGuest()
     }
+
+    suspend fun  getUserProfile(token: String) : Response<BaseResponse<UserResponse>>{
+        val formattedToken = "Bearer $token"
+        return  service.getUserProfile(formattedToken)
+    }
 }

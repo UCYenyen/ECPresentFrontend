@@ -8,6 +8,7 @@ import com.example.ecpresent.data.dto.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthService {
@@ -21,4 +22,7 @@ interface AuthService {
     ): Response<BaseResponse<UserResponse>>
     @POST("guest")
     suspend fun continueAsGuest(): Response<BaseResponse<UserResponse>>
+
+    @GET("get-profile")
+    suspend fun getUserProfile(@Header("Authorization") token: String) : Response<BaseResponse<UserResponse>>
 }

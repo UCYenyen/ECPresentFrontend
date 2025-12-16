@@ -1,19 +1,31 @@
 package com.example.ecpresent.data.repository
 
+import com.example.ecpresent.data.dto.AvatarResponse
 import com.example.ecpresent.data.dto.BaseResponse
-import com.example.ecpresent.data.dto.LearningResponseItem
-import com.example.ecpresent.data.dto.LoginUserRequest
-import com.example.ecpresent.data.dto.RegisterUserRequest
-import com.example.ecpresent.data.dto.UserResponse
-import com.example.ecpresent.data.service.AuthService
 import com.example.ecpresent.data.service.AvatarService
 import retrofit2.Response
+
 
 class AvatarRepository(private val service: AvatarService) {
 
 
-    suspend fun getAllAvatars() = service.getAllAvatars()
+    suspend fun getAvatars(token: String, id: Int): Response<BaseResponse<AvatarResponse>> {
+        val formattedToken = "Bearer $token"
+        return service.getAvatarById(token = formattedToken, id = id)
+    }
 
-    suspend fun getAvatarById(id: Int) = service.getAvatarById(id)
+    suspend fun getAllAvatars(token: String): Response<BaseResponse<List<AvatarResponse>>> {
+        val formattedToken = "Bearer $token"
+        return service.getAllAvatars(token = formattedToken)
+    }
+
+//    suspend fun updateAvatar(token: String, id: Int, updateRequest: AvatarUpdateRequest): Response<BaseResponse<AvatarResponse>> {
+//        val formattedToken = "Bearer $token"
+//        return service.updateAvatar(token = formattedToken, id = id)
+//    }
+    suspend fun deleteAvatar(token: String, id: Int): Response<BaseResponse<AvatarResponse>> {
+        val formattedToken = "Bearer $token"
+        return service.deleteAvatar(token = formattedToken, id = id)
+    }
 
 }
