@@ -35,26 +35,30 @@ fun TheBasicsSection(navController: NavController, viewModel: ViewModel, showAll
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "The basics",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+        if(!showAll)
+        {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "The basics",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
 
-            Text(
-                text = "View More",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF4A7DFF),
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { navController.navigate(AppView.Learnings.name) }
-            )
+                Text(
+                    text = "View More",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF4A7DFF),
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clickable { navController.navigate(AppView.Learnings.name) }
+                )
+            }
         }
+
 
         when (val state = learningState) {
             is LearningUIState.Success -> {
