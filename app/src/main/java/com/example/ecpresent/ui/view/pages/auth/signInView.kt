@@ -23,10 +23,10 @@ import com.example.ecpresent.R
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.Title
 import com.example.ecpresent.ui.view.components.pages.auth.SignInSection
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
 
 @Composable
-fun SignInView(navController: NavController = rememberNavController(), viewModel: ViewModel = viewModel()) {
+fun SignInView(navController: NavController = rememberNavController(), authViewModel: AuthViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()

@@ -23,14 +23,17 @@ import androidx.navigation.NavController
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.view.components.elements.LearningVideoCard
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
-fun TheBasicsSection(navController: NavController, viewModel: ViewModel, showAll: Boolean = false) {
-    val learningState by viewModel.learningUIState.collectAsState()
+fun TheBasicsSection(navController: NavController, learningViewModel: LearningViewModel, showAll: Boolean = false) {
+    val learningState by learningViewModel.learningUIState.collectAsState()
+
     LaunchedEffect(Unit) {
-        viewModel.getAllLearnings()
+        learningViewModel.getAllLearnings()
     }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -70,7 +73,7 @@ fun TheBasicsSection(navController: NavController, viewModel: ViewModel, showAll
                             LearningVideoCard(
                                 learning = learning,
                                 navController = navController,
-                                viewModel = viewModel
+                                learningViewModel = learningViewModel
                             )
                         }
                     }
@@ -80,7 +83,7 @@ fun TheBasicsSection(navController: NavController, viewModel: ViewModel, showAll
                             LearningVideoCard(
                                 learning = learning,
                                 navController = navController,
-                                viewModel = viewModel,
+                                learningViewModel = learningViewModel,
                                 showingAll = true
                             )
                         }

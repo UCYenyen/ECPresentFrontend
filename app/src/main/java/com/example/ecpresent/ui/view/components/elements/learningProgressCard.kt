@@ -28,13 +28,14 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ecpresent.ui.model.LearningProgress
 import com.example.ecpresent.ui.route.AppView
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
 fun LearningProgressCard(
     progress: LearningProgress,
     navController: NavController,
-    viewModel: ViewModel = viewModel()
+    learningViewModel: LearningViewModel = viewModel()
 ) {
     Card(
         modifier = Modifier
@@ -54,7 +55,7 @@ fun LearningProgressCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = viewModel.getYoutubeThumbnailUrl(progress.learning.videoUrl),
+                model = learningViewModel.getYoutubeThumbnailUrl(progress.learning.videoUrl),
                 contentDescription = null,
                 modifier = Modifier
                     .width(120.dp)

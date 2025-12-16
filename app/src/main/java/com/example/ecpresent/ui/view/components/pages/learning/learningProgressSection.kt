@@ -25,17 +25,17 @@ import androidx.navigation.NavController
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.view.components.elements.LearningProgressCard
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
 fun LearningProgressSection(
     navController: NavController,
     showAll: Boolean = true,
-    viewModel: ViewModel
+    learningViewModel: LearningViewModel
 ) {
-    val progressState by viewModel.learningProgressUIState.collectAsState()
+    val progressState by learningViewModel.learningProgressUIState.collectAsState()
     LaunchedEffect(Unit) {
-        viewModel.getMyLearningProgresses()
+        learningViewModel.getMyLearningProgresses()
     }
 
     Column(
@@ -104,7 +104,7 @@ fun LearningProgressSection(
                             LearningProgressCard(
                                 progress = progress,
                                 navController = navController,
-                                viewModel = viewModel
+                                learningViewModel = learningViewModel
                             )
                         }
                     }

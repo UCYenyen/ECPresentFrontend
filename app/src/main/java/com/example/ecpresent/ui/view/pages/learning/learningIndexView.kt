@@ -21,14 +21,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.theme.ECPresentTheme
-import com.example.ecpresent.ui.view.components.elements.Title
-import com.example.ecpresent.ui.view.components.pages.auth.SignInSection
 import com.example.ecpresent.ui.view.components.pages.learning.LearningProgressSection
 import com.example.ecpresent.ui.view.components.pages.learning.TheBasicsSection
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
-fun LearningIndexView(navController: NavController = rememberNavController(), viewModel: ViewModel = viewModel()) {
+fun LearningIndexView(navController: NavController = rememberNavController(), learningViewModel: LearningViewModel = viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -44,8 +43,8 @@ fun LearningIndexView(navController: NavController = rememberNavController(), vi
             contentScale = ContentScale.FillWidth
         )
         Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
-            TheBasicsSection(navController, viewModel)
-            LearningProgressSection(navController, viewModel = viewModel, showAll = false)
+            TheBasicsSection(navController, learningViewModel)
+            LearningProgressSection(navController, learningViewModel = learningViewModel, showAll = false)
         }
     }
 }

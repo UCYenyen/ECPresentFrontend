@@ -18,8 +18,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,15 +34,16 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
 fun LearningProgressDetailView(
     progressId: Int,
     navController: NavController,
-    viewModel: ViewModel = viewModel()
+    learningViewModel: LearningViewModel = viewModel()
 ) {
-    val progressState by viewModel.learningProgressUIState.collectAsState()
+    val progressState by learningViewModel.learningProgressUIState.collectAsState()
     val uriHandler = LocalUriHandler.current
 
     val progress = if (progressState is LearningProgressUIState.Success) {
@@ -64,7 +63,7 @@ fun LearningProgressDetailView(
                     contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
-                        model = viewModel.getYoutubeThumbnailUrl(progress.learning.videoUrl),
+                        model = learningViewModel.getYoutubeThumbnailUrl(progress.learning.videoUrl),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxSize()
@@ -146,7 +145,7 @@ fun LearningProgressDetailView(
                     Button(
                         enabled = progress.status != "COMPLETED",
                         onClick = {
-                            viewModel.markAsDoneLearningProgress(progressId.toString()) {
+                            learningViewModel.markAsDoneLearningProgress(progressId.toString()) {
                                 navController.navigate(AppView.LearningProgresses.name)
                             }
                         },

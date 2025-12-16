@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -45,7 +44,9 @@ import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationQNAView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
 import com.example.ecpresent.ui.view.pages.profile.ProfileIndexView
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
+import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 
 enum class AppView(
     val title: String,
@@ -72,7 +73,9 @@ enum class AppView(
 @Composable
 fun AppRoute() {
     val navController = rememberNavController()
-    val viewModel: ViewModel = viewModel()
+    val authViewModel: AuthViewModel = viewModel()
+    val learningViewModel: LearningViewModel = viewModel()
+    val presentationViewModel: PresentationViewModel = viewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -161,21 +164,21 @@ fun AppRoute() {
                 SignUpView(navController = navController)
             }
             composable(route = AppView.Learning.name) {
-                LearningIndexView(navController = navController, viewModel = viewModel)
+                LearningIndexView(navController = navController, learningViewModel = learningViewModel)
             }
             composable(route = AppView.Learnings.name) {
-                LearningsView(navController = navController, viewModel = viewModel)
+                LearningsView(navController = navController, learningViewModel = learningViewModel)
             }
             composable(route = "${AppView.Learning.name}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id") ?: ""
-                LearningDetailView(id = id, navController = navController, viewModel = viewModel)
+                LearningDetailView(id = id, navController = navController, learningViewModel = learningViewModel)
             }
             composable(route = AppView.LearningProgresses.name){
-                LearningProgressView(navController = navController, viewModel = viewModel)
+                LearningProgressView(navController = navController, learningViewModel = learningViewModel)
             }
             composable(route = "${AppView.LearningProgresses.name}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: 0
-                LearningProgressDetailView(progressId = id, navController = navController, viewModel = viewModel)
+                LearningProgressDetailView(progressId = id, navController = navController, learningViewModel = learningViewModel)
             }
             composable(route = AppView.Presentation.name) {
                 PresentationIndexView(navController = navController)
@@ -184,13 +187,13 @@ fun AppRoute() {
                 PresentationHistoryView()
             }
             composable(route = AppView.TakePresentation.name) {
-                PresentationUploadVideoView(navController = navController, viewModel = viewModel)
+                PresentationUploadVideoView(navController = navController, presentationViewModel = presentationViewModel)
             }
             composable(route = AppView.FollowUpQuestion.name) {
                 PresentationQNAView()
             }
             composable(route = AppView.Profile.name) {
-                ProfileIndexView(navController = navController, viewModel = viewModel)
+                ProfileIndexView(navController = navController, authViewModel = authViewModel)
             }
         }
     }

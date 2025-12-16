@@ -26,13 +26,14 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ecpresent.ui.model.Learning
 import com.example.ecpresent.ui.route.AppView
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
 fun LearningVideoCard(
     learning: Learning,
     navController: NavController,
-    viewModel: ViewModel = viewModel(),
+    learningViewModel: LearningViewModel = viewModel(),
     showingAll: Boolean = false
 ) {
     val cardModifier = if (showingAll) {
@@ -56,7 +57,7 @@ fun LearningVideoCard(
     ) {
         Column {
             AsyncImage(
-                model = viewModel.getYoutubeThumbnailUrl(learning.videoUrl),
+                model = learningViewModel.getYoutubeThumbnailUrl(learning.videoUrl),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()

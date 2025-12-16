@@ -30,20 +30,19 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.LearningDetailsUIState
-import com.example.ecpresent.ui.uistates.LearningProgressUIState
-import com.example.ecpresent.ui.uistates.LearningUIState
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
 fun LearningDetailView(
     id: String,
     navController: NavController,
-    viewModel: ViewModel = viewModel()
+    learningViewModel: LearningViewModel = viewModel()
 ) {
     LaunchedEffect(Unit) {
-        viewModel.getLearningById(id)
+        learningViewModel.getLearningById(id)
     }
-    val learningDetailState by viewModel.learningDetailUIState.collectAsState()
+    val learningDetailState by learningViewModel.learningDetailUIState.collectAsState()
 
     when (learningDetailState) {
         is LearningDetailsUIState.Initial -> {
@@ -66,7 +65,7 @@ fun LearningDetailView(
                 item {
                     Box(modifier = Modifier.fillMaxWidth().height(220.dp)) {
                         AsyncImage(
-                            model = viewModel.getYoutubeThumbnailUrl(learning.videoUrl),
+                            model = learningViewModel.getYoutubeThumbnailUrl(learning.videoUrl),
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize().background(Color.Black),
                             contentScale = ContentScale.Crop
@@ -95,7 +94,7 @@ fun LearningDetailView(
                         Button(
                             enabled = !(learningDetailState as LearningDetailsUIState.Success).isAdded,
                             onClick = {
-                                viewModel.startLearning(learning.id) {
+                                learningViewModel.startLearning(learning.id) {
                                     navController.navigate(AppView.LearningProgresses.name)
                                 }
                             },

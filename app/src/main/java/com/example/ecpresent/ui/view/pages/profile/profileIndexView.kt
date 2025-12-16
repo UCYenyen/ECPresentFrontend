@@ -37,14 +37,14 @@ import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.view.components.pages.profile.OverallRatingSection
 import com.example.ecpresent.ui.view.components.pages.profile.PersonalInformationSection
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
 
 @Composable
 fun ProfileIndexView(
-    viewModel: ViewModel,
+    authViewModel: AuthViewModel,
     navController: NavController
 ) {
-    val profileState by viewModel.profileUIState.collectAsState()
+    val profileState by authViewModel.profileUIState.collectAsState()
 
     Box(
         modifier = Modifier
@@ -93,7 +93,7 @@ fun ProfileIndexView(
                             OverallRatingSection()
                             Button(
                                 onClick = {
-                                    viewModel.logout(onSuccess = {
+                                    authViewModel.logout(onSuccess = {
                                         navController.navigate(AppView.Landing.name) {
                                             popUpTo(0) { inclusive = true }
                                             launchSingleTop = true
@@ -120,7 +120,7 @@ fun ProfileIndexView(
 private fun ProfileIndexViewPreview() {
     ECPresentTheme {
         ProfileIndexView(
-            viewModel = viewModel(),
+            authViewModel = viewModel(),
             navController = rememberNavController()
         )
     }

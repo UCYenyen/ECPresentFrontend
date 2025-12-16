@@ -47,10 +47,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.UploadPresentationUIState
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 
 @Composable
-fun PresentationUploadVideoView(navController: NavController, viewModel: ViewModel = viewModel()) {
+fun PresentationUploadVideoView(navController: NavController, presentationViewModel: PresentationViewModel = viewModel()) {
     var presentationTitle by remember { mutableStateOf("") }
     var videoUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
@@ -62,7 +63,7 @@ fun PresentationUploadVideoView(navController: NavController, viewModel: ViewMod
         }
     )
 
-    val uploadState by viewModel.uploadPresentationUIState.collectAsState()
+    val uploadState by presentationViewModel.uploadPresentationUIState.collectAsState()
 
     LaunchedEffect(uploadState) {
         when (val state = uploadState) {
@@ -71,11 +72,11 @@ fun PresentationUploadVideoView(navController: NavController, viewModel: ViewMod
                 navController.navigate(AppView.FollowUpQuestion.name) {
                     popUpTo(AppView.FollowUpQuestion.name) { inclusive = true }
                 }
-                viewModel.resetUploadState()
+                presentationViewModel.resetUploadState()
             }
             is UploadPresentationUIState.Error -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
-                viewModel.resetUploadState()
+                presentationViewModel.resetUploadState()
             }
             else -> {}
         }
@@ -96,6 +97,7 @@ fun PresentationUploadVideoView(navController: NavController, viewModel: ViewMod
                 "Presentation Title",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -180,7 +182,7 @@ fun PresentationUploadVideoView(navController: NavController, viewModel: ViewMod
             Button(
                 onClick = {
                     videoUri?.let { uri ->
-                        viewModel.uploadPresentation( uri, presentationTitle)
+                        presentationViewModel.uploadPresentation( uri, presentationTitle)
                     }
                 },
                 modifier = Modifier

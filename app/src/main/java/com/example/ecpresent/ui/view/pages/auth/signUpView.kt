@@ -24,10 +24,10 @@ import com.example.ecpresent.R
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.view.components.elements.Title
 import com.example.ecpresent.ui.view.components.pages.auth.SignUpSection
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
 
 @Composable
-fun SignUpView(navController: NavController = rememberNavController(), viewModel: ViewModel = viewModel()) {
+fun SignUpView(navController: NavController = rememberNavController(), authViewModel: AuthViewModel = viewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()

@@ -17,12 +17,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.ecpresent.R
 import com.example.ecpresent.ui.view.components.pages.learning.TheBasicsSection
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
 fun LearningsView(
     navController: NavController,
-    viewModel: ViewModel = viewModel()
+    learningViewModel: LearningViewModel = viewModel()
 ) {
     Box(
         modifier = Modifier
@@ -36,7 +37,7 @@ fun LearningsView(
             contentScale = ContentScale.FillWidth
         )
 
-        TheBasicsSection(navController = navController, viewModel = viewModel, showAll = true)
+        TheBasicsSection(navController = navController, learningViewModel = learningViewModel, showAll = true)
         Image(
             painter = painterResource(R.drawable.filler_bottom_left),
             contentDescription = null,

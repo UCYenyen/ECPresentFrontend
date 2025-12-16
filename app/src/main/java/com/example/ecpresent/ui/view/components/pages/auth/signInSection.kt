@@ -36,23 +36,23 @@ import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.uistates.LoginUIState
-import com.example.ecpresent.ui.viewmodel.ViewModel
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
 
 @Composable
 fun SignInSection(
     navController: NavController,
-    viewModel: ViewModel = viewModel()
+    authViewModel: AuthViewModel = viewModel()
 ) {
     var emailText by remember { mutableStateOf("") }
     var passwordText by remember { mutableStateOf("") }
-    val loginState by viewModel.loginUIState.collectAsState()
+    val loginState by authViewModel.loginUIState.collectAsState()
 
     LaunchedEffect(loginState) {
         if (loginState is LoginUIState.Success) {
             navController.navigate(AppView.Learning.name) {
                 popUpTo(AppView.SignIn.name) { inclusive = true }
             }
-            viewModel.resetLoginState()
+            authViewModel.resetLoginState()
         }
     }
 
@@ -107,7 +107,7 @@ fun SignInSection(
             }
 
             Button(
-                onClick = { viewModel.login(emailText, passwordText) },
+                onClick = { authViewModel.login(emailText, passwordText) },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 enabled = loginState !is LoginUIState.Loading,
@@ -130,7 +130,7 @@ fun SignInSection(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.continueAsGuest() },
+                onClick = { authViewModel.continueAsGuest() },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 enabled = loginState !is LoginUIState.Loading,
