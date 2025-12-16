@@ -44,6 +44,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 )
                 _loginUIState.value = LoginUIState.Success(user)
                 _profileUIState.value = ProfileUIState.Success(user)
+            }else{
+                _loginUIState.value = LoginUIState.Initial
+                _profileUIState.value = ProfileUIState.Initial
             }
         }
     }
