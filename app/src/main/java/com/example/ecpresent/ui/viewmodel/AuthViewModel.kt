@@ -16,6 +16,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -24,7 +28,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     private val dataStoreManager = DataStoreManager(application)
     private val _loginUIState = MutableStateFlow<LoginUIState>(LoginUIState.Initial)
     val loginUIState: StateFlow<LoginUIState> = _loginUIState.asStateFlow()
-
     private val _profileUIState = MutableStateFlow<ProfileUIState>(ProfileUIState.Initial)
     val profileUIState: StateFlow<ProfileUIState> = _profileUIState.asStateFlow()
 
@@ -225,5 +228,71 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 _profileUIState.value = ProfileUIState.Error(e.message ?: "Unknown error")
             }
         }
+    }
+    fun uploadAvatar(imageUri: android.net.Uri) {
+        viewModelScope.launch {
+            _profileUIState.value = ProfileUIState.Loading
+            try {
+                // Ambil token
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _profileUIState.value = ProfileUIState.Error("Token tidak ditemukan")
+                    return@launch
+                }
+
+                val context = getApplication<Application>().applicationContext
+                val file = uriToFile(imageUri, context)
+
+                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                val body = MultipartBody.Part.createFormData("avatar", file.name, requestFile)
+
+                val response = avatarRepository.uploadCustomAvatar(token, body)
+
+                if (response.isSuccessful) {
+                    // Refresh data profile biar gambarnya update di UI
+                    getUserProfile()
+                } else {
+                    _profileUIState.value = ProfileUIState.Error("Gagal upload: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                _profileUIState.value = ProfileUIState.Error("Error: ${e.message}")
+            }
+        }
+    }
+
+    // 2. Fungsi Delete/Reset Avatar (Balik ke Random)
+    fun deleteAvatar(avatarId: Int) {
+        viewModelScope.launch {
+            _profileUIState.value = ProfileUIState.Loading
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (!token.isNullOrEmpty()) {
+                    val response = avatarRepository.deleteAvatar(token, avatarId)
+
+                    if (response.isSuccessful) {
+                        getUserProfile() // Refresh lagi
+                    } else {
+                        _profileUIState.value = ProfileUIState.Error("Gagal reset avatar")
+                    }
+                }
+            } catch (e: Exception) {
+                _profileUIState.value = ProfileUIState.Error("Error: ${e.message}")
+            }
+        }
+    }
+
+    // Helper: Copas fungsi ini di paling bawah class atau di file Utils terpisah
+    private fun uriToFile(selectedImg: android.net.Uri, context: android.content.Context): File {
+        val contentResolver = context.contentResolver
+        val myFile = File.createTempFile("temp_image", ".jpg", context.cacheDir)
+
+        val inputStream = contentResolver.openInputStream(selectedImg) as java.io.InputStream
+        val outputStream = java.io.FileOutputStream(myFile)
+
+        inputStream.copyTo(outputStream)
+        inputStream.close()
+        outputStream.close()
+
+        return myFile
     }
 }

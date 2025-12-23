@@ -53,7 +53,7 @@ sealed interface ProfileUIState {
 sealed interface UploadPresentationUIState {
     object Initial : UploadPresentationUIState
     object Loading : UploadPresentationUIState
-        data class Success(val data: PresentationAnalysisResponse) : UploadPresentationUIState
+    data class Success(val data: PresentationAnalysisResponse) : UploadPresentationUIState
     data class Error(val message: String) : UploadPresentationUIState
 
 }

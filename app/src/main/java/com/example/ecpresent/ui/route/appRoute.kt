@@ -19,8 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,16 +30,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.ecpresent.ui.uistates.LoginUIState
 import com.example.ecpresent.ui.view.components.elements.MyNavigationBar
-import com.example.ecpresent.ui.view.pages.GetStartedView
 import com.example.ecpresent.ui.view.pages.SplashScreen
 import com.example.ecpresent.ui.view.pages.auth.SignInView
 import com.example.ecpresent.ui.view.pages.auth.SignUpView
-import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
-import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
 import com.example.ecpresent.ui.view.pages.learning.LearningDetailView
+import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
 import com.example.ecpresent.ui.view.pages.learning.LearningProgressDetailView
+import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
 import com.example.ecpresent.ui.view.pages.learning.LearningsView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationHistoryView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
@@ -52,21 +48,23 @@ import com.example.ecpresent.ui.viewmodel.AuthViewModel
 import com.example.ecpresent.ui.viewmodel.LearningViewModel
 import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 
+// 1. SOLUSI AMBIGUITY: Pakai 'as' untuk membedakan Enum dan Tampilan UI
+import com.example.ecpresent.ui.view.pages.GetStartedView as GetStartedScreen
+
 enum class AppView(
     val title: String,
     val icon: ImageVector? = null,
 ) {
+    GetStartedView("Get Started View"),
     SplashScreen("Splash Screen"),
     Landing("Landing"),
     SignUp("Sign Up"),
     SignIn("Sign In"),
     Profile("Profile", Icons.Filled.ManageAccounts),
     OverallFeedback("Overall Feedback"),
-
     Learning("Learning", Icons.Filled.CollectionsBookmark),
     Learnings("Learnings"),
     LearningProgresses("Learning Progress"),
-
     Presentation("Presentations", Icons.Filled.CameraAlt),
     PresentationHistory("Presentations"),
     TakePresentation("Presentation"),
@@ -102,16 +100,19 @@ fun AppRoute() {
         AppView.Landing.name,
         AppView.SplashScreen.name,
         AppView.SignIn.name,
-        AppView.SignUp.name
+        AppView.SignUp.name,
+        AppView.GetStartedView.name // Tambahkan ini agar tidak dianggap butuh back button
     )
 
     val showBackButton =
         (currentRouteString !in topLevelRoutes) && (navController.previousBackStackEntry != null)
 
+    // 2. SOLUSI OVERLAPS: Tambahkan GetStartedView ke sini agar bar-nya hilang
     val showBars = currentRouteString != AppView.Landing.name &&
             currentRouteString != AppView.SignIn.name &&
             currentRouteString != AppView.SignUp.name &&
-            currentRouteString != AppView.SplashScreen.name
+            currentRouteString != AppView.SplashScreen.name &&
+            currentRouteString != AppView.GetStartedView.name // <--- INI KUNCINYA
 
     Scaffold(
         topBar = {
@@ -136,7 +137,7 @@ fun AppRoute() {
         NavHost(
             modifier = if (showBars) Modifier.padding(innerPadding) else Modifier.fillMaxWidth(),
             navController = navController,
-            startDestination = AppView.SplashScreen.name,
+            startDestination = AppView.GetStartedView.name,
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
@@ -162,17 +163,21 @@ fun AppRoute() {
                 )
             }
         ) {
-            composable(route = AppView.SplashScreen.name) {
-                SplashScreen(navController = navController)
-            }
-            composable(route = AppView.Landing.name) {
-                GetStartedView(navController = navController)
+            // 3. Panggil menggunakan Alias 'GetStartedScreen'
+            composable(route = AppView.GetStartedView.name) {
+                GetStartedScreen(navController = navController)
             }
             composable(route = AppView.SignIn.name) {
                 SignInView(navController = navController)
             }
             composable(route = AppView.SignUp.name) {
                 SignUpView(navController = navController)
+            }
+            composable(route = AppView.SplashScreen.name) {
+                SplashScreen(navController = navController)
+            }
+            composable(route = AppView.Landing.name) {
+                GetStartedScreen(navController = navController)
             }
             composable(route = AppView.Learning.name) {
                 LearningIndexView(

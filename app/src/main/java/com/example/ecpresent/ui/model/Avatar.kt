@@ -8,5 +8,3 @@ data class Avatar(
     val createdAt: String,
     val updatedAt: String,
 )
-
-

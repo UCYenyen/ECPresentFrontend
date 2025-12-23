@@ -106,7 +106,7 @@ fun ProfileIndexView(
                             Button(
                                 onClick = {
                                     authViewModel.logout(onSuccess = {
-                                        navController.navigate(AppView.Landing.name) {
+                                        navController.navigate(AppView.GetStartedView.name) {
                                             popUpTo(0) { inclusive = true }
                                             launchSingleTop = true
                                         }

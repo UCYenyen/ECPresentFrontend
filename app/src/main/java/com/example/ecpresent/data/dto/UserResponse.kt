@@ -9,9 +9,10 @@ data class UserResponse(
     @SerializedName("email")
     val email: String?,
     @SerializedName("token")
-    val token: String,
+    val token: String = "",
+    // Backend mungkin mengirim null jika user belum pilih avatar, jadi buat nullable (?)
     @SerializedName("avatar")
-    val avatar: Avatar,
+    val avatar: Avatar? = null,
     @SerializedName("image_url")
     val imageUrl: String?,
     @SerializedName("createdAt")
