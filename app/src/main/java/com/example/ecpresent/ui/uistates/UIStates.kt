@@ -1,8 +1,9 @@
 package com.example.ecpresent.ui.uistates
 
 
+import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
-import com.example.ecpresent.ui.model.Answer
+import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.model.LearningProgress
 import com.example.ecpresent.ui.model.Learning
@@ -59,10 +60,18 @@ sealed interface UploadPresentationUIState {
 
 }
 
-sealed interface AnswerUIState {
-    object Initial : AnswerUIState
-    object Loading : AnswerUIState
-    data class Success(val data: Answer) : AnswerUIState
-    data class Error(val message: String) : AnswerUIState
+sealed class QnAUIState {
+    object Idle : QnAUIState()
+    object Submitting : QnAUIState()
+    data class AnswerScored(val answer: Answer) : QnAUIState()
+    data class Error(val msg: String) : QnAUIState()
+}
 
+sealed class FeedbackUIState {
+    object Idle : FeedbackUIState()
+    object Loading : FeedbackUIState()
+    data class Success(val data: PresentationFeedbackResponse) : FeedbackUIState()
+    object Deleted : FeedbackUIState()
+    object NotesUpdated : FeedbackUIState()
+    data class Error(val msg: String) : FeedbackUIState()
 }

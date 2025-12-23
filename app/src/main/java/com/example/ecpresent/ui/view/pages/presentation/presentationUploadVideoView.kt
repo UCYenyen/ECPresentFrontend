@@ -72,11 +72,11 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
                 navController.navigate(AppView.FollowUpQuestion.name) {
                     popUpTo(AppView.FollowUpQuestion.name) { inclusive = true }
                 }
-                presentationViewModel.resetUploadState()
+                presentationViewModel.resetState()
             }
             is UploadPresentationUIState.Error -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
-                presentationViewModel.resetUploadState()
+                presentationViewModel.resetState()
             }
             else -> {}
         }

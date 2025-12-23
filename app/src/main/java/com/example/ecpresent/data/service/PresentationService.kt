@@ -1,5 +1,6 @@
 package com.example.ecpresent.data.service
 
+import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
@@ -27,7 +28,7 @@ interface PresentationService {
         @Header("Authorization") token: String,
         @Path("id") id: String,
         @Part audio: MultipartBody.Part,
-    ): Response<BaseResponse<PresentationFeedbackResponse>>
+    ): Response<BaseResponse<Answer>>
 
     @GET("presentations/{id}/feedback")
     suspend fun getFinalFeedback(
@@ -47,6 +48,6 @@ interface PresentationService {
     suspend fun deletePresentation(
         @Header("Authorization") token: String,
         @Path("id") id: Int
-    ): Response<BaseResponse<PresentationListResponse>>
+    ): Response<BaseResponse<Unit>>
 }
 

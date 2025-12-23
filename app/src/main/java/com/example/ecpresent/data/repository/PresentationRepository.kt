@@ -2,9 +2,11 @@ package com.example.ecpresent.data.repository
 
 import android.content.Context
 import android.net.Uri
+import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
+import com.example.ecpresent.data.dto.PresentationListResponse
 import com.example.ecpresent.data.service.PresentationService
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -33,15 +35,25 @@ class PresentationRepository(private val service: PresentationService) {
 
 
 
-    suspend fun submitAnswer(token: String, presentationId: String, audioUri: Uri, context: Context): Response<BaseResponse<PresentationFeedbackResponse>> {
+    suspend fun submitAnswer(token: String, presentationId: String, audioFile: File): Response<BaseResponse<Answer>> {
         val formattedToken = "Bearer $token"
-
-        val file = getFileFromUri(context, audioUri, "temp_answer.mp3") ?: throw Exception("Gagal memproses file audio")
-
-        val requestFile = file.asRequestBody("audio/*".toMediaTypeOrNull())
-        val audioPart = MultipartBody.Part.createFormData("audio", file.name, requestFile)
+        // Gunakan audio/mp4 atau audio/m4a sesuai format MediaRecorder
+        val requestFile = audioFile.asRequestBody("audio/mp4".toMediaTypeOrNull())
+        val audioPart = MultipartBody.Part.createFormData("audio", audioFile.name, requestFile)
 
         return service.submitAnswer(formattedToken, presentationId, audioPart)
+    }
+
+    suspend fun getFinalFeedback(token: String, presentationId: String): Response<BaseResponse<PresentationFeedbackResponse>> {
+        return service.getFinalFeedback("Bearer $token", presentationId)
+    }
+
+    suspend fun updateNotes(token: String, presentationId: Int, notes: String): Response<BaseResponse<PresentationFeedbackResponse>> {
+        return service.updateNotes("Bearer $token", presentationId, notes)
+    }
+
+    suspend fun deletePresentation(token: String, presentationId: Int): Response<BaseResponse<Unit>> {
+        return service.deletePresentation("Bearer $token", presentationId)
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.ecpresent.ui.route
 
+import PresentationQNAView
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -43,9 +44,9 @@ import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
 import com.example.ecpresent.ui.view.pages.learning.LearningDetailView
 import com.example.ecpresent.ui.view.pages.learning.LearningProgressDetailView
 import com.example.ecpresent.ui.view.pages.learning.LearningsView
+import com.example.ecpresent.ui.view.pages.presentation.PresentationFeedbackView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationHistoryView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationIndexView
-import com.example.ecpresent.ui.view.pages.presentation.PresentationQNAView
 import com.example.ecpresent.ui.view.pages.presentation.PresentationUploadVideoView
 import com.example.ecpresent.ui.view.pages.profile.ProfileIndexView
 import com.example.ecpresent.ui.viewmodel.AuthViewModel
@@ -211,14 +212,27 @@ fun AppRoute() {
             composable(route = AppView.PresentationHistory.name) {
                 PresentationHistoryView()
             }
+
             composable(route = AppView.TakePresentation.name) {
                 PresentationUploadVideoView(
                     navController = navController,
                     presentationViewModel = presentationViewModel
                 )
             }
+
             composable(route = AppView.FollowUpQuestion.name) {
-                PresentationQNAView()
+                PresentationQNAView(
+                    navController = navController,
+                    presentationViewModel = presentationViewModel
+                )
+            }
+
+            // 3. Final Feedback
+            composable(route = AppView.PresentationFeedback.name) {
+                PresentationFeedbackView(
+                    navController = navController,
+                    presentationViewModel = presentationViewModel
+                )
             }
             composable(route = AppView.Profile.name) {
                 ProfileIndexView(navController = navController, authViewModel = authViewModel)

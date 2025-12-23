@@ -12,5 +12,7 @@ data class PresentationListResponse(
     val userId: Int,
     @SerializedName("video_url")
     val videoUrl: String,
+    @SerializedName("personal_notes")
+    val personalNotes: String?,
     val success: Boolean
 )
