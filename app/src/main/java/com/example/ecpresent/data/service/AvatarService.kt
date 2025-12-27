@@ -22,12 +22,11 @@ interface AvatarService {
     suspend fun getAllAvatars(@Header("Authorization") token : String): Response<BaseResponse<List<AvatarResponse>>>
     @GET("avatar/{id}")
     suspend fun getAvatarById(@Header("Authorization") token : String, @Path("id") id: Int): Response<BaseResponse<AvatarResponse>>
-
     @PUT("avatar/{id}")
     suspend fun updateAvatar(@Header("Authorization") token : String, @Part file: MultipartBody.Part           // <- Ini pengganti @Body tadi (Buat File)
     ): Response<BaseResponse<AvatarResponse>>
     @Multipart
-    @POST("avatar/upload") // Sesuaikan endpoint backend
+    @POST("avatar/upload")
     suspend fun uploadCustomAvatar(
         @Header("Authorization") token: String,
         @Part file: MultipartBody.Part

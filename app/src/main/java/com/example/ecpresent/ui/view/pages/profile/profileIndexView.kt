@@ -1,5 +1,8 @@
 package com.example.ecpresent.ui.view.pages.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +50,15 @@ fun ProfileIndexView(
 ) {
     val profileState by authViewModel.profileUIState.collectAsState()
 
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                // Panggil fungsi upload yang sudah ada di AuthViewModel abang
+                authViewModel.uploadAvatar(uri)
+            }
+        }
+    )
     LaunchedEffect(Unit) {
         authViewModel.getUserProfile()
     }
@@ -101,7 +113,9 @@ fun ProfileIndexView(
                         Column(
                             verticalArrangement = Arrangement.spacedBy(24.dp),
                         ) {
-                            PersonalInformationSection(user = user)
+                            PersonalInformationSection(user = user, onAvatarClick = {singlePhotoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )} )
                             OverallRatingSection()
                             Button(
                                 onClick = {
