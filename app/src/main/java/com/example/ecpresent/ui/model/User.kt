@@ -1,14 +1,32 @@
 package com.example.ecpresent.ui.model
 
+import com.example.ecpresent.data.Env.ROOT_URL
+import com.example.ecpresent.data.dto.UserResponse
+import com.example.ecpresent.enum.UserRole
+
 data class User(
-    val id: String = "",
-    val username: String = "",
-    val email: String = "",
-    val token: String = "",
-    val password: String = "",
-    val role: String,
-    val imageUrl: String = "",
+    val id: String,
+    val username: String,
+    val email: String,
+    val token: String,
+    //val password: String,
+    val role: UserRole?,
+    val imageUrl: String?,
     val avatar: Avatar?,
-    val createdAt: String?,
-    val updatedAt: String?
+    val createdAt: String,
+    val updatedAt: String
 )
+
+fun UserResponse.toUser(): User{
+    return User(
+        id = this.id.toString(),
+        username = this.username.toString(),
+        email = this.email.toString(),
+        token = this.token,
+        role = this.userRole,
+        imageUrl = "",
+        avatar = this.avatar?.toAvatar() ?: Avatar(id = "", imageUrl = "${ROOT_URL}uploads/avatar_2.jpg", createdAt = "", updatedAt = ""),
+        createdAt = "",
+        updatedAt = ""
+    )
+}
