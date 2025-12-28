@@ -17,6 +17,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,10 +42,16 @@ import com.example.ecpresent.ui.viewmodel.AuthViewModel
 
 @Composable
 fun ProfileIndexView(
-    authViewModel: AuthViewModel,
+    authViewModel: AuthViewModel = viewModel(),
     navController: NavController
 ) {
+
     val profileState by authViewModel.profileUIState.collectAsState()
+    LaunchedEffect(Unit) {
+        if (profileState is ProfileUIState.Initial) {
+            authViewModel.getProfileById()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -59,7 +66,7 @@ fun ProfileIndexView(
         )
 
         when (profileState) {
-            is ProfileUIState.Loading -> {
+            is ProfileUIState.Loading, is ProfileUIState.Initial -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
@@ -72,7 +79,7 @@ fun ProfileIndexView(
                     )
                 }
             }
-            is ProfileUIState.Success, is ProfileUIState.Initial -> {
+            is ProfileUIState.Success -> {
                 LazyColumn(
                     modifier = Modifier.padding(16.dp),
                 ) {
@@ -89,7 +96,7 @@ fun ProfileIndexView(
                         Column(
                             verticalArrangement = Arrangement.spacedBy(24.dp),
                         ) {
-                            PersonalInformationSection()
+                            PersonalInformationSection(authViewModel = authViewModel)
                             OverallRatingSection()
                             Button(
                                 onClick = {
