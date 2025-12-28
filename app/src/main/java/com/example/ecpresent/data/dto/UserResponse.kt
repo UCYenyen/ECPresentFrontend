@@ -1,4 +1,6 @@
 package com.example.ecpresent.data.dto
+
+import com.example.ecpresent.enum.UserRole
 import com.google.gson.annotations.SerializedName
 data class UserResponse(
     @SerializedName("id")
@@ -17,6 +19,8 @@ data class UserResponse(
     val createdAt: String?,
     @SerializedName("updatedAt")
     val updatedAt: String?,
-    @SerializedName("UserRole")
-    val userRole: String?
+    @SerializedName("role")
+    val userRole: UserRole?,
+    @SerializedName("Avatar")
+    val avatar: AvatarResponse
 )
