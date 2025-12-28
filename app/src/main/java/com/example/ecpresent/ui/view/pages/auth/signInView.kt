@@ -26,7 +26,10 @@ import com.example.ecpresent.ui.view.components.pages.auth.SignInSection
 import com.example.ecpresent.ui.viewmodel.AuthViewModel
 
 @Composable
-fun SignInView(navController: NavController = rememberNavController(), authViewModel: AuthViewModel = viewModel()) {
+fun SignInView(
+    navController: NavController = rememberNavController(),
+    authViewModel: AuthViewModel = viewModel()
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -43,7 +46,8 @@ fun SignInView(navController: NavController = rememberNavController(), authViewM
         Spacer(Modifier.height(0.dp))
         Title("EC Present", "Start presenting easily!")
 
-        SignInSection(navController)
+        SignInSection(navController = navController,
+            authViewModel = authViewModel)
     }
 }
 
