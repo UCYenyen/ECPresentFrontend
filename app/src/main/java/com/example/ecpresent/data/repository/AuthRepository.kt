@@ -1,7 +1,6 @@
 package com.example.ecpresent.data.repository
 
 import com.example.ecpresent.data.dto.BaseResponse
-import com.example.ecpresent.data.dto.LearningResponseItem
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.dto.UserResponse
@@ -19,5 +18,10 @@ class AuthRepository(private val service: AuthService) {
 
     suspend fun continueAsGuest(): Response<BaseResponse<UserResponse>> {
         return service.continueAsGuest()
+    }
+
+    suspend fun getProfileById(token: String): Response<BaseResponse<UserResponse>>{
+        val formattedToken = "Bearer $token"
+        return service.getProfileById(token = formattedToken)
     }
 }
