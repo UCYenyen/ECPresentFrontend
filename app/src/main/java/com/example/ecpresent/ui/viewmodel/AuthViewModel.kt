@@ -7,8 +7,7 @@ import com.example.ecpresent.data.container.ServerContainer
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
-import com.example.ecpresent.ui.model.Avatar
-import com.example.ecpresent.ui.model.User
+import com.example.ecpresent.ui.model.toUser
 import com.example.ecpresent.ui.uistates.LoginUIState
 import com.example.ecpresent.ui.uistates.ProfileUIState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,20 +30,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val token = dataStoreManager.tokenFlow.first()
             if (!token.isNullOrEmpty()) {
-                val user = User(
-                    id = "",
-                    username = "",
-                    email = "",
-                    imageUrl = "",
-                    createdAt = "",
-                    updatedAt = "",
-                    role = "USER",
-                    avatar = null,
-                    token = token
-                )
-                _loginUIState.value = LoginUIState.Success(user)
-                _profileUIState.value = ProfileUIState.Success(user)
-            }else{
+                getProfileById()
+            } else{
                 _loginUIState.value = LoginUIState.Initial
                 _profileUIState.value = ProfileUIState.Initial
             }
@@ -64,30 +51,53 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
                     if (token.isNotEmpty()) {
                         dataStoreManager.saveToken(token)
+                        getProfileById(explicitToken = token)
+                    } else {
+                        _loginUIState.value = LoginUIState.Error("Login successful but no token received")
                     }
-
-                    val user = User(
-                        id = userResponse.id.toString(),
-                        username = userResponse.username ?: "",
-                        email = userResponse.email ?: "",
-                        imageUrl = userResponse.imageUrl ?: "",
-                        createdAt = userResponse.createdAt ?: "",
-                        updatedAt = userResponse.updatedAt ?: "",
-                        role = userResponse.userRole ?: "USER",
-                        avatar = Avatar(id = "2", imageUrl = "", createdAt = "2", updatedAt = "2"),
-                        token = token
-                    )
-                    _loginUIState.value = LoginUIState.Success(user)
-                    _profileUIState.value = ProfileUIState.Success(user)
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    _loginUIState.value =
-                        LoginUIState.Error("Login failed: ${response.code()} - $errorBody")
+                    _loginUIState.value = LoginUIState.Error("Login failed: ${response.code()} - $errorBody")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
             }
+        }
+    }
+
+    fun getProfileById(explicitToken: String? = null){
+        viewModelScope.launch {
+            _profileUIState.value = ProfileUIState.Loading
+            try {
+                val token = explicitToken ?: dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()){
+                    _loginUIState.value = LoginUIState.Initial
+                    return@launch
+                }
+
+                val response = authRepository.getProfileById(token)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val userResponse = response.body()!!.data.toUser()
+                    val token = userResponse.token
+                    if (token.isNotEmpty()) {
+                        dataStoreManager.saveToken(token)
+                    }
+                    _loginUIState.value = LoginUIState.Success(userResponse)
+                    _profileUIState.value = ProfileUIState.Success(userResponse)
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    val errorMsg = "Fetch failed: ${response.code()} - $errorBody"
+                    _profileUIState.value = ProfileUIState.Error(errorMsg)
+                    _loginUIState.value = LoginUIState.Error(errorMsg)
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _profileUIState.value = ProfileUIState.Error(e.message ?: "Unknown error")
+            }
+
         }
     }
 
@@ -100,8 +110,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
             _loginUIState.value = LoginUIState.Loading
             try {
-                val request =
-                    RegisterUserRequest(username = username, email = email, password = pass)
+                val request = RegisterUserRequest(username = username, email = email, password = pass)
                 val response = authRepository.register(request)
 
                 if (response.isSuccessful && response.body() != null) {
@@ -110,21 +119,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
                     if (token.isNotEmpty()) {
                         dataStoreManager.saveToken(token)
+                        getProfileById(explicitToken = token)
+                    } else {
+                        _loginUIState.value = LoginUIState.Error("Register successful but no token received")
                     }
-
-                    val user = User(
-                        id = userResponse.id.toString(),
-                        username = userResponse.username ?: "",
-                        email = userResponse.email ?: "",
-                        imageUrl = userResponse.imageUrl ?: "",
-                        createdAt = userResponse.createdAt ?: "",
-                        updatedAt = userResponse.updatedAt ?: "",
-                        role = "USER",
-                        avatar = Avatar(id = "2", imageUrl = "", createdAt = "2", updatedAt = "2"),
-                        token = token
-                    )
-                    _loginUIState.value = LoginUIState.Success(user)
-                    _profileUIState.value = ProfileUIState.Success(user)
 
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -150,21 +148,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
                     if (token.isNotEmpty()) {
                         dataStoreManager.saveToken(token)
+                        getProfileById(explicitToken = token)
                     }
-
-                    val user = User(
-                        id = userResponse.id.toString(),
-                        username = userResponse.username ?: "Guest",
-                        email = userResponse.email ?: "",
-                        imageUrl = userResponse.imageUrl ?: "",
-                        createdAt = userResponse.createdAt ?: "",
-                        updatedAt = userResponse.updatedAt ?: "",
-                        avatar = Avatar(id = "1", imageUrl = "", createdAt = "", updatedAt = ""),
-                        role = "GUEST",
-                        token = token
-                    )
-                    _loginUIState.value = LoginUIState.Success(user)
-                    _profileUIState.value = ProfileUIState.Success(user)
 
                 } else {
                     val errorMsg = response.errorBody()?.string() ?: "Unknown Server Error"
