@@ -20,8 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -33,7 +31,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.ecpresent.ui.uistates.LoginUIState
 import com.example.ecpresent.ui.view.components.elements.MyNavigationBar
 import com.example.ecpresent.ui.view.pages.GetStartedView
 import com.example.ecpresent.ui.view.pages.SplashScreen
@@ -170,10 +167,16 @@ fun AppRoute() {
                 GetStartedView(navController = navController)
             }
             composable(route = AppView.SignIn.name) {
-                SignInView(navController = navController)
+                SignInView(
+                    navController = navController,
+                    authViewModel = authViewModel
+                )
             }
             composable(route = AppView.SignUp.name) {
-                SignUpView(navController = navController)
+                SignUpView(
+                    navController = navController,
+                    authViewModel = authViewModel
+                )
             }
             composable(route = AppView.Learning.name) {
                 LearningIndexView(
@@ -227,7 +230,6 @@ fun AppRoute() {
                 )
             }
 
-            // 3. Final Feedback
             composable(route = AppView.PresentationFeedback.name) {
                 PresentationFeedbackView(
                     navController = navController,
