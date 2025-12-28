@@ -1,6 +1,5 @@
 package com.example.ecpresent.data.dto
 
-import com.example.ecpresent.ui.model.Learning
 import com.google.gson.annotations.SerializedName
 
 data class LearningProgressResponse(

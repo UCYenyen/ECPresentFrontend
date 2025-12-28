@@ -34,7 +34,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
-import com.example.ecpresent.ui.viewmodel.AuthViewModel
 import com.example.ecpresent.ui.viewmodel.LearningViewModel
 
 @Composable
