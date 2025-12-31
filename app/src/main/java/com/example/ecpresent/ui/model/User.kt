@@ -1,6 +1,6 @@
 package com.example.ecpresent.ui.model
 
-import com.example.ecpresent.data.Env.ROOT_URL
+import com.example.ecpresent.data.Env.BASE_URL
 import com.example.ecpresent.data.dto.UserResponse
 import com.example.ecpresent.enum.UserRole
 
@@ -25,7 +25,7 @@ fun UserResponse.toUser(): User{
         token = this.token,
         role = this.userRole,
         imageUrl = "",
-        avatar = this.avatar?.toAvatar() ?: Avatar(id = "", imageUrl = "${ROOT_URL}uploads/avatar_2.jpg", createdAt = "", updatedAt = ""),
+        avatar = this.avatar?.toAvatar() ?: Avatar(id = "", imageUrl = "${BASE_URL}uploads/avatar_2.jpg", createdAt = "", updatedAt = ""),
         createdAt = "",
         updatedAt = ""
     )

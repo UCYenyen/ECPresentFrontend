@@ -1,5 +1,5 @@
 package com.example.ecpresent.ui.model
-import com.example.ecpresent.data.Env.ROOT_URL
+import com.example.ecpresent.data.Env.BASE_URL
 import com.example.ecpresent.data.dto.AvatarResponse
 
 data class Avatar(
@@ -13,7 +13,7 @@ fun AvatarResponse.toAvatar(): Avatar{
     val rawUrl = this.imageUrl.ifBlank {
         "uploads/avatar_2.jpg"
     }
-    val finalUrl = "$ROOT_URL$rawUrl"
+    val finalUrl = "$BASE_URL$rawUrl"
     return Avatar(
         id = this.id.toString(),
         imageUrl = finalUrl,
