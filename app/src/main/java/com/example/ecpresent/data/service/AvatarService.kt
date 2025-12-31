@@ -12,8 +12,8 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface AvatarService {
-    @GET("avatar/{id}")
+    @GET("api/avatar/{id}")
     suspend fun getAvatarById(@Path("id") id: Int)
-    @GET("get-user-avatar/{id}")
+    @GET("api/get-user-avatar/{id}")
     suspend fun getUserAvatar(@Path("id") id: Int)
 }

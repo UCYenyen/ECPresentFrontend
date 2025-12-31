@@ -11,23 +11,23 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface LearningService {
-    @GET("getLearning/{id}")
+    @GET("api/getLearning/{id}")
     suspend fun getLearning(@Path("id") id: String): Response<LearningResponseItem>
 
-    @GET("getAllLearnings")
+    @GET("api/getAllLearnings")
     suspend fun getAllLearnings(): Response<BaseResponse<List<LearningResponseItem>>>
 
-    @GET("myLearningProgresses")
+    @GET("api/myLearningProgresses")
     suspend fun getMyLearningProgresses(
         @Header("Authorization") token: String
     ): Response<BaseResponse<List<LearningProgressResponse>>>
 
-    @GET("myLearningProgress/{id}")
+    @GET("api/myLearningProgress/{id}")
     suspend fun getMyLearningProgress(@Path("id") id: String): Response<BaseResponse<LearningProgressResponse>>
 
-    @POST("startLearning/{id}")
+    @POST("api/startLearning/{id}")
     suspend fun startLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<BaseResponse<LearningProgressResponse>>
 
-    @PUT("completeLearning/{id}")
+    @PUT("api/completeLearning/{id}")
     suspend fun completeLearning(@Header("Authorization") token: String, @Path("id") id: String): Response<BaseResponse<LearningProgressResponse>>
 }

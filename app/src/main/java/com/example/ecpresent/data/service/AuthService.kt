@@ -11,20 +11,20 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthService {
-    @POST("register")
+    @POST("api/register")
     suspend fun register(
         @Body request: RegisterUserRequest
     ): Response<BaseResponse<UserResponse>>
 
-    @POST("login")
+    @POST("api/login")
     suspend fun login(
         @Body request: LoginUserRequest
     ): Response<BaseResponse<UserResponse>>
 
-    @POST("guest")
+    @POST("api/guest")
     suspend fun continueAsGuest(): Response<BaseResponse<UserResponse>>
 
-    @GET("get-profile")
+    @GET("api/get-profile")
     suspend fun getProfileById(
         @Header("Authorization") token: String
     ): Response<BaseResponse<UserResponse>>
