@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
+import com.example.ecpresent.data.dto.UpdateUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
 import com.example.ecpresent.ui.model.toUser
 import com.example.ecpresent.ui.uistates.LoginUIState
@@ -98,6 +99,55 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 _profileUIState.value = ProfileUIState.Error(e.message ?: "Unknown error")
             }
 
+        }
+    }
+
+    // Di dalam AuthViewModel.kt
+
+    fun updateAvatar(newAvatarId: Int, passwordUser: String) {
+        viewModelScope.launch {
+            // 1. Ambil Token
+            val rawToken = dataStoreManager.tokenFlow.first()
+            if (rawToken.isNullOrEmpty()) {
+                _profileUIState.value = ProfileUIState.Error("Token kosong")
+                return@launch
+            }
+
+            // 2. Ambil Data Lama (Email & Username)
+            val currentState = _profileUIState.value
+
+            if (currentState is ProfileUIState.Success) {
+                // --- PERBAIKAN 1: Ganti .user jadi .data ---
+                val oldData = currentState.data
+
+                // 3. Gabungkan Data (Wajib isi semua sesuai request temanmu)
+                val request = UpdateUserRequest(
+                    avatarId = newAvatarId,
+                    email = oldData.email ?: "",
+                    username = oldData.username ?: "",
+                    password = passwordUser
+                )
+
+                try {
+                    // --- PERBAIKAN 2: Tambahkan tulisan "Bearer " manual ---
+                    // Karena di Repository fungsi updateProfile-mu tidak otomatis nambahin Bearer
+                    val formattedToken = "Bearer $rawToken"
+
+                    val response = authRepository.updateProfile(formattedToken, request)
+
+                    if (response.isSuccessful) {
+                        getProfileById() // Refresh biar gambar berubah
+                    } else {
+                        val errorMsg = response.errorBody()?.string() ?: "Gagal update"
+                        _profileUIState.value = ProfileUIState.Error(errorMsg)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    _profileUIState.value = ProfileUIState.Error(e.message ?: "Error")
+                }
+            } else {
+                _profileUIState.value = ProfileUIState.Error("Data profil belum siap")
+            }
         }
     }
 
