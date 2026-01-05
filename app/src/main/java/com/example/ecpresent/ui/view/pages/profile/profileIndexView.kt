@@ -96,7 +96,10 @@ fun ProfileIndexView(
                         Column(
                             verticalArrangement = Arrangement.spacedBy(24.dp),
                         ) {
-                            PersonalInformationSection(authViewModel = authViewModel)
+                            PersonalInformationSection(
+                                authViewModel = authViewModel,
+                                navController = navController
+                            )
                             OverallRatingSection()
                             Button(
                                 onClick = {
