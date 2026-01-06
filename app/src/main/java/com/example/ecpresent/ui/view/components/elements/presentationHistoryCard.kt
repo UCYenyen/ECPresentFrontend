@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.ecpresent.ui.model.Presentation
+import com.example.ecpresent.ui.model.PresentationStatus
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 
@@ -34,7 +35,11 @@ fun PresentationHistoryCard(presentation: Presentation, presentationViewModel: P
             containerColor = Color(0xff3478E4)
         ),
         onClick = {
-            navController.navigate( "${AppView.FollowUpQuestion.name}/${presentation.id}")
+            if (presentation.status == PresentationStatus.ONGOING) {
+                navController.navigate("${AppView.FollowUpQuestion.name}/${presentation.id}")
+            } else {
+                navController.navigate("${AppView.PresentationFeedback.name}/${presentation.id}")
+            }
         }
     ) {
         Column (modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp).fillMaxWidth()) {
