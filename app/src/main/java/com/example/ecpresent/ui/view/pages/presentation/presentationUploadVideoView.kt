@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -122,7 +121,7 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Mengambil sisa ruang yang tersedia
+                    .weight(1f)
                     .clickable { videoPickerLauncher.launch("video/*") }
                     .drawWithContent {
                         drawContent()

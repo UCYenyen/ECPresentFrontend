@@ -131,7 +131,7 @@ fun PresentationQNAView(
             ) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Loading Question...", color = MaterialTheme.colorScheme.onSurface)
+                Text("Please wait, while we are thinking for a question to ask...", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
         }
 
@@ -310,25 +310,29 @@ fun PresentationQNAView(
 
         is QnAUIState.Loading -> {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surface),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Loading Question...", color = MaterialTheme.colorScheme.onSurface)
+                Text("Please wait while we are, thinking for a question to ask...", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
         }
 
         is QnAUIState.OnUserSubmitAnswer -> {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surface),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Analyzing Answer...", color = MaterialTheme.colorScheme.onSurface)
+                Text("Please wait while, we are analyzing your presentation...", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
         }
         else -> {}

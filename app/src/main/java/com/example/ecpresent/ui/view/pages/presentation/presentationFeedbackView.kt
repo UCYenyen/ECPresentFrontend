@@ -198,10 +198,6 @@ fun PresentationFeedbackView(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Divider(modifier = Modifier.padding(vertical = 24.dp))
-
-
-
                 Spacer(modifier = Modifier.height(16.dp))
             }
             is FeedbackUIState.Error -> {
