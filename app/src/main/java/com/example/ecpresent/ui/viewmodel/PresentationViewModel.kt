@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.local.DataStoreManager
+import com.example.ecpresent.ui.uistates.AverageScoreUIState
 import com.example.ecpresent.ui.uistates.FeedbackUIState
 import com.example.ecpresent.ui.uistates.PresentationIndexUIState
 import com.example.ecpresent.ui.uistates.QnAUIState
@@ -34,6 +35,9 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
 
     private val _feedbackState = MutableStateFlow<FeedbackUIState>(FeedbackUIState.Initial)
     val feedbackState = _feedbackState.asStateFlow()
+
+    private val _averageScoreState = MutableStateFlow<AverageScoreUIState>(AverageScoreUIState.Initial)
+    val averageScoreState: StateFlow<AverageScoreUIState> = _averageScoreState.asStateFlow()
 
     private val _isRecording = MutableStateFlow(false)
     val isRecording = _isRecording.asStateFlow()
@@ -226,6 +230,29 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    fun getAverageScore(){
+        viewModelScope.launch {
+            _averageScoreState.value = AverageScoreUIState.Loading
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _averageScoreState.value = AverageScoreUIState.Error("Token not found")
+                    return@launch
+                }
+                val response = presentationRepository.getAverageScore(token)
+
+                if (response.isSuccessful && response.body()?.data != null) {
+                    val data = response.body()!!.data
+                    _averageScoreState.value = AverageScoreUIState.Success(data)
+                } else {
+                    val errorMsg = response.errorBody()?.string() ?: "Failed to load average scores"
+                    _averageScoreState.value = AverageScoreUIState.Error(errorMsg)
+                }
+            } catch (e: Exception) {
+                _averageScoreState.value = AverageScoreUIState.Error(e.message ?: "Unknown Error")
+            }
+        }
+    }
     fun onNotesChanged(newNotes: String) {
         _feedbackNotes.value = newNotes
     }
