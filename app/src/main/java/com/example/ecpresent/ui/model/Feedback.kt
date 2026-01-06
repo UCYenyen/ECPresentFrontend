@@ -3,8 +3,8 @@ package com.example.ecpresent.ui.model
 import com.example.ecpresent.enum.GradeEnum
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse as FeedbackDto
 data class Feedback (
-    val id: Int,
-    val presentationId: Int,
+    val id: String,
+    val presentationId: String,
     val expression: Double,
     val intonation: Double,
     val posture: Double,

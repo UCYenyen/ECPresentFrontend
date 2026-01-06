@@ -58,7 +58,7 @@ fun PresentationQNAView(
     val isRecording by presentationViewModel.isRecording.collectAsState()
     val context = LocalContext.current
     var mediaRecorder: MediaRecorder? by remember { mutableStateOf(null) }
-    val audioFile = remember { File(context.cacheDir, "temp_answer.mp4") }
+    val audioFile = remember { File(context.cacheDir, "temp_answer.mp3") }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -118,7 +118,7 @@ fun PresentationQNAView(
                 text = {
                     Column {
                         Text(
-                            text = "Audio Score: ${String.format("%.1f", answerData.score ?: 0.0)}",
+                            text = "Audio Score: ${String.format("%.1f", answerData.score.toDouble())}",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
@@ -130,9 +130,7 @@ fun PresentationQNAView(
                 confirmButton = {
                     Button(
                         onClick = {
-                            navController.navigate(AppView.PresentationFeedback.name) {
-                                popUpTo(AppView.PresentationFeedback.name) { inclusive = true }
-                            }
+                            navController.navigate("${AppView.PresentationFeedback.name}/${presentationId}")
                         }
                     ) {
                         Text("Continue to Final Result")

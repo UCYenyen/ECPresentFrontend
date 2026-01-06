@@ -3,9 +3,9 @@ package com.example.ecpresent.data.dto
 import com.google.gson.annotations.SerializedName
 
 data class PresentationFeedbackResponse(
-    val id: Int,
+    val id: String,
     @SerializedName("presentation_id")
-    val presentationId: Int,
+    val presentationId: String,
 
     val expression: Double,
     val intonation: Double,

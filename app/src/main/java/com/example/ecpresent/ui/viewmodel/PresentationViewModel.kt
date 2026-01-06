@@ -7,10 +7,10 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
+import com.example.ecpresent.ui.uistates.PresentationIndexUIState
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.local.DataStoreManager
 import com.example.ecpresent.ui.uistates.FeedbackUIState
-import com.example.ecpresent.ui.uistates.PresentationIndexUIState
 import com.example.ecpresent.ui.uistates.QnAUIState
 import com.example.ecpresent.ui.uistates.UploadPresentationUIState
 import kotlinx.coroutines.delay
@@ -28,7 +28,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
     val uploadPresentationUIState: StateFlow<UploadPresentationUIState> = _uploadPresentationUIState.asStateFlow()
     private val _presentationIndexState = MutableStateFlow<PresentationIndexUIState>(PresentationIndexUIState.Initial)
     val presentationIndexState = _presentationIndexState.asStateFlow()
-
     private val _qnaState = MutableStateFlow<QnAUIState>(QnAUIState.Initial)
     val qnaState: StateFlow<QnAUIState> = _qnaState.asStateFlow()
 
@@ -46,8 +45,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
     private var countDownTimer: CountDownTimer? = null
 
     var activePresentationId: Int? = null
-        private set
-    var activeQuestion: String? = null
         private set
 
     var activeFeedbackData: PresentationFeedbackResponse? = null
@@ -88,22 +85,16 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
     fun getAnalysis(presentationId: String) {
         viewModelScope.launch {
             try {
-                // 1. Ambil token
                 val token = dataStoreManager.tokenFlow.first()
                 if (token.isNullOrEmpty()) {
                     _qnaState.value = QnAUIState.Error("User not logged in")
                     return@launch
                 }
 
-                // Set state loading di awal
-                // _qnaState.value = QnAUIState.Loading
-
                 var attempts = 0
-                val maxAttempts = 10      // Coba maksimal 10 kali
-                val delayMillis = 3000L   // Tunggu 3 detik setiap percobaan
-                var isAnalysisReady = false
+                val maxAttempts = 10
+                val delayMillis = 3000L
 
-                // 2. Loop (Polling) sampai data didapat atau batas percobaan habis
                 while (attempts < maxAttempts) {
                     val response = presentationRepository.getAnalysis(
                         token = token,
@@ -113,7 +104,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
 
                     if (response.isSuccessful && response.body() != null) {
                         val analysisData = response.body()!!.data
-
                         val isAnalysisReady = analysisData != null &&
                                 !analysisData.question?.question.isNullOrEmpty()
 
@@ -133,7 +123,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
             }
         }
     }
-
     fun startTimer(onFinish: () -> Unit) {
         _timer.value = 10
         countDownTimer?.cancel()
@@ -152,35 +141,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         countDownTimer?.cancel()
     }
 
-    fun getPresentationHistory() {
-        viewModelScope.launch {
-            _presentationIndexState.value = PresentationIndexUIState.Loading
-            try {
-                val token = dataStoreManager.tokenFlow.first()
-                if (token.isNullOrEmpty()) {
-                    _presentationIndexState.value = PresentationIndexUIState.Error("Session expired")
-                    return@launch
-                }
-
-                val response = presentationRepository.getPresentationHistory(token)
-
-                if (response.isSuccessful && response.body()?.data != null) {
-                    val presentations = response.body()!!.data
-
-                    _presentationIndexState.value = PresentationIndexUIState.Success(presentations)
-
-                    if (presentations.isNotEmpty()) {
-                        activePresentationId = presentations.maxByOrNull { it.id }?.id
-                    }
-                } else {
-                    _presentationIndexState.value = PresentationIndexUIState.Error("Failed to fetch data")
-                }
-            } catch (e: Exception) {
-                _presentationIndexState.value = PresentationIndexUIState.Error(e.message ?: "Unknown error")
-            }
-        }
-    }
-
     fun submitAnswer(audioFile: File, presentationId: String) {
         stopTimer()
         _isRecording.value = false
@@ -189,36 +149,50 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
             _qnaState.value = QnAUIState.OnUserSubmitAnswer
             try {
                 val token = dataStoreManager.tokenFlow.first() ?: return@launch
-                val id = presentationId
-                val response = presentationRepository.submitAnswer(token, id, audioFile)
+                val response = presentationRepository.submitAnswer(token, presentationId, audioFile)
 
                 if (response.isSuccessful && response.body()?.data != null) {
                     _qnaState.value = QnAUIState.AnswerScored(response.body()!!.data)
+                    _feedbackState.value = FeedbackUIState.Initial
                 } else {
-                    _qnaState.value = QnAUIState.Error("Gagal: ${response.code()}")
+                    val errorBodyString = response.errorBody()?.string() // Baca pesan error dari server
+                    android.util.Log.e("DEBUG_ERROR", "Code: ${response.code()}")
+                    android.util.Log.e("DEBUG_ERROR", "Message: $errorBodyString")
+
+                    // Tampilkan pesan asli ke UI agar Anda tahu kenapa
+                    _qnaState.value = QnAUIState.Error("Gagal (${response.code()}): $errorBodyString")
                 }
             } catch (e: Exception) {
-                _qnaState.value = QnAUIState.Error(e.message ?: "Error")
+                _qnaState.value = QnAUIState.Error("Babi" ?: "Error")
             }
         }
     }
 
-    fun getFinalFeedback() {
+
+    fun getFinalFeedback(presentationId: String) {
         viewModelScope.launch {
             _feedbackState.value = FeedbackUIState.Loading
             try {
                 val token = dataStoreManager.tokenFlow.first() ?: return@launch
-                val id = activePresentationId?.toString() ?: return@launch
 
-                val response = presentationRepository.getFinalFeedback(token, id)
+                val response = presentationRepository.getFinalFeedback(token, presentationId)
 
                 if (response.isSuccessful && response.body()?.data != null) {
                     val data = response.body()!!.data
                     _feedbackState.value = FeedbackUIState.Success(data)
-                    // Reset notes jika ada data baru
                     _feedbackNotes.value = data.personalNotes ?: "" // Jika Anda punya field ini di DTO feedback
                 } else {
-                    _feedbackState.value = FeedbackUIState.Error("Gagal memuat feedback")
+                    val errorCode = response.code() // Misal: 404, 500, 401
+                    val errorBody = response.errorBody()?.string() // Pesan asli dari backend
+
+                    // Catat di Logcat (Filter: "API_DEBUG")
+                    android.util.Log.e("API_DEBUG", "Gagal Load Feedback!")
+                    android.util.Log.e("API_DEBUG", "URL: ${response.raw().request.url}")
+                    android.util.Log.e("API_DEBUG", "Code: $errorCode")
+                    android.util.Log.e("API_DEBUG", "Pesan: $errorBody")
+
+                    // Tampilkan error code ke layar agar Anda langsung tahu
+                    _feedbackState.value = FeedbackUIState.Error("Err $errorCode: $errorBody")
                 }
             } catch (e: Exception) {
                 _feedbackState.value = FeedbackUIState.Error(e.message ?: "Error")
@@ -247,7 +221,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    // 2. Delete Presentation (Uses activePresentationId)
     fun deletePresentation(onSuccess: () -> Unit) {
         viewModelScope.launch {
             _feedbackState.value = FeedbackUIState.Loading
@@ -277,5 +250,33 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         _uploadPresentationUIState.value = UploadPresentationUIState.Initial
         _qnaState.value = QnAUIState.Initial
         _feedbackState.value = FeedbackUIState.Initial
+    }
+    fun getPresentationHistory() {
+        viewModelScope.launch {
+            _presentationIndexState.value = PresentationIndexUIState.Loading
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _presentationIndexState.value = PresentationIndexUIState.Error("Session expired")
+                    return@launch
+                }
+
+                val response = presentationRepository.getPresentationHistory(token)
+
+                if (response.isSuccessful && response.body()?.data != null) {
+                    val presentations = response.body()!!.data
+
+                    _presentationIndexState.value = PresentationIndexUIState.Success(presentations)
+
+                    if (presentations.isNotEmpty()) {
+                        activePresentationId = presentations.maxByOrNull { it.id }?.id
+                    }
+                } else {
+                    _presentationIndexState.value = PresentationIndexUIState.Error("Failed to fetch data")
+                }
+            } catch (e: Exception) {
+                _presentationIndexState.value = PresentationIndexUIState.Error(e.message ?: "Unknown error")
+            }
+        }
     }
 }

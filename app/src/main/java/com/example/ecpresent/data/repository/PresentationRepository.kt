@@ -35,14 +35,15 @@ class PresentationRepository(private val service: PresentationService) {
 
     suspend fun submitAnswer(token: String, presentationId: String, audioFile: File): Response<BaseResponse<Answer>> {
         val formattedToken = "Bearer $token"
-        val requestFile = audioFile.asRequestBody("audio/mp4".toMediaTypeOrNull())
+        val requestFile = audioFile.asRequestBody("audio/m4a".toMediaTypeOrNull())
         val audioPart = MultipartBody.Part.createFormData("audio", audioFile.name, requestFile)
 
         return service.submitAnswer(formattedToken, presentationId, audioPart)
     }
 
     suspend fun getFinalFeedback(token: String, presentationId: String): Response<BaseResponse<PresentationFeedbackResponse>> {
-        return service.getFinalFeedback("Bearer $token", presentationId)
+        val formattedToken = "Bearer $token"
+        return service.getFinalFeedback(formattedToken, presentationId)
     }
 
     suspend fun updateNotes(token: String, presentationId: Int, notes: String): Response<BaseResponse<PresentationFeedbackResponse>> {
