@@ -128,9 +128,9 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
     fun startTimer(onFinish: () -> Unit) {
-        _timer.value = 10
+        _timer.value = 30
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(10000, 1000) {
+        countDownTimer = object : CountDownTimer(30000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 _timer.value = (millisUntilFinished / 1000).toInt()
             }

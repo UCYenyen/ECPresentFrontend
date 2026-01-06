@@ -119,7 +119,6 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // CARD HANYA UNTUK AREA DROPZONE / PICKER VIDEO
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -193,9 +192,8 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp)) // Jarak antara Card dan Button
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // BUTTON DI LUAR CARD
             Button(
                 onClick = {
                     videoUri?.let { uri ->
@@ -204,7 +202,7 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(56.dp),
                 shape = RoundedCornerShape(12.dp),
                 enabled = presentationTitle.isNotBlank() && videoUri != null && uploadState !is UploadPresentationUIState.Loading,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3478E4))
