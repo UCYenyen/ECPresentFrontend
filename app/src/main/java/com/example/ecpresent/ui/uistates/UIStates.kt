@@ -1,8 +1,8 @@
 package com.example.ecpresent.ui.uistates
 
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
+import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.ui.model.Answer
-import com.example.ecpresent.ui.model.Feedback
 import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.model.LearningProgress
 import com.example.ecpresent.ui.model.Learning
@@ -54,28 +54,23 @@ sealed interface ProfileUIState {
 sealed interface UploadPresentationUIState {
     object Initial : UploadPresentationUIState
     object Loading : UploadPresentationUIState
-    data class Success(val data: PresentationAnalysisResponse) : UploadPresentationUIState
+    data class Success(val data: Presentation) : UploadPresentationUIState
     data class Error(val message: String) : UploadPresentationUIState
 }
 
 sealed interface QnAUIState {
     object Initial : QnAUIState
     object Loading : QnAUIState
+    object OnUserSubmitAnswer: QnAUIState
+    data class Success(val data: PresentationAnalysisResponse) : QnAUIState
     data class AnswerScored(val answer: Answer) : QnAUIState
     data class Error(val msg: String) : QnAUIState
 }
-
-sealed class PresentationIndexUIState {
-    object Initial : PresentationIndexUIState()
-    object Loading : PresentationIndexUIState()
-    data class Success(val data: List<Presentation>) : PresentationIndexUIState()
-    data class Error(val msg: String) : PresentationIndexUIState()
+sealed interface FeedbackUIState {
+    object Initial : FeedbackUIState
+    object Loading : FeedbackUIState
+    data class Success(val data: PresentationFeedbackResponse) : FeedbackUIState
+    object Deleted : FeedbackUIState
+    object NotesUpdated : FeedbackUIState
+    data class Error(val msg: String) : FeedbackUIState
 }
-
-sealed class FeedbackUIState {
-    object Initial : FeedbackUIState()
-    object Loading : FeedbackUIState()
-    data class Success(val data: PresentationFeedbackResponse) : FeedbackUIState()
-    object Deleted : FeedbackUIState()
-    object NotesUpdated : FeedbackUIState()
-    data class Error(val msg: String) : FeedbackUIState()

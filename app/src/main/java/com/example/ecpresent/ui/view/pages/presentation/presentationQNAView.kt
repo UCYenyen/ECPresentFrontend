@@ -50,19 +50,15 @@ import java.io.IOException
 @Composable
 fun PresentationQNAView(
     navController: NavController,
-    presentationViewModel: PresentationViewModel = viewModel()
+    presentationViewModel: PresentationViewModel = viewModel(),
+    presentationId: String
 ) {
     val qnaState by presentationViewModel.qnaState.collectAsState()
     val timer by presentationViewModel.timer.collectAsState()
     val isRecording by presentationViewModel.isRecording.collectAsState()
-    val questionText = presentationViewModel.activeQuestion ?: "Question is loading..."
     val context = LocalContext.current
-
-    // Audio Recorder & File Setup
     var mediaRecorder: MediaRecorder? by remember { mutableStateOf(null) }
     val audioFile = remember { File(context.cacheDir, "temp_answer.mp4") }
-
-    // Permission Handling
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -107,80 +103,91 @@ fun PresentationQNAView(
         }
     }
 
-    // Modal Dialog Logic
-    if (qnaState is QnAUIState.AnswerScored) {
-        val answerData = (qnaState as QnAUIState.AnswerScored).answer
-        AlertDialog(
-            onDismissRequest = { /* Force user to proceed */ },
-            title = { Text("Audio Analysis Result") },
-            text = {
-                Column {
-                    Text(
-                        text = "Audio Score: ${String.format("%.1f", answerData.score ?: 0.0)}",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Suggestion:", fontWeight = FontWeight.SemiBold)
-                    Text(answerData.suggestion ?: "No suggestion provided.")
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        // Navigate to Feedback View
-                        navController.navigate(AppView.PresentationFeedback.name) {
-                            popUpTo(AppView.PresentationFeedback.name) { inclusive = true }
-                        }
-                    }
-                ) {
-                    Text("Continue to Final Result")
-                }
+    when(val state = qnaState){
+        is QnAUIState.Initial -> {
+            LaunchedEffect(Unit) {
+                presentationViewModel.getAnalysis(presentationId)
             }
-        )
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.surface)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "QnA Session",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Question Card
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-        ) {
-            Text(
-                text = questionText,
-                modifier = Modifier.padding(24.dp),
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 28.sp
-            )
         }
 
-        Spacer(modifier = Modifier.height(48.dp))
+        is QnAUIState.AnswerScored -> {
+            val answerData = state.answer
+            AlertDialog(
+                onDismissRequest = { },
+                title = { Text("Audio Analysis Result") },
+                text = {
+                    Column {
+                        Text(
+                            text = "Audio Score: ${String.format("%.1f", answerData.score ?: 0.0)}",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Suggestion:", fontWeight = FontWeight.SemiBold)
+                        Text(answerData.suggestion ?: "No suggestion provided.")
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            navController.navigate(AppView.PresentationFeedback.name) {
+                                popUpTo(AppView.PresentationFeedback.name) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Text("Continue to Final Result")
+                    }
+                }
+            )
+        }
+        is QnAUIState.Error -> {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = state.msg,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        is QnAUIState.Success-> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surface)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "QnA Session",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
 
-        // Timer or Loading
-        if (qnaState is QnAUIState.Submitting) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                ) {
+                    Text(
+                        text = state.data.question?.question ?: "No Question Generated",
+                        modifier = Modifier.padding(24.dp),
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 28.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(48.dp))
+            }
+        }
+        is QnAUIState.Loading -> {
             CircularProgressIndicator()
             Spacer(modifier = Modifier.height(16.dp))
             Text("Analyzing Answer...", color = MaterialTheme.colorScheme.onSurface)
-        } else {
+        }
+        is QnAUIState.OnUserSubmitAnswer -> {
             Text(
                 text = "00:${timer.toString().padStart(2, '0')}",
                 fontSize = 64.sp,
@@ -195,7 +202,6 @@ fun PresentationQNAView(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Action Buttons
             if (!isRecording) {
                 Button(
                     onClick = { startRecording() },
@@ -216,21 +222,12 @@ fun PresentationQNAView(
                 }
             }
         }
-
-        // Error Message
-        if (qnaState is QnAUIState.Error) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = (qnaState as QnAUIState.Error).msg,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+        else -> { }
     }
 }
 
-@Composable
-@Preview(showBackground = true)
-private fun PresentationQNAViewPreview() {
-    PresentationQNAView(navController = rememberNavController())
-}
+//@Composable
+//@Preview(showBackground = true)
+//private fun PresentationQNAViewPreview() {
+//    PresentationQNAView(navController = rememberNavController(), )
+//}

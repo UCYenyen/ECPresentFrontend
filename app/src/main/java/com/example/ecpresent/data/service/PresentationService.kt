@@ -4,7 +4,6 @@ import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
-import com.example.ecpresent.data.dto.PresentationListResponse
 import com.example.ecpresent.ui.model.Presentation
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -12,8 +11,10 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface PresentationService {
-//    @GET("presentations/{id}/analysis")
-//    suspend fun getPresentationAnalysis(@Path("id") id: String): Response<BaseResponse<PresentationAnalysisResponse>>
+    @GET("api/presentations/{id}/analysis")
+    suspend fun getPresentationAnalysis(
+        @Header("Authorization") token: String,
+        @Path("id") id: String): Response<BaseResponse<PresentationAnalysisResponse>>
 
     @Multipart
     @POST("api/presentations")

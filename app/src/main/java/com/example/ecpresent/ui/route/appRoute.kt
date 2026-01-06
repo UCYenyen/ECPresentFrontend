@@ -229,10 +229,12 @@ fun AppRoute() {
                 )
             }
 
-            composable(route = AppView.FollowUpQuestion.name) {
+            composable(route = "${AppView.FollowUpQuestion.name}/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
                 PresentationQNAView(
                     navController = navController,
-                    presentationViewModel = presentationViewModel
+                    presentationViewModel = presentationViewModel,
+                    presentationId = id
                 )
             }
 

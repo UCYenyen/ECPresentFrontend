@@ -29,6 +29,11 @@ class PresentationRepository(private val service: PresentationService) {
         return service.createPresentation(formattedToken, videoPart, titlePart)
     }
 
+    suspend fun getAnalysis(token: String, id: String): Response<BaseResponse<PresentationAnalysisResponse>>{
+        val formattedToken = "Bearer $token"
+        return service.getPresentationAnalysis(formattedToken, id)
+    }
+
     suspend fun submitAnswer(token: String, presentationId: String, audioFile: File): Response<BaseResponse<Answer>> {
         val formattedToken = "Bearer $token"
         val requestFile = audioFile.asRequestBody("audio/mp4".toMediaTypeOrNull())
