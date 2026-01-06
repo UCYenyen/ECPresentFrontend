@@ -31,6 +31,7 @@ data class PresentationFeedbackResponse(
     val status: String,
     @SerializedName("personal_notes")
     val personalNotes: String?,
+
     val createdAt: String,
     val updatedAt: String,
 

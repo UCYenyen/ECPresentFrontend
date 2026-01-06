@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -47,14 +48,19 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.UploadPresentationUIState
-import com.example.ecpresent.ui.viewmodel.AuthViewModel
 import com.example.ecpresent.ui.viewmodel.PresentationViewModel
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 @Composable
 fun PresentationUploadVideoView(navController: NavController, presentationViewModel: PresentationViewModel = viewModel()) {
     var presentationTitle by remember { mutableStateOf("") }
     var videoUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
+    val stroke = Stroke(
+        width = 8f,
+        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+    )
 
     val videoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -96,9 +102,12 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
             OutlinedTextField(
                 value = presentationTitle,
                 onValueChange = { presentationTitle = it },
@@ -110,25 +119,27 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // CARD HANYA UNTUK AREA DROPZONE / PICKER VIDEO
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .weight(1f) // Mengambil sisa ruang yang tersedia
                     .clickable { videoPickerLauncher.launch("video/*") }
-                    .border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(16.dp)
-                    ),
+                    .drawWithContent {
+                        drawContent()
+                        drawRoundRect(
+                            color = Color.Black,
+                            style = stroke,
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(16.dp.toPx())
+                        )
+                    },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    containerColor = Color.Black.copy(alpha = 0.025f)
                 ),
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 16.dp, horizontal = 16.dp),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -137,7 +148,7 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
                             imageVector = Icons.Outlined.CloudUpload,
                             contentDescription = "Upload Video",
                             modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = Color.Black
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
@@ -145,7 +156,6 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Choose A Presentation Video To Analyze.",
                             style = MaterialTheme.typography.bodyMedium,
@@ -157,16 +167,24 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
                             imageVector = Icons.Outlined.Videocam,
                             contentDescription = "Video Selected",
                             modifier = Modifier.size(64.dp),
-                            tint = Color(0xFF00C853)
+                            tint = Color.Black
                         )
                         Spacer(modifier = Modifier.height(16.dp))
+                        Text("Video Ready!", style = MaterialTheme.typography.titleLarge, color = Color.Black)
                         Text(
-                            text = "Video Ready!",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
+                            text = "Click Upload to proceed.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
                         )
                         Text(
-                            text = "Click the upload button below.",
+                            text = "--------------------Or--------------------",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "Click here to select another video.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
@@ -175,12 +193,13 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
                 }
             }
 
-            Spacer(Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(16.dp)) // Jarak antara Card dan Button
 
+            // BUTTON DI LUAR CARD
             Button(
                 onClick = {
                     videoUri?.let { uri ->
-                        presentationViewModel.uploadPresentation( uri, presentationTitle)
+                        presentationViewModel.uploadPresentation(uri, presentationTitle)
                     }
                 },
                 modifier = Modifier

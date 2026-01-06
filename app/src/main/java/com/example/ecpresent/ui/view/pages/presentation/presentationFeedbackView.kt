@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -29,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -92,9 +95,9 @@ fun PresentationFeedbackView(
             }
             is FeedbackUIState.Success ->{
                 val feedbackData = state.data
-                
+
                 Text(
-                    text = "Presentation Result",
+                    text = "Result",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -106,43 +109,74 @@ fun PresentationFeedbackView(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp).fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "Grade",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Text(
-                            text = feedbackData.grade ?: "-",
-                            fontSize = 48.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Overall Score: ${String.format("%.1f", feedbackData.overallRating?.toDouble())}",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        // Lingkaran Inisial (D)
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp) // Ukuran lingkaran
+                                .background(Color(0xFFE0E0E0), shape = androidx.compose.foundation.shape.CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = feedbackData.grade ?: "-",
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(20.dp))
+
+                        // Konten Teks di Kanan
+                        Column {
+                            Text(
+                                text = "Overall (" + (feedbackData.overallRating ?: 0).toString() + "%)",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                            Text(
+                                text = "${feedbackData.grade} tier is a good, Great Job!",
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Detail Scores
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    ScoreColumn("Video", feedbackData.videoScore)
-                    ScoreColumn("Audio", feedbackData.audioScore ?: 0.0)
-                    ScoreColumn("Expression", feedbackData.expression)
+                Divider(modifier = Modifier.padding(vertical = 24.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Column {
+                        SectionTitle("Intonation")
+                        Text(
+                            text = feedbackData.intonation.toString() + " out of 100",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Column {
+                        SectionTitle("Posture")
+                        Text(
+                            text = feedbackData.posture.toString() + " out of 100",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Column {
+                        SectionTitle("Expression")
+                        Text(
+                            text = feedbackData.expression.toString() + " out of 100",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
 
                 Divider(modifier = Modifier.padding(vertical = 24.dp))
@@ -166,25 +200,7 @@ fun PresentationFeedbackView(
 
                 Divider(modifier = Modifier.padding(vertical = 24.dp))
 
-                // Personal Notes
-                SectionTitle("Personal Notes")
-                OutlinedTextField(
-                    value = notes,
-                    onValueChange = { presentationViewModel.onNotesChanged(it) },
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    label = { Text("Write your self-evaluation here...") },
-                    shape = RoundedCornerShape(12.dp),
-                    minLines = 3
-                )
 
-                Button(
-                    onClick = { presentationViewModel.updateNotes() },
-                    enabled = notes.isNotEmpty(),
-                    modifier = Modifier.align(Alignment.End).padding(top = 8.dp),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(if (feedbackState is FeedbackUIState.NotesUpdated) "Saved!" else "Save Notes")
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -203,31 +219,13 @@ fun PresentationFeedbackView(
         }
     }
 }
-
-@Composable
-fun ScoreColumn(title: String, score: Any) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = String.format("%.1f", score),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = title,
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
 @Composable
 fun SectionTitle(text: String) {
     Text(
         text = text,
         fontSize = 18.sp,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(bottom = 4.dp)
     )
 }
