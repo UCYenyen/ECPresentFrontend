@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import android.os.CountDownTimer
 import android.util.Log
+import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
@@ -20,6 +21,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 class PresentationViewModel(application: Application) : AndroidViewModel(application) {
     private val presentationRepository = ServerContainer().serverPresentationRepository
@@ -277,6 +281,31 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
             } catch (e: Exception) {
                 _presentationIndexState.value = PresentationIndexUIState.Error(e.message ?: "Unknown error")
             }
+        }
+    }
+
+    fun formatTimeStamp(dateString: String): String {
+        try {
+            val inputFormatter = DateTimeFormatter.ISO_DATE_TIME
+            val dateTime = LocalDateTime.parse(dateString, inputFormatter)
+
+            val now = LocalDateTime.now()
+
+            val daysDiff = ChronoUnit.DAYS.between(dateTime.toLocalDate(), now.toLocalDate())
+
+            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+            return when (daysDiff) {
+                0L -> "Today, ${dateTime.format(timeFormatter)}"
+                1L -> "Yesterday, ${dateTime.format(timeFormatter)}"
+                else -> {
+                    val dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm",
+                        java.util.Locale.getDefault())
+                    dateTime.format(dateFormatter)
+                }
+            }
+        } catch (e: Exception) {
+            return dateString
         }
     }
 }

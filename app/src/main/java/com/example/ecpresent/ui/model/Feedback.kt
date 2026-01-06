@@ -14,7 +14,9 @@ data class Feedback (
     val grade: GradeEnum,
     val videoSuggestion: String,
     val audioSuggestion: String,
-    val personalNotes: String
+    val personalNotes: String,
+    val createdAt: String,
+    val updatedAt: String
 )
 
 fun FeedbackDto.toUiModel(): Feedback {
@@ -37,7 +39,9 @@ fun FeedbackDto.toUiModel(): Feedback {
 
         videoSuggestion = this.videoSuggestion,
         audioSuggestion = this.audioSuggestion ?: "No audio feedback available yet.",
-        personalNotes = this.personalNotes ?: ""
+        personalNotes = this.personalNotes ?: "",
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
     )
 }
 

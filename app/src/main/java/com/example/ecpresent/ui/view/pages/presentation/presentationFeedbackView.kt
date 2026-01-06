@@ -77,164 +77,127 @@ fun PresentationFeedbackView(
         return
     }
 
-    Scaffold(
-        bottomBar = {
-            if (feedbackState !is FeedbackUIState.Deleted) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Discard Button
-                    OutlinedButton(
-                        modifier = Modifier.weight(1f),
-                        onClick = { presentationViewModel.deletePresentation(onSuccess = {}) },
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text("Discard")
-                    }
-
-                    // Save Button
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            presentationViewModel.resetState()
-                            navController.navigate(AppView.Presentation.name)
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3478E4)),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text("Save & Finish")
-                    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp)
+    ) {
+        when(val state = feedbackState){
+            is FeedbackUIState.Initial -> {
+                LaunchedEffect(Unit) {
+                    presentationViewModel.getFinalFeedback(presentationId)
                 }
             }
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            when(val state = feedbackState){
-                is FeedbackUIState.Initial -> {
-                    LaunchedEffect(Unit) {
-                        presentationViewModel.getFinalFeedback(presentationId)
+            is FeedbackUIState.Success ->{
+                val feedbackData = state.data
+                
+                Text(
+                    text = "Presentation Result",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Score Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Grade",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            text = feedbackData.grade ?: "-",
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Overall Score: ${String.format("%.1f", feedbackData.overallRating?.toDouble())}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
                 }
-                is FeedbackUIState.Success ->{
-                    val feedbackData = state.data
-                    Text(
-                        text = "Presentation Result",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                    // Score Card
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(24.dp).fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "Grade",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            Text(
-                                text = feedbackData.grade ?: "-",
-                                fontSize = 48.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Overall Score: ${String.format("%.1f", feedbackData.overallRating?.toDouble())}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Detail Scores
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        ScoreColumn("Video", feedbackData.videoScore)
-                        ScoreColumn("Audio", feedbackData.audioScore ?: 0.0)
-                        ScoreColumn("Expression", feedbackData.expression)
-                    }
-
-                    Divider(modifier = Modifier.padding(vertical = 24.dp))
-
-                    // Suggestions
-                    SectionTitle("Video Suggestion")
-                    Text(
-                        text = feedbackData.videoSuggestion,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    SectionTitle("Audio Suggestion")
-                    Text(
-                        text = feedbackData.audioSuggestion ?: "No specific audio suggestions.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Divider(modifier = Modifier.padding(vertical = 24.dp))
-
-                    // Personal Notes
-                    SectionTitle("Personal Notes")
-                    OutlinedTextField(
-                        value = notes,
-                        onValueChange = { presentationViewModel.onNotesChanged(it) },
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                        label = { Text("Write your self-evaluation here...") },
-                        shape = RoundedCornerShape(12.dp),
-                        minLines = 3
-                    )
-
-                    Button(
-                        onClick = { presentationViewModel.updateNotes() },
-                        enabled = notes.isNotEmpty(),
-                        modifier = Modifier.align(Alignment.End).padding(top = 8.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(if (feedbackState is FeedbackUIState.NotesUpdated) "Saved!" else "Save Notes")
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
+                // Detail Scores
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    ScoreColumn("Video", feedbackData.videoScore)
+                    ScoreColumn("Audio", feedbackData.audioScore ?: 0.0)
+                    ScoreColumn("Expression", feedbackData.expression)
                 }
-                is FeedbackUIState.Error -> {
-                    Text(
-                        text = (feedbackState as FeedbackUIState.Error).msg,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(top = 16.dp)
-                    )
+
+                Divider(modifier = Modifier.padding(vertical = 24.dp))
+
+                // Suggestions
+                SectionTitle("Video Suggestion")
+                Text(
+                    text = feedbackData.videoSuggestion,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                SectionTitle("Audio Suggestion")
+                Text(
+                    text = feedbackData.audioSuggestion ?: "No specific audio suggestions.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Divider(modifier = Modifier.padding(vertical = 24.dp))
+
+                // Personal Notes
+                SectionTitle("Personal Notes")
+                OutlinedTextField(
+                    value = notes,
+                    onValueChange = { presentationViewModel.onNotesChanged(it) },
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    label = { Text("Write your self-evaluation here...") },
+                    shape = RoundedCornerShape(12.dp),
+                    minLines = 3
+                )
+
+                Button(
+                    onClick = { presentationViewModel.updateNotes() },
+                    enabled = notes.isNotEmpty(),
+                    modifier = Modifier.align(Alignment.End).padding(top = 8.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(if (feedbackState is FeedbackUIState.NotesUpdated) "Saved!" else "Save Notes")
                 }
-                else -> {
-                    Box(modifier = Modifier.fillMaxSize().height(200.dp), contentAlignment = Alignment.Center) {
-                        Text("No Data Available", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            is FeedbackUIState.Error -> {
+                Text(
+                    text = (feedbackState as FeedbackUIState.Error).msg,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+            else -> {
+                Box(modifier = Modifier.fillMaxSize().height(200.dp), contentAlignment = Alignment.Center) {
+                    Text("No Data Available", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
