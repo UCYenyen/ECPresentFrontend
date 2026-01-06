@@ -1,5 +1,6 @@
 package com.example.ecpresent.ui.uistates
 
+import com.example.ecpresent.data.dto.AverageIndicatorResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.ui.model.Answer
@@ -79,4 +80,11 @@ sealed interface FeedbackUIState {
     object Deleted : FeedbackUIState
     object NotesUpdated : FeedbackUIState
     data class Error(val msg: String) : FeedbackUIState
+}
+
+sealed interface AverageScoreUIState {
+    object Initial : AverageScoreUIState
+    object Loading : AverageScoreUIState
+    data class Success(val data: AverageIndicatorResponse) : AverageScoreUIState
+    data class Error(val msg: String) : AverageScoreUIState
 }

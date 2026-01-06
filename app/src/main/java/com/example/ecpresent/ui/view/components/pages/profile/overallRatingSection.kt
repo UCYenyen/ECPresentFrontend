@@ -11,6 +11,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -20,16 +23,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ecpresent.ui.theme.ComponentBackground
 import com.example.ecpresent.ui.theme.ECPresentTheme
+import com.example.ecpresent.ui.uistates.AverageScoreUIState
+import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.view.components.elements.PresentationIndicatorSummaryCard
+import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 
 @Composable
-fun OverallRatingSection() {
-    val dummyDataIndicatorSummary = listOf(
-        Pair( "S Tier", "Good Job"),
-        Pair( "47% ^", "Intonation"),
-        Pair( "48% ^", "Expression"),
-        Pair( "43% ^", "Posture")
-    )
+fun OverallRatingSection(
+    presentationViewModel: PresentationViewModel
+) {
+    val averageState by presentationViewModel.averageScoreState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        presentationViewModel.getAverageScore()
+    }
     Card(
         colors = CardDefaults.cardColors(
             containerColor = ComponentBackground
@@ -53,28 +61,46 @@ fun OverallRatingSection() {
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp
             )
-            LazyRow (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ){
-                items(dummyDataIndicatorSummary) { item ->
-                    PresentationIndicatorSummaryCard(
-                        result = item.first,
-                        topic = item.second
-                    )
+            when (val state = averageState) {
+                is AverageScoreUIState.Loading -> {
+                    Text("Loading scores...", fontSize = 14.sp)
                 }
+                is AverageScoreUIState.Error -> {
+                    Text("Error: ${state.msg}", color = Color.Red, fontSize = 14.sp)
+                }
+                is AverageScoreUIState.Success -> {
+                    val data = state.data
+                    val scoreList = listOf(
+                        data.averageIntonation to "Intonation",
+                        data.averageExpression to "Expression",
+                        data.averagePosture to "Posture"
+                    )
+
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(scoreList) { (score, topic) ->
+                            PresentationIndicatorSummaryCard(
+                                result = score.toString(),
+                                topic = topic
+                            )
+                        }
+                    }
+                }
+                else -> {}
             }
         }
     }
 
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun OverallRatingSectionPreview() {
-    ECPresentTheme {
-        OverallRatingSection()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun OverallRatingSectionPreview() {
+//    ECPresentTheme {
+//        OverallRatingSection()
+//    }
+//}
