@@ -1,5 +1,6 @@
 package com.example.ecpresent.ui.route
 
+
 import PresentationQNAView
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
@@ -67,7 +68,7 @@ enum class AppView(
 
     Presentation("Presentations", Icons.Filled.CameraAlt),
     PresentationHistory("Presentations"),
-    TakePresentation("Presentation"),
+    TakePresentation("Presenting"),
     FollowUpQuestion("QNA"),
     PresentationFeedback("Presentation Feedback"),
 }
@@ -106,10 +107,15 @@ fun AppRoute() {
     val showBackButton =
         (currentRouteString !in topLevelRoutes) && (navController.previousBackStackEntry != null)
 
-    val showBars = currentRouteString != AppView.Landing.name &&
-            currentRouteString != AppView.SignIn.name &&
-            currentRouteString != AppView.SignUp.name &&
-            currentRouteString != AppView.SplashScreen.name
+    val showBars = currentRouteString !in listOf(
+        AppView.Landing.name,
+        AppView.SignIn.name,
+        AppView.SignUp.name,
+        AppView.SplashScreen.name,
+//        AppView.TakePresentation.name,   // Hide during upload
+//        AppView.FollowUpQuestion.name,   // Hide during QnA
+//        AppView.PresentationFeedback.name // Hide during Feedback
+    )
 
     Scaffold(
         topBar = {
