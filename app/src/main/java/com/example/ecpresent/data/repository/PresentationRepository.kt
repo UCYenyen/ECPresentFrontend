@@ -18,27 +18,19 @@ import java.io.File
 import java.io.FileOutputStream
 
 class PresentationRepository(private val service: PresentationService) {
-
     suspend fun uploadPresentation(token: String, fileUri: Uri, context: Context, title: String): Response<BaseResponse<PresentationAnalysisResponse>> {
         val formattedToken = "Bearer $token"
-
         val file = getFileFromUri(context, fileUri, "temp_video.mp4") ?: throw Exception("Gagal memproses file video")
 
-        // Backend mengharapkan 'video' sesuai 'uploadVideo.single('video')'
         val requestFile = file.asRequestBody("video/*".toMediaTypeOrNull())
         val videoPart = MultipartBody.Part.createFormData("video", file.name, requestFile)
-
-        // Backend membaca title dari req.body
         val titlePart = title.toRequestBody("text/plain".toMediaTypeOrNull())
 
         return service.createPresentation(formattedToken, videoPart, titlePart)
     }
 
-
-
     suspend fun submitAnswer(token: String, presentationId: String, audioFile: File): Response<BaseResponse<Answer>> {
         val formattedToken = "Bearer $token"
-        // Gunakan audio/mp4 atau audio/m4a sesuai format MediaRecorder
         val requestFile = audioFile.asRequestBody("audio/mp4".toMediaTypeOrNull())
         val audioPart = MultipartBody.Part.createFormData("audio", audioFile.name, requestFile)
 
@@ -50,13 +42,12 @@ class PresentationRepository(private val service: PresentationService) {
     }
 
     suspend fun updateNotes(token: String, presentationId: Int, notes: String): Response<BaseResponse<PresentationFeedbackResponse>> {
-        return service.updateNotes("Bearer $token", presentationId, notes)
+        return service.updateNotes("Bearer $token", presentationId.toString(), notes)
     }
 
     suspend fun deletePresentation(token: String, presentationId: Int): Response<BaseResponse<Unit>> {
-        return service.deletePresentation("Bearer $token", presentationId)
+        return service.deletePresentation("Bearer $token", presentationId.toString())
     }
-
 
     private fun getFileFromUri(context: Context, uri: Uri, defaultFileName: String): File? {
         return try {

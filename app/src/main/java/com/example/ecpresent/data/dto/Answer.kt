@@ -8,7 +8,7 @@ data class Answer(
     val questionId: Int,
     @SerializedName("audio_url")
     val audioUrl: String?,
-    val score: Float?,
+    val score: Double?,
     val suggestion: String?,
     val createdAt: String,
     val updatedAt: String

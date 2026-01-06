@@ -7,16 +7,16 @@ data class PresentationFeedbackResponse(
     @SerializedName("presentation_id")
     val presentationId: Int,
 
-    val expression: Float,
-    val intonation: Float,
-    val posture: Float,
+    val expression: Double,
+    val intonation: Double,
+    val posture: Double,
 
     @SerializedName("video_score")
-    val videoScore: Float,
+    val videoScore: Double,
     @SerializedName("audio_score")
-    val audioScore: Float?,
+    val audioScore: Double?,
     @SerializedName("overall_rating")
-    val overallRating: Float?,
+    val overallRating: Double?,
     val grade: String?,
 
     @SerializedName("video_suggestion")
