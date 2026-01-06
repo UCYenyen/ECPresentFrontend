@@ -213,7 +213,7 @@ fun AppRoute() {
                 PresentationIndexView(navController = navController)
             }
             composable(route = AppView.PresentationHistory.name) {
-                PresentationHistoryView()
+                PresentationHistoryView(navController, presentationViewModel)
             }
 
             composable(route = AppView.TakePresentation.name) {

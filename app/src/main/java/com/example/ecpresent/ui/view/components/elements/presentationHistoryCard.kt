@@ -1,5 +1,6 @@
 package com.example.ecpresent.ui.view.components.elements
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,13 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ecpresent.ui.theme.ECPresentTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.ecpresent.ui.model.Presentation
+import com.example.ecpresent.ui.route.AppView
+import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 
 @Composable
-fun PresentationHistoryCard() {
+fun PresentationHistoryCard(presentation: Presentation, presentationViewModel: PresentationViewModel = viewModel(), navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -31,21 +35,14 @@ fun PresentationHistoryCard() {
         )
     ) {
         Column (modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp).fillMaxWidth()) {
-            Text("24 February 2024", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Light)
+            Text(presentation.createdAt, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Light)
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                "Presentation Title",
+                presentation.title,
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PresentationHistoryCardPreview() {
-    ECPresentTheme {
-        PresentationHistoryCard()    }
 }

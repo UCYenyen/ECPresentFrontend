@@ -24,6 +24,7 @@ import com.example.ecpresent.ui.uistates.LearningDetailsUIState
 import com.example.ecpresent.ui.uistates.LearningProgressUIState
 import com.example.ecpresent.ui.uistates.LearningUIState
 import com.example.ecpresent.ui.uistates.LoginUIState
+import com.example.ecpresent.ui.uistates.PresentationIndexUIState
 import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.uistates.QnAUIState
 import com.example.ecpresent.ui.uistates.UploadPresentationUIState
@@ -40,6 +41,8 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
     private val _uploadPresentationUIState = MutableStateFlow<UploadPresentationUIState>(UploadPresentationUIState.Initial)
     val uploadPresentationUIState: StateFlow<UploadPresentationUIState> = _uploadPresentationUIState.asStateFlow()
 
+    private val _presentationIndexState = MutableStateFlow<PresentationIndexUIState>(PresentationIndexUIState.Initial)
+    val presentationIndexState = _presentationIndexState.asStateFlow()
     private val _qnaState = MutableStateFlow<QnAUIState>(QnAUIState.Idle)
     val qnaState = _qnaState.asStateFlow()
 
@@ -113,6 +116,34 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         countDownTimer?.cancel()
     }
 
+    fun getPresentationHistory() {
+        viewModelScope.launch {
+            _presentationIndexState.value = PresentationIndexUIState.Loading
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _presentationIndexState.value = PresentationIndexUIState.Error("Session expired")
+                    return@launch
+                }
+
+                val response = presentationRepository.getPresentationHistory(token)
+
+                if (response.isSuccessful && response.body()?.data != null) {
+                    val presentations = response.body()!!.data
+
+                    _presentationIndexState.value = PresentationIndexUIState.Success(presentations)
+
+                    if (presentations.isNotEmpty()) {
+                        activePresentationId = presentations.maxByOrNull { it.id }?.id
+                    }
+                } else {
+                    _presentationIndexState.value = PresentationIndexUIState.Error("Failed to fetch data")
+                }
+            } catch (e: Exception) {
+                _presentationIndexState.value = PresentationIndexUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
     fun submitAnswer(audioFile: File) {
         stopTimer()
         _isRecording.value = false

@@ -7,6 +7,7 @@ import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.model.LearningProgress
 import com.example.ecpresent.ui.model.Learning
+import com.example.ecpresent.ui.model.Presentation
 
 sealed interface LoginUIState {
     object Initial : LoginUIState
@@ -65,6 +66,13 @@ sealed class QnAUIState {
     object Submitting : QnAUIState()
     data class AnswerScored(val answer: Answer) : QnAUIState()
     data class Error(val msg: String) : QnAUIState()
+}
+
+sealed class PresentationIndexUIState {
+    object Initial : PresentationIndexUIState()
+    object Loading : PresentationIndexUIState()
+    data class Success(val data: List<Presentation>) : PresentationIndexUIState()
+    data class Error(val msg: String) : PresentationIndexUIState()
 }
 
 sealed class FeedbackUIState {

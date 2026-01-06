@@ -8,6 +8,7 @@ import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.dto.PresentationListResponse
 import com.example.ecpresent.data.service.PresentationService
+import com.example.ecpresent.ui.model.Presentation
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -75,5 +76,8 @@ class PresentationRepository(private val service: PresentationService) {
         }
     }
 
-
+    suspend fun getPresentationHistory(token: String): Response<BaseResponse<List<Presentation>>> {
+        val formattedToken = "Bearer $token"
+        return service.getPresentationHistory(formattedToken)
+    }
 }
