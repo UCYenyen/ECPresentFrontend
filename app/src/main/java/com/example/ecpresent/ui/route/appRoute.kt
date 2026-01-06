@@ -123,7 +123,15 @@ fun AppRoute() {
                 MyTopAppBar(
                     currentView = currentView,
                     canNavigateBack = showBackButton,
-                    navigateUp = { navController.navigateUp() }
+                    navigateUp = {
+                        if (currentRouteString?.startsWith(AppView.PresentationFeedback.name) == true) {
+                            navController.navigate(AppView.Presentation.name) {
+                                popUpTo(AppView.Presentation.name) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigateUp()
+                        }
+                    }
                 )
             }
         },
