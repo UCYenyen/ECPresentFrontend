@@ -148,37 +148,50 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
             _qnaState.value = QnAUIState.OnUserSubmitAnswer
             try {
                 val token = dataStoreManager.tokenFlow.first() ?: return@launch
-                val id = presentationId
-                val response = presentationRepository.submitAnswer(token, id, audioFile)
+                val response = presentationRepository.submitAnswer(token, presentationId, audioFile)
 
                 if (response.isSuccessful && response.body()?.data != null) {
                     _qnaState.value = QnAUIState.AnswerScored(response.body()!!.data)
+                    _feedbackState.value = FeedbackUIState.Initial
                 } else {
-                    _qnaState.value = QnAUIState.Error("Gagal: ${response.code()}")
+                    val errorBodyString = response.errorBody()?.string() // Baca pesan error dari server
+                    android.util.Log.e("DEBUG_ERROR", "Code: ${response.code()}")
+                    android.util.Log.e("DEBUG_ERROR", "Message: $errorBodyString")
+
+                    // Tampilkan pesan asli ke UI agar Anda tahu kenapa
+                    _qnaState.value = QnAUIState.Error("Gagal (${response.code()}): $errorBodyString")
                 }
             } catch (e: Exception) {
-                _qnaState.value = QnAUIState.Error(e.message ?: "Error")
+                _qnaState.value = QnAUIState.Error("Babi" ?: "Error")
             }
         }
     }
 
 
-    fun getFinalFeedback() {
+    fun getFinalFeedback(presentationId: String) {
         viewModelScope.launch {
             _feedbackState.value = FeedbackUIState.Loading
             try {
                 val token = dataStoreManager.tokenFlow.first() ?: return@launch
-                val id = activePresentationId?.toString() ?: return@launch
 
-                val response = presentationRepository.getFinalFeedback(token, id)
+                val response = presentationRepository.getFinalFeedback(token, presentationId)
 
                 if (response.isSuccessful && response.body()?.data != null) {
                     val data = response.body()!!.data
                     _feedbackState.value = FeedbackUIState.Success(data)
-                    // Reset notes jika ada data baru
                     _feedbackNotes.value = data.personalNotes ?: "" // Jika Anda punya field ini di DTO feedback
                 } else {
-                    _feedbackState.value = FeedbackUIState.Error("Gagal memuat feedback")
+                    val errorCode = response.code() // Misal: 404, 500, 401
+                    val errorBody = response.errorBody()?.string() // Pesan asli dari backend
+
+                    // Catat di Logcat (Filter: "API_DEBUG")
+                    android.util.Log.e("API_DEBUG", "Gagal Load Feedback!")
+                    android.util.Log.e("API_DEBUG", "URL: ${response.raw().request.url}")
+                    android.util.Log.e("API_DEBUG", "Code: $errorCode")
+                    android.util.Log.e("API_DEBUG", "Pesan: $errorBody")
+
+                    // Tampilkan error code ke layar agar Anda langsung tahu
+                    _feedbackState.value = FeedbackUIState.Error("Err $errorCode: $errorBody")
                 }
             } catch (e: Exception) {
                 _feedbackState.value = FeedbackUIState.Error(e.message ?: "Error")

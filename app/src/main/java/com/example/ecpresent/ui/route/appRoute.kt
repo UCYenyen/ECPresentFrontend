@@ -238,12 +238,15 @@ fun AppRoute() {
                 )
             }
 
-            composable(route = AppView.PresentationFeedback.name) {
+            composable(route = "${AppView.PresentationFeedback.name}/{id}") {backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
                 PresentationFeedbackView(
                     navController = navController,
-                    presentationViewModel = presentationViewModel
+                    presentationViewModel = presentationViewModel,
+                    presentationId = id
                 )
             }
+
             composable(route = AppView.Profile.name) {
                 ProfileIndexView(navController = navController, authViewModel = authViewModel)
             }
