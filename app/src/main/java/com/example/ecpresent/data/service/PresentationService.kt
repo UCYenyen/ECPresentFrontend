@@ -1,5 +1,6 @@
 package com.example.ecpresent.data.service
 
+import com.example.ecpresent.data.dto.AverageIndicatorResponse
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
@@ -11,6 +12,12 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface PresentationService {
+
+    @GET("api/presentations/average")
+    suspend fun getAverageScore(
+        @Header("Authorization") token: String
+        ): Response<BaseResponse<AverageIndicatorResponse>>
+
     @GET("api/presentations/{id}/analysis")
     suspend fun getPresentationAnalysis(
         @Header("Authorization") token: String,

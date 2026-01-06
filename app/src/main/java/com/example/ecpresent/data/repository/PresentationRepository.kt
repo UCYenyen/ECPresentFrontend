@@ -2,6 +2,7 @@ package com.example.ecpresent.data.repository
 
 import android.content.Context
 import android.net.Uri
+import com.example.ecpresent.data.dto.AverageIndicatorResponse
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
@@ -45,6 +46,12 @@ class PresentationRepository(private val service: PresentationService) {
         val formattedToken = "Bearer $token"
         return service.getFinalFeedback(formattedToken, presentationId)
     }
+
+    suspend fun getAverageScore(token: String): Response<BaseResponse<AverageIndicatorResponse>>{
+        val formattedToken = "Bearer $token"
+        return service.getAverageScore(formattedToken)
+    }
+
 
     suspend fun updateNotes(token: String, presentationId: Int, notes: String): Response<BaseResponse<PresentationFeedbackResponse>> {
         return service.updateNotes("Bearer $token", presentationId.toString(), notes)
