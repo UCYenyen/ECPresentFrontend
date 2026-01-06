@@ -1,9 +1,9 @@
 package com.example.ecpresent.data.service
 
-import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
+import com.example.ecpresent.ui.model.Answer
 import com.example.ecpresent.ui.model.Presentation
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -22,7 +22,7 @@ interface PresentationService {
         @Header("Authorization") token: String,
         @Part video: MultipartBody.Part,
         @Part("title") title: RequestBody
-    ): Response<BaseResponse<PresentationAnalysisResponse>>
+    ): Response<BaseResponse<Presentation>>
 
     @Multipart
     @POST("api/presentations/{id}/answer")

@@ -57,6 +57,12 @@ sealed interface UploadPresentationUIState {
     data class Success(val data: Presentation) : UploadPresentationUIState
     data class Error(val message: String) : UploadPresentationUIState
 }
+sealed class PresentationIndexUIState {
+    object Initial : PresentationIndexUIState()
+    object Loading : PresentationIndexUIState()
+    data class Success(val data: List<Presentation>) : PresentationIndexUIState()
+    data class Error(val msg: String) : PresentationIndexUIState()
+}
 
 sealed interface QnAUIState {
     object Initial : QnAUIState
