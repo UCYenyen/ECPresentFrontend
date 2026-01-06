@@ -45,8 +45,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
 
     var activePresentationId: Int? = null
         private set
-    var activeQuestion: String? = null
-        private set
 
     var activeFeedbackData: PresentationFeedbackResponse? = null
         private set
@@ -86,22 +84,16 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
     fun getAnalysis(presentationId: String) {
         viewModelScope.launch {
             try {
-                // 1. Ambil token
                 val token = dataStoreManager.tokenFlow.first()
                 if (token.isNullOrEmpty()) {
                     _qnaState.value = QnAUIState.Error("User not logged in")
                     return@launch
                 }
 
-                // Set state loading di awal
-                // _qnaState.value = QnAUIState.Loading
-
                 var attempts = 0
-                val maxAttempts = 10      // Coba maksimal 10 kali
-                val delayMillis = 3000L   // Tunggu 3 detik setiap percobaan
-                var isAnalysisReady = false
+                val maxAttempts = 10
+                val delayMillis = 3000L
 
-                // 2. Loop (Polling) sampai data didapat atau batas percobaan habis
                 while (attempts < maxAttempts) {
                     val response = presentationRepository.getAnalysis(
                         token = token,
@@ -111,7 +103,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
 
                     if (response.isSuccessful && response.body() != null) {
                         val analysisData = response.body()!!.data
-
                         val isAnalysisReady = analysisData != null &&
                                 !analysisData.question?.question.isNullOrEmpty()
 
@@ -149,16 +140,15 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         countDownTimer?.cancel()
     }
 
-    fun submitAnswer(audioFile: File) {
+    fun submitAnswer(audioFile: File, presentationId: String) {
         stopTimer()
         _isRecording.value = false
 
         viewModelScope.launch {
-            _qnaState.value = QnAUIState.Loading
+            _qnaState.value = QnAUIState.OnUserSubmitAnswer
             try {
                 val token = dataStoreManager.tokenFlow.first() ?: return@launch
-                val id = activePresentationId?.toString() ?: return@launch
-
+                val id = presentationId
                 val response = presentationRepository.submitAnswer(token, id, audioFile)
 
                 if (response.isSuccessful && response.body()?.data != null) {

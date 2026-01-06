@@ -76,7 +76,7 @@ fun PresentationQNAView(
             e.printStackTrace()
         }
         mediaRecorder = null
-        presentationViewModel.submitAnswer(audioFile)
+        presentationViewModel.submitAnswer(audioFile, presentationId)
     }
 
     // Helper: Start Recording
@@ -180,47 +180,49 @@ fun PresentationQNAView(
                     )
                 }
                 Spacer(modifier = Modifier.height(48.dp))
+
+                Text(
+                    text = "00:${timer.toString().padStart(2, '0')}",
+                    fontSize = 64.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (timer <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Seconds Remaining",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                if (!isRecording) {
+                    Button(
+                        onClick = { startRecording() },
+                        modifier = Modifier.height(56.dp).fillMaxWidth(0.7f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3478E4))
+                    ) {
+                        Text("Start Answering (Record)", fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    Button(
+                        onClick = { stopAndSubmit() },
+                        modifier = Modifier.height(56.dp).fillMaxWidth(0.7f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("Stop & Submit", fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
         is QnAUIState.Loading -> {
+
+        }
+        is QnAUIState.OnUserSubmitAnswer -> {
             CircularProgressIndicator()
             Spacer(modifier = Modifier.height(16.dp))
             Text("Analyzing Answer...", color = MaterialTheme.colorScheme.onSurface)
-        }
-        is QnAUIState.OnUserSubmitAnswer -> {
-            Text(
-                text = "00:${timer.toString().padStart(2, '0')}",
-                fontSize = 64.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (timer <= 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "Seconds Remaining",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            if (!isRecording) {
-                Button(
-                    onClick = { startRecording() },
-                    modifier = Modifier.height(56.dp).fillMaxWidth(0.7f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3478E4))
-                ) {
-                    Text("Start Answering (Record)", fontWeight = FontWeight.Bold)
-                }
-            } else {
-                Button(
-                    onClick = { stopAndSubmit() },
-                    modifier = Modifier.height(56.dp).fillMaxWidth(0.7f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("Stop & Submit", fontWeight = FontWeight.Bold)
-                }
-            }
         }
         else -> { }
     }
