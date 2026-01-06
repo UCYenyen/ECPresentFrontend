@@ -3,30 +3,17 @@ package com.example.ecpresent.ui.viewmodel
 import android.app.Application
 import android.net.Uri
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
-import com.example.ecpresent.data.dto.Answer
-import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
-import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
-import com.example.ecpresent.data.repository.PresentationRepository
-import com.example.ecpresent.ui.model.Avatar
-import com.example.ecpresent.ui.model.User
-import com.example.ecpresent.ui.model.Learning
-import com.example.ecpresent.ui.model.LearningProgress
-import com.example.ecpresent.ui.model.toLearning
-import com.example.ecpresent.ui.model.toLearningProgress
 import com.example.ecpresent.ui.uistates.FeedbackUIState
-import com.example.ecpresent.ui.uistates.LearningDetailsUIState
-import com.example.ecpresent.ui.uistates.LearningProgressUIState
-import com.example.ecpresent.ui.uistates.LearningUIState
-import com.example.ecpresent.ui.uistates.LoginUIState
-import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.uistates.QnAUIState
 import com.example.ecpresent.ui.uistates.UploadPresentationUIState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,10 +27,10 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
     private val _uploadPresentationUIState = MutableStateFlow<UploadPresentationUIState>(UploadPresentationUIState.Initial)
     val uploadPresentationUIState: StateFlow<UploadPresentationUIState> = _uploadPresentationUIState.asStateFlow()
 
-    private val _qnaState = MutableStateFlow<QnAUIState>(QnAUIState.Idle)
-    val qnaState = _qnaState.asStateFlow()
+    private val _qnaState = MutableStateFlow<QnAUIState>(QnAUIState.Initial)
+    val qnaState: StateFlow<QnAUIState> = _qnaState.asStateFlow()
 
-    private val _feedbackState = MutableStateFlow<FeedbackUIState>(FeedbackUIState.Idle)
+    private val _feedbackState = MutableStateFlow<FeedbackUIState>(FeedbackUIState.Initial)
     val feedbackState = _feedbackState.asStateFlow()
 
     private val _isRecording = MutableStateFlow(false)
@@ -81,8 +68,9 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
                 )
 
                 if (response.isSuccessful && response.body() != null) {
-                    val analysisData = response.body()!!.data
-                    _uploadPresentationUIState.value = UploadPresentationUIState.Success(analysisData)
+                    val presentation = response.body()!!.data
+                    _uploadPresentationUIState.value = UploadPresentationUIState.Success(presentation)
+                    _qnaState.value = QnAUIState.Initial
                 } else {
                     val errorBody = response.errorBody()?.string()
                     _uploadPresentationUIState.value =
@@ -95,6 +83,54 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    fun getAnalysis(presentationId: String) {
+        viewModelScope.launch {
+            try {
+                // 1. Ambil token
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _qnaState.value = QnAUIState.Error("User not logged in")
+                    return@launch
+                }
+
+                // Set state loading di awal
+                // _qnaState.value = QnAUIState.Loading
+
+                var attempts = 0
+                val maxAttempts = 10      // Coba maksimal 10 kali
+                val delayMillis = 3000L   // Tunggu 3 detik setiap percobaan
+                var isAnalysisReady = false
+
+                // 2. Loop (Polling) sampai data didapat atau batas percobaan habis
+                while (attempts < maxAttempts) {
+                    val response = presentationRepository.getAnalysis(
+                        token = token,
+                        id = presentationId
+                    )
+
+
+                    if (response.isSuccessful && response.body() != null) {
+                        val analysisData = response.body()!!.data
+
+                        val isAnalysisReady = analysisData != null &&
+                                !analysisData.question?.question.isNullOrEmpty()
+
+                        if (isAnalysisReady) {
+                            _qnaState.value = QnAUIState.Success(analysisData)
+                            break
+                        } else {
+                            Log.d("Polling", "Data belum siap, mencoba lagi...")
+                        }
+                    }
+                    delay(delayMillis)
+                    attempts++
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _qnaState.value = QnAUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
     fun startTimer(onFinish: () -> Unit) {
         _timer.value = 10
         countDownTimer?.cancel()
@@ -118,7 +154,7 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         _isRecording.value = false
 
         viewModelScope.launch {
-            _qnaState.value = QnAUIState.Submitting
+            _qnaState.value = QnAUIState.Loading
             try {
                 val token = dataStoreManager.tokenFlow.first() ?: return@launch
                 val id = activePresentationId?.toString() ?: return@launch
@@ -135,6 +171,7 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
             }
         }
     }
+
 
     fun getFinalFeedback() {
         viewModelScope.launch {
@@ -180,7 +217,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    // 2. Delete Presentation (Uses activePresentationId)
     fun deletePresentation(onSuccess: () -> Unit) {
         viewModelScope.launch {
             _feedbackState.value = FeedbackUIState.Loading
@@ -208,7 +244,7 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
 
     fun resetState() {
         _uploadPresentationUIState.value = UploadPresentationUIState.Initial
-        _qnaState.value = QnAUIState.Idle
-        _feedbackState.value = FeedbackUIState.Idle
+        _qnaState.value = QnAUIState.Initial
+        _feedbackState.value = FeedbackUIState.Initial
     }
 }

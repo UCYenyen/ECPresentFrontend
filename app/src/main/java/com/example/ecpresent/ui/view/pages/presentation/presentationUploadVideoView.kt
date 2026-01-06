@@ -69,9 +69,7 @@ fun PresentationUploadVideoView(navController: NavController, presentationViewMo
         when (val state = uploadState) {
             is UploadPresentationUIState.Success -> {
                 Toast.makeText(context, "Upload successful!", Toast.LENGTH_SHORT).show()
-                navController.navigate(AppView.FollowUpQuestion.name) {
-                    popUpTo(AppView.FollowUpQuestion.name) { inclusive = true }
-                }
+                navController.navigate(AppView.FollowUpQuestion.name+"/${state.data.id}")
                 presentationViewModel.resetState()
             }
             is UploadPresentationUIState.Error -> {

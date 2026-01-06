@@ -2,12 +2,13 @@ package com.example.ecpresent.data.repository
 
 import android.content.Context
 import android.net.Uri
-import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.dto.PresentationListResponse
 import com.example.ecpresent.data.service.PresentationService
+import com.example.ecpresent.ui.model.Answer
+import com.example.ecpresent.ui.model.Presentation
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -17,7 +18,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 class PresentationRepository(private val service: PresentationService) {
-    suspend fun uploadPresentation(token: String, fileUri: Uri, context: Context, title: String): Response<BaseResponse<PresentationAnalysisResponse>> {
+    suspend fun uploadPresentation(token: String, fileUri: Uri, context: Context, title: String): Response<BaseResponse<Presentation>> {
         val formattedToken = "Bearer $token"
         val file = getFileFromUri(context, fileUri, "temp_video.mp4") ?: throw Exception("Gagal memproses file video")
 
@@ -28,6 +29,10 @@ class PresentationRepository(private val service: PresentationService) {
         return service.createPresentation(formattedToken, videoPart, titlePart)
     }
 
+    suspend fun getAnalysis(token: String, id: String): Response<BaseResponse<PresentationAnalysisResponse>>{
+        val formattedToken = "Bearer $token"
+        return service.getPresentationAnalysis(formattedToken, id)
+    }
     suspend fun submitAnswer(token: String, presentationId: String, audioFile: File): Response<BaseResponse<Answer>> {
         val formattedToken = "Bearer $token"
         val requestFile = audioFile.asRequestBody("audio/mp4".toMediaTypeOrNull())

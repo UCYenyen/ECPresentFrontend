@@ -32,7 +32,7 @@ fun PresentationHistorySection(showAll: Boolean, itemCount: Int) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Learning Progress",
+                    text = "Presentation History",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
