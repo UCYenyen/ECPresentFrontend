@@ -11,11 +11,11 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface PresentationService {
-    @GET("presentations/{id}/analysis")
+    @GET("api/presentations/{id}/analysis")
     suspend fun getPresentationAnalysis(@Path("id") id: String): Response<BaseResponse<PresentationAnalysisResponse>>
 
     @Multipart
-    @POST("presentations")
+    @POST("api/presentations")
     suspend fun createPresentation(
         @Header("Authorization") token: String,
         @Part video: MultipartBody.Part,
@@ -23,28 +23,28 @@ interface PresentationService {
     ): Response<BaseResponse<PresentationAnalysisResponse>>
 
     @Multipart
-    @POST("presentations/{id}/answer")
+    @POST("api/presentations/{id}/answer")
     suspend fun submitAnswer(
         @Header("Authorization") token: String,
         @Path("id") id: String,
         @Part audio: MultipartBody.Part,
     ): Response<BaseResponse<Answer>>
 
-    @GET("presentations/{id}/feedback")
+    @GET("api/presentations/{id}/feedback")
     suspend fun getFinalFeedback(
         @Header("Authorization") token: String,
         @Path("id") id: String
     ): Response<BaseResponse<PresentationFeedbackResponse>>
 
     @FormUrlEncoded
-    @PATCH("presentations/{id}")
+    @PATCH("api/presentations/{id}")
     suspend fun updateNotes(
         @Header("Authorization") token: String,
         @Path("id") id: Int,
         @Field("notes") notes: String
     ): Response<BaseResponse<PresentationFeedbackResponse>>
 
-    @DELETE("presentations/{id}")
+    @DELETE("api/presentations/{id}")
     suspend fun deletePresentation(
         @Header("Authorization") token: String,
         @Path("id") id: Int
