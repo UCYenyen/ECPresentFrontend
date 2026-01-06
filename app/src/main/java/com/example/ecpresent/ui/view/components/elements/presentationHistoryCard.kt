@@ -32,7 +32,10 @@ fun PresentationHistoryCard(presentation: Presentation, presentationViewModel: P
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xff3478E4)
-        )
+        ),
+        onClick = {
+            navController.navigate( "${AppView.FollowUpQuestion.name}/${presentation.id}")
+        }
     ) {
         Column (modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp).fillMaxWidth()) {
             Text(presentation.createdAt, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Light)
