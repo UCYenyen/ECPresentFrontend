@@ -18,6 +18,12 @@ interface AuthService {
         @Body request: RegisterUserRequest
     ): Response<BaseResponse<UserResponse>>
 
+    @POST("api/register-from-guest")
+    suspend fun registerFromGuest(
+        @Header("Authorization") token: String,
+        @Body request: RegisterUserRequest
+    ): Response<BaseResponse<UserResponse>>
+
     @POST("api/login")
     suspend fun login(
         @Body request: LoginUserRequest

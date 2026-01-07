@@ -9,7 +9,7 @@ data class User(
     val username: String,
     val email: String,
     val token: String,
-    //val password: String,
+    val password: String,
     val role: UserRole?,
     val imageUrl: String?,
     val avatar: Avatar?,
@@ -21,6 +21,7 @@ fun UserResponse.toUser(): User{
     return User(
         id = this.id.toString(),
         username = this.username.toString(),
+        password = this.password.toString(),
         email = this.email.toString(),
         token = this.token,
         role = this.userRole,

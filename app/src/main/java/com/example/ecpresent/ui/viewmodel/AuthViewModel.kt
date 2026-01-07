@@ -212,6 +212,56 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+    fun guestRegister(username: String, email: String, pass: String, confirmPass: String) {
+        viewModelScope.launch {
+            // Validasi input
+            if (username.isBlank() || email.isBlank() || pass.isBlank()) {
+                _loginUIState.value = LoginUIState.Error("Please fill all fields")
+                return@launch
+            }
+
+            if (pass != confirmPass) {
+                _loginUIState.value = LoginUIState.Error("Password mismatch")
+                return@launch
+            }
+
+            _loginUIState.value = LoginUIState.Loading
+
+            try {
+                // ✅ Ambil token dengan logging
+                val rawToken = dataStoreManager.tokenFlow.first()
+
+                if (rawToken.isNullOrEmpty()) {
+                    _loginUIState.value = LoginUIState.Error("Please continue as guest first before registering")
+                    return@launch
+                }
+
+                val request = RegisterUserRequest(username = username, email = email, password = pass)
+
+                val response = authRepository.registerUserFromGuest(rawToken, request)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val userResponse = response.body()!!.data
+                    val newToken = userResponse.token
+
+                    if (newToken.isNotEmpty()) {
+                        dataStoreManager.saveToken(newToken)
+
+                        val user = userResponse.toUser()
+                        _loginUIState.value = LoginUIState.Success(user)
+                        _profileUIState.value = ProfileUIState.Success(user)
+                    } else {
+                        _loginUIState.value = LoginUIState.Error("Register successful but no token received")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    _loginUIState.value = LoginUIState.Error("Register failed: ${response.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
 
     fun logout(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {

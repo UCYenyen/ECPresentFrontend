@@ -13,6 +13,11 @@ class AuthRepository(private val service: AuthService) {
         return service.register(request)
     }
 
+    suspend fun registerUserFromGuest(token: String, request: RegisterUserRequest): Response<BaseResponse<UserResponse>> {
+        val formattedToken = "Bearer $token"
+        return service.registerFromGuest( formattedToken,request)
+    }
+
     suspend fun login(request: LoginUserRequest): Response<BaseResponse<UserResponse>> {
         return service.login(request)
     }

@@ -54,6 +54,8 @@ import com.example.ecpresent.ui.theme.ECPresentTheme
 import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.viewmodel.AuthViewModel
 import android.net.Uri
+import com.example.ecpresent.enum.UserRole
+import com.example.ecpresent.ui.route.AppView
 
 
 @Composable
@@ -66,10 +68,8 @@ fun PersonalInformationSection(
         (profileState as ProfileUIState.Success).data
     } else null
 
-    // State buat Dialog Pop-up
     var showDialog by remember { mutableStateOf(false) }
 
-    // --- LOGIKA UNTUK UPLOAD GAMBAR DARI GALERI ---
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
@@ -101,8 +101,8 @@ fun PersonalInformationSection(
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Box(
-            contentAlignment = Alignment.BottomEnd, // Ikon pensil di pojok kanan bawah gambar
-            modifier = Modifier.size(110.dp) // Ukuran area gambar
+            contentAlignment = Alignment.BottomEnd,
+            modifier = Modifier.size(110.dp)
         ){
             AsyncImage(
                 model = profile?.avatar?.imageUrl,
@@ -117,10 +117,10 @@ fun PersonalInformationSection(
             )
             Box(
                 modifier = Modifier
-                    .size(36.dp) // Ukuran lingkaran pensil
-                    .background(Color(0xFF3478E4), CircleShape) // Warna biru
+                    .size(36.dp)
+                    .background(Color(0xFF3478E4), CircleShape)
                     .border(2.dp, Color.White, CircleShape)
-                    .clickable { showDialog = true }, // KLIK DISINI BUAT BUKA DIALOG
+                    .clickable { showDialog = true },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -135,69 +135,94 @@ fun PersonalInformationSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Column(
-            modifier = Modifier.padding(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ){
+        if(profile?.role != UserRole.GUEST){
+            Column(
+                modifier = Modifier.padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ){
+                Text(
+                    text = "Name",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black
+                )
+                TextField(
+                    value = profile?.username ?: "Not Rendered",
+                    onValueChange = {},
+                    readOnly = true,
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.LightGray,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent,
+                        focusedPlaceholderColor = Color.DarkGray,
+                        focusedContainerColor = Color.LightGray
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    textStyle = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            }
+
+            Column(
+                modifier = Modifier.padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ){
+                Text(
+                    text = "Email",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black
+                )
+                TextField(
+                    value = profile?.email?: "Not Rendered",
+                    onValueChange = {},
+                    readOnly = true,
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.LightGray,
+                        disabledIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent,
+                        focusedPlaceholderColor = Color.DarkGray,
+                        focusedContainerColor = Color.LightGray
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    textStyle = TextStyle(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            }
+        }else{
             Text(
-                text = "Name",
+                text = "Guest User",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black
             )
-            TextField(
-                value = profile?.username ?: "Not Rendered",
-                onValueChange = {},
-                readOnly = true,
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.LightGray,
-                    disabledIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent,
-                    focusedPlaceholderColor = Color.DarkGray,
-                    focusedContainerColor = Color.LightGray
-                ),
-                modifier = Modifier.fillMaxWidth(),
+
+            Button(
+                onClick = {
+                    authViewModel.logout(onSuccess = {
+                        navController.navigate(AppView.GuestSignUp.name) {
+                        }
+                    })
+                },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                textStyle = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            )
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3478E4))
+            ) {
+                Text("Sign Up", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            }
+
         }
 
-        Column(
-            modifier = Modifier.padding(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ){
-            Text(
-                text = "Email",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color.Black
-            )
-            TextField(
-                value = profile?.email?: "Not Rendered",
-                onValueChange = {},
-                readOnly = true,
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.LightGray,
-                    disabledIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent,
-                    focusedPlaceholderColor = Color.DarkGray,
-                    focusedContainerColor = Color.LightGray
-                ),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                textStyle = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-        }
     }
 }
 // --- POP UP PILIH GAMBAR (TANPA PASSWORD) ---

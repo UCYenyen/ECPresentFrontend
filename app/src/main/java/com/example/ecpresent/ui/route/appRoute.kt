@@ -36,6 +36,7 @@ import com.example.ecpresent.ui.view.components.elements.MyNavigationBar
 import com.example.ecpresent.ui.view.pages.GetStartedView
 import com.example.ecpresent.ui.view.pages.SplashScreen
 import com.example.ecpresent.ui.view.pages.auth.SignInView
+import com.example.ecpresent.ui.view.pages.auth.SignUpFromGuestView
 import com.example.ecpresent.ui.view.pages.auth.SignUpView
 import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
 import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
@@ -59,6 +60,7 @@ enum class AppView(
     Landing("Landing"),
     SignUp("Sign Up"),
     SignIn("Sign In"),
+    GuestSignUp("Guest Sign Up"),
     Profile("Profile", Icons.Filled.ManageAccounts),
     OverallFeedback("Overall Feedback"),
 
@@ -188,6 +190,12 @@ fun AppRoute() {
             }
             composable(route = AppView.SignUp.name) {
                 SignUpView(
+                    navController = navController,
+                    authViewModel = authViewModel
+                )
+            }
+            composable(route = AppView.GuestSignUp.name) {
+                SignUpFromGuestView(
                     navController = navController,
                     authViewModel = authViewModel
                 )
