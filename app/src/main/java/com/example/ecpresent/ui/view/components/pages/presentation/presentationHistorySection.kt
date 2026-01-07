@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -18,14 +19,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.ecpresent.ui.route.AppView
 import com.example.ecpresent.ui.uistates.PresentationIndexUIState
 import com.example.ecpresent.ui.view.components.elements.PresentationHistoryCard
 import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 
 @Composable
-fun PresentationHistorySection(showAll: Boolean, presentationViewModel: PresentationViewModel, navController: NavController) {
+fun PresentationHistorySection(
+    showAll: Boolean,
+    presentationViewModel: PresentationViewModel,
+    navController: NavController
+) {
     val presentationState by presentationViewModel.presentationIndexState.collectAsState()
     LaunchedEffect(Unit) {
         presentationViewModel.getPresentationHistory()
@@ -51,25 +58,41 @@ fun PresentationHistorySection(showAll: Boolean, presentationViewModel: Presenta
                             color = MaterialTheme.colorScheme.onSurface
                         )
 
-                        Text(
-                            text = "View More",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF4A7DFF),
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.clickable { }
-                        )
+                        if (state.data.count() >= 1) {
+                            Text(
+                                text = "View More",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF4A7DFF),
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.clickable {
+                                    navController.navigate(AppView.PresentationHistory.name)
+                                }
+                            )
+                        }
                     }
                 }
-
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(state.data) { presentation ->
-                        PresentationHistoryCard(presentation = presentation, navController = navController)
+                if (state.data.count() < 1) {
+                    Text(
+                        "No presentation history found.",
+                        modifier = Modifier.fillMaxSize(),
+                        textAlign = TextAlign.Start,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.data) { presentation ->
+                            PresentationHistoryCard(
+                                presentation = presentation,
+                                navController = navController
+                            )
+                        }
                     }
                 }
-
             }
+
             is PresentationIndexUIState.Error -> {
                 Text(
                     text = state.msg,
@@ -77,18 +100,21 @@ fun PresentationHistorySection(showAll: Boolean, presentationViewModel: Presenta
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+
             is PresentationIndexUIState.Loading -> {
                 Text(
                     text = "Loading...",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+
             is PresentationIndexUIState.Initial -> {
                 Text(
                     text = "Loading...",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+
             else -> {}
         }
 
