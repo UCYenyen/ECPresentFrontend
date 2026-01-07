@@ -131,42 +131,51 @@ fun PresentationQNAView(
             ) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Please wait, while we are thinking for a question to ask...", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text("Please wait, while we are thinking for a question to ask...", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.fillMaxWidth(0.6f), textAlign = TextAlign.Center)
             }
         }
 
         is QnAUIState.AnswerScored -> {
             val answerData = state.answer
-            AlertDialog(
-                onDismissRequest = { },
-                title = { Text("Audio Analysis Result") },
-                text = {
-                    Column {
-                        Text(
-                            text = "Audio Score: ${
-                                String.format(
-                                    "%.1f",
-                                    answerData.score.toDouble()
-                                )
-                            }",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Suggestion:", fontWeight = FontWeight.SemiBold)
-                        Text(answerData.suggestion ?: "No suggestion provided.")
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            navController.navigate("${AppView.PresentationFeedback.name}/${presentationId}")
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surface),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AlertDialog(
+                    onDismissRequest = { },
+                    title = { Text("Audio Analysis Result") },
+                    text = {
+                        Column {
+                            Text(
+                                text = "Audio Score: ${
+                                    String.format(
+                                        "%.1f",
+                                        answerData.score.toDouble()
+                                    )
+                                }",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Suggestion:", fontWeight = FontWeight.SemiBold)
+                            Text(answerData.suggestion ?: "No suggestion provided.")
                         }
-                    ) {
-                        Text("Continue to Final Result")
+                    },
+                    confirmButton = {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                            onClick = {
+                                navController.navigate("${AppView.PresentationFeedback.name}/${presentationId}")
+                            }
+                        ) {
+                            Text("Continue to Final Result", color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         is QnAUIState.Error -> {

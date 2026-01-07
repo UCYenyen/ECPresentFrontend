@@ -134,7 +134,6 @@ fun PresentationFeedbackView(
 
                         Spacer(modifier = Modifier.width(20.dp))
 
-                        // Konten Teks di Kanan
                         Column {
                             Text(
                                 text = "Overall (" + (feedbackData.overallRating ?: 0).toString() + "%)",
