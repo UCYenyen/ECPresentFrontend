@@ -225,26 +225,24 @@ fun PersonalInformationSection(
 
     }
 }
-// --- POP UP PILIH GAMBAR (TANPA PASSWORD) ---
 @Composable
 private fun AvatarSelectionDialog(
     authViewModel: AuthViewModel,
     currentAvatarId: Int,
     onDismiss: () -> Unit,
-    onUploadClick: () -> Unit // Callback buat upload
+    onUploadClick: () -> Unit
 ) {
     var selectedAvatarId by remember { mutableIntStateOf(if (currentAvatarId > 0) currentAvatarId else 1) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Ganti Foto Profil", fontWeight = FontWeight.Bold) },
+        title = { Text("Change Profile Picture", fontWeight = FontWeight.Bold) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // OPSI 1: PILIH AVATAR PRESET
-                Text("Pilih Avatar Kartun:", fontWeight = FontWeight.Medium)
+                Text("Choose Your Avatar:", fontWeight = FontWeight.Medium)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -256,31 +254,29 @@ private fun AvatarSelectionDialog(
 
                 Divider()
 
-                // OPSI 2: UPLOAD DARI GALERI
-                Text("Atau Upload Sendiri:", fontWeight = FontWeight.Medium)
+                Text("Or upload an image:", fontWeight = FontWeight.Medium)
                 Button(
                     onClick = onUploadClick,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
                 ) {
-                    Text("Pilih Gambar dari Galeri")
+                    Text("Choose an image from gallery", color = Color.White)
                 }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    // Update Avatar ID Langsung (TANPA PASSWORD)
-                    // Note: Parameter password diisi string kosong "" karena kita hapus inputnya
                     authViewModel.updateAvatar(selectedAvatarId, "")
                     onDismiss()
-                }
+                } ,
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
             ) {
-                Text("Simpan Avatar")
+                Text("Save Avatar")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Batal") }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Black) }
         }
     )
 }
@@ -289,7 +285,6 @@ private fun AvatarSelectionDialog(
 private fun AvatarItem(id: Int, isSelected: Boolean, onClick: () -> Unit) {
     val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
-
     Box(
         modifier = Modifier
             .size(60.dp)
@@ -299,8 +294,7 @@ private fun AvatarItem(id: Int, isSelected: Boolean, onClick: () -> Unit) {
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        // Nanti ganti Text ini dengan Image Resource (R.drawable.avatar_1, dll)
-        Text("Av-$id", fontWeight = FontWeight.Bold)
+        Text("-", fontWeight = FontWeight.Bold)
     }
 }
 
