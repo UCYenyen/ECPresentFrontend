@@ -171,7 +171,7 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
                     _qnaState.value = QnAUIState.Error("Gagal (${response.code()}): $errorBodyString")
                 }
             } catch (e: Exception) {
-                _qnaState.value = QnAUIState.Error("Babi" ?: "Error")
+                _qnaState.value = QnAUIState.Error("CONNECTION ERROR PLEASE RETRY" ?: "Error")
             }
         }
     }
