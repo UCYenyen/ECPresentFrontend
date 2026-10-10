@@ -55,6 +55,8 @@ sealed interface ProfileUIState {
 sealed interface UploadPresentationUIState {
     object Initial : UploadPresentationUIState
     object Loading : UploadPresentationUIState
+    // Video sudah terkirim, menunggu analisis AI selesai di backend (polling)
+    data class Processing(val stage: String?, val elapsedSeconds: Int, val attempt: Int) : UploadPresentationUIState
     data class Success(val data: PresentationAnalysisResponse) : UploadPresentationUIState
     data class Error(val message: String) : UploadPresentationUIState
 

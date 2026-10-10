@@ -3,10 +3,12 @@ package com.example.ecpresent.ui.viewmodel
 import android.app.Application
 import android.net.Uri
 import android.os.CountDownTimer
+import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
 import com.example.ecpresent.data.dto.Answer
+import com.example.ecpresent.data.dto.ClientMetricsRequest
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
@@ -27,14 +29,28 @@ import com.example.ecpresent.ui.uistates.LoginUIState
 import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.uistates.QnAUIState
 import com.example.ecpresent.ui.uistates.UploadPresentationUIState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class PresentationViewModel(application: Application) : AndroidViewModel(application) {
+    companion object {
+        private const val ANALYSIS_POLL_INTERVAL_MS = 2_000L
+        private const val ANALYSIS_CLIENT_TIMEOUT_MS = 20 * 60 * 1_000L
+    }
+
+    private data class AnalysisResult(
+        val outcome: String,
+        val data: PresentationAnalysisResponse?,
+        val pollCount: Int
+    )
+
     private val presentationRepository = ServerContainer().serverPresentationRepository
     private val dataStoreManager = DataStoreManager(application)
     private val _uploadPresentationUIState = MutableStateFlow<UploadPresentationUIState>(UploadPresentationUIState.Initial)
@@ -66,6 +82,7 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
     fun uploadPresentation(fileUri: Uri, title: String) {
         viewModelScope.launch {
             _uploadPresentationUIState.value = UploadPresentationUIState.Loading
+            val startedAt = SystemClock.elapsedRealtime()
             try {
                 val token = dataStoreManager.tokenFlow.first()
                 if (token.isNullOrEmpty()) {
@@ -73,25 +90,100 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
                     return@launch
                 }
 
-                val response = presentationRepository.uploadPresentation(
-                    token = token,
-                    fileUri = fileUri,
-                    context = getApplication(),
-                    title = title
-                )
+                val context = getApplication<Application>()
+                val (videoFile, videoDurationMs) = withContext(Dispatchers.IO) {
+                    presentationRepository.prepareVideoFile(context, fileUri) to
+                        presentationRepository.getVideoDurationMs(context, fileUri)
+                }
+                val preparedAt = SystemClock.elapsedRealtime()
 
-                if (response.isSuccessful && response.body() != null) {
-                    val analysisData = response.body()!!.data
-                    _uploadPresentationUIState.value = UploadPresentationUIState.Success(analysisData)
-                } else {
+                val response = try {
+                    presentationRepository.uploadPresentation(token, videoFile, title, videoDurationMs)
+                } finally {
+                    videoFile.delete()
+                }
+                val uploadedAt = SystemClock.elapsedRealtime()
+
+                val presentation = response.body()?.data
+                if (!response.isSuccessful || presentation == null) {
                     val errorBody = response.errorBody()?.string()
                     _uploadPresentationUIState.value =
                         UploadPresentationUIState.Error("Upload failed: ${response.code()} - $errorBody")
+                    return@launch
                 }
+
+                activePresentationId = presentation.id
+                activeQuestion = null
+                _uploadPresentationUIState.value =
+                    UploadPresentationUIState.Processing(null, ((uploadedAt - startedAt) / 1000).toInt(), 1)
+
+                val result = awaitAnalysis(token, presentation.id, startedAt)
+                val finishedAt = SystemClock.elapsedRealtime()
+
+                val analysis = result.data
+                _uploadPresentationUIState.value = when {
+                    analysis?.question != null && (result.outcome == "SUCCESS" || result.outcome == "FALLBACK") -> {
+                        activeQuestion = analysis.question.question
+                        UploadPresentationUIState.Success(analysis)
+                    }
+                    result.outcome == "FAILED" -> UploadPresentationUIState.Error(
+                        analysis?.failureReason ?: "The AI analysis failed. Please upload your video again."
+                    )
+                    else -> UploadPresentationUIState.Error(
+                        "The analysis is taking longer than expected. Please try again later."
+                    )
+                }
+
+                sendClientMetrics(
+                    token, presentation.id, ClientMetricsRequest(
+                        clientPrepareMs = preparedAt - startedAt,
+                        clientRequestMs = uploadedAt - preparedAt,
+                        clientWaitMs = finishedAt - uploadedAt,
+                        clientTotalMs = finishedAt - startedAt,
+                        clientPollCount = result.pollCount,
+                        clientOutcome = result.outcome
+                    )
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uploadPresentationUIState.value = UploadPresentationUIState.Error(e.message ?: "Unknown error")
             }
+        }
+    }
+
+    // Analisis video berjalan asinkron di backend, jadi status di-polling sampai selesai, gagal, atau timeout
+    private suspend fun awaitAnalysis(token: String, presentationId: Int, startedAt: Long): AnalysisResult {
+        var pollCount = 0
+        val pollStartedAt = SystemClock.elapsedRealtime()
+        while (SystemClock.elapsedRealtime() - pollStartedAt < ANALYSIS_CLIENT_TIMEOUT_MS) {
+            delay(ANALYSIS_POLL_INTERVAL_MS)
+            pollCount++
+            val analysis = try {
+                presentationRepository.getAnalysis(token, presentationId).body()?.data
+            } catch (e: Exception) {
+                null // gangguan jaringan sesaat: lanjut polling
+            } ?: continue
+
+            if (analysis.status == "FAILED") return AnalysisResult("FAILED", analysis, pollCount)
+            if (analysis.feedback != null && analysis.question != null) {
+                val outcome = if (analysis.processing?.status == "FALLBACK") "FALLBACK" else "SUCCESS"
+                return AnalysisResult(outcome, analysis, pollCount)
+            }
+
+            _uploadPresentationUIState.value = UploadPresentationUIState.Processing(
+                stage = analysis.processing?.stage,
+                elapsedSeconds = ((SystemClock.elapsedRealtime() - startedAt) / 1000).toInt(),
+                attempt = analysis.processing?.generateAttempts?.coerceAtLeast(1) ?: 1
+            )
+        }
+        return AnalysisResult("CLIENT_TIMEOUT", null, pollCount)
+    }
+
+    private suspend fun sendClientMetrics(token: String, presentationId: Int, metrics: ClientMetricsRequest) {
+        try {
+            presentationRepository.sendClientMetrics(token, presentationId, metrics)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -147,6 +239,7 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
 
                 if (response.isSuccessful && response.body()?.data != null) {
                     val data = response.body()!!.data
+                    activeFeedbackData = data
                     _feedbackState.value = FeedbackUIState.Success(data)
                     // Reset notes jika ada data baru
                     _feedbackNotes.value = data.personalNotes ?: "" // Jika Anda punya field ini di DTO feedback
