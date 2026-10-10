@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +30,7 @@ fun PresentationIndicatorSummaryCard(
 ){
     Card (
         modifier = Modifier
-            .width(122.dp)
+            .width(142.dp)
             .height(82.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -47,14 +48,15 @@ fun PresentationIndicatorSummaryCard(
                 text = result,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
-                style = TextStyle(color = Color.Black)
+                style = TextStyle(color = Color.Black),
+                textAlign = TextAlign.Center
             )
             Text(
                 text = topic,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 style = TextStyle(color = Color.Black),
-                maxLines = 1
+                textAlign = TextAlign.Center
             )
         }
     }

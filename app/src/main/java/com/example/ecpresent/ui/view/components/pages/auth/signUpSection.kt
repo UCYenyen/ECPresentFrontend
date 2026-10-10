@@ -1,15 +1,22 @@
 package com.example.ecpresent.ui.view.components.pages.auth
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -23,6 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,6 +54,8 @@ fun SignUpSection(
     var passwordText by remember { mutableStateOf("") }
     var confirmPasswordText by remember { mutableStateOf("") }
 
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
     val loginState by authViewModel.loginUIState.collectAsState()
 
     LaunchedEffect(loginState) {
@@ -76,7 +89,7 @@ fun SignUpSection(
                 value = usernameText,
                 onValueChange = { usernameText = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Username") },
+                placeholder = { Text("Username") },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
@@ -89,7 +102,7 @@ fun SignUpSection(
                 value = emailText,
                 onValueChange = { emailText = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("examplename@gmail.com") },
+                placeholder = { Text("examplename@gmail.com") },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
             )
@@ -102,9 +115,17 @@ fun SignUpSection(
                 value = passwordText,
                 onValueChange = { passwordText = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Password123") },
+                placeholder = { Text("Password123") },
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    IconButton (onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector = image, contentDescription = "Toggle password visibility")
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -115,9 +136,17 @@ fun SignUpSection(
                 value = confirmPasswordText,
                 onValueChange = { confirmPasswordText = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Password123") },
+                placeholder = { Text("Password123") },
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    val image = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    IconButton (onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(imageVector = image, contentDescription = "Toggle password visibility")
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -146,6 +175,14 @@ fun SignUpSection(
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Already Have An Account? Sign In",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.fillMaxWidth().clickable(onClick = {navController.navigate(AppView.SignIn.name)}),
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

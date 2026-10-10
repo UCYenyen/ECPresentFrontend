@@ -1,23 +1,28 @@
 package com.example.ecpresent.data.service
 
-import com.example.ecpresent.data.dto.Answer
+import com.example.ecpresent.data.dto.AverageIndicatorResponse
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.ClientMetricsRequest
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
-import com.example.ecpresent.data.dto.PresentationListResponse
-import com.example.ecpresent.data.dto.PresentationResponse
+import com.example.ecpresent.ui.model.Answer
+import com.example.ecpresent.ui.model.Presentation
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
 interface PresentationService {
+
+    @GET("api/presentations/average")
+    suspend fun getAverageScore(
+        @Header("Authorization") token: String
+        ): Response<BaseResponse<AverageIndicatorResponse>>
+
     @GET("api/presentations/{id}/analysis")
     suspend fun getPresentationAnalysis(
         @Header("Authorization") token: String,
-        @Path("id") id: Int
-    ): Response<BaseResponse<PresentationAnalysisResponse>>
+        @Path("id") id: String): Response<BaseResponse<PresentationAnalysisResponse>>
 
     @Multipart
     @POST("api/presentations")
@@ -26,12 +31,12 @@ interface PresentationService {
         @Part video: MultipartBody.Part,
         @Part("title") title: RequestBody,
         @Part("video_duration_ms") videoDurationMs: RequestBody?
-    ): Response<BaseResponse<PresentationResponse>>
+    ): Response<BaseResponse<Presentation>>
 
     @POST("api/presentations/{id}/client-metrics")
     suspend fun sendClientMetrics(
         @Header("Authorization") token: String,
-        @Path("id") id: Int,
+        @Path("id") id: String,
         @Body request: ClientMetricsRequest
     ): Response<Unit>
 
@@ -53,14 +58,19 @@ interface PresentationService {
     @PATCH("api/presentations/{id}")
     suspend fun updateNotes(
         @Header("Authorization") token: String,
-        @Path("id") id: Int,
+        @Path("id") id: String,
         @Field("notes") notes: String
     ): Response<BaseResponse<PresentationFeedbackResponse>>
 
     @DELETE("api/presentations/{id}")
     suspend fun deletePresentation(
         @Header("Authorization") token: String,
-        @Path("id") id: Int
+        @Path("id") id: String
     ): Response<BaseResponse<Unit>>
+
+    @GET("api/presentations")
+    suspend fun getPresentationHistory(
+        @Header("Authorization") token: String
+    ): Response<BaseResponse<List<Presentation>>>
 }
 

@@ -1,5 +1,6 @@
 package com.example.ecpresent.ui.route
 
+
 import PresentationQNAView
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
@@ -35,6 +36,7 @@ import com.example.ecpresent.ui.view.components.elements.MyNavigationBar
 import com.example.ecpresent.ui.view.pages.GetStartedView
 import com.example.ecpresent.ui.view.pages.SplashScreen
 import com.example.ecpresent.ui.view.pages.auth.SignInView
+import com.example.ecpresent.ui.view.pages.auth.SignUpFromGuestView
 import com.example.ecpresent.ui.view.pages.auth.SignUpView
 import com.example.ecpresent.ui.view.pages.learning.LearningIndexView
 import com.example.ecpresent.ui.view.pages.learning.LearningProgressView
@@ -58,6 +60,7 @@ enum class AppView(
     Landing("Landing"),
     SignUp("Sign Up"),
     SignIn("Sign In"),
+    GuestSignUp("Guest Sign Up"),
     Profile("Profile", Icons.Filled.ManageAccounts),
     OverallFeedback("Overall Feedback"),
 
@@ -67,7 +70,7 @@ enum class AppView(
 
     Presentation("Presentations", Icons.Filled.CameraAlt),
     PresentationHistory("Presentations"),
-    TakePresentation("Presentation"),
+    TakePresentation("Presenting"),
     FollowUpQuestion("QNA"),
     PresentationFeedback("Presentation Feedback"),
 }
@@ -106,10 +109,15 @@ fun AppRoute() {
     val showBackButton =
         (currentRouteString !in topLevelRoutes) && (navController.previousBackStackEntry != null)
 
-    val showBars = currentRouteString != AppView.Landing.name &&
-            currentRouteString != AppView.SignIn.name &&
-            currentRouteString != AppView.SignUp.name &&
-            currentRouteString != AppView.SplashScreen.name
+    val showBars = currentRouteString !in listOf(
+        AppView.Landing.name,
+        AppView.SignIn.name,
+        AppView.SignUp.name,
+        AppView.SplashScreen.name,
+//        AppView.TakePresentation.name,   // Hide during upload
+//        AppView.FollowUpQuestion.name,   // Hide during QnA
+//        AppView.PresentationFeedback.name // Hide during Feedback
+    )
 
     Scaffold(
         topBar = {
@@ -117,7 +125,15 @@ fun AppRoute() {
                 MyTopAppBar(
                     currentView = currentView,
                     canNavigateBack = showBackButton,
-                    navigateUp = { navController.navigateUp() }
+                    navigateUp = {
+                        if (currentRouteString?.startsWith(AppView.PresentationFeedback.name) == true) {
+                            navController.navigate(AppView.Presentation.name) {
+                                popUpTo(AppView.Presentation.name) { inclusive = true }
+                            }
+                        } else {
+                            navController.navigateUp()
+                        }
+                    }
                 )
             }
         },
@@ -178,6 +194,12 @@ fun AppRoute() {
                     authViewModel = authViewModel
                 )
             }
+            composable(route = AppView.GuestSignUp.name) {
+                SignUpFromGuestView(
+                    navController = navController,
+                    authViewModel = authViewModel
+                )
+            }
             composable(route = AppView.Learning.name) {
                 LearningIndexView(
                     navController = navController,
@@ -213,7 +235,7 @@ fun AppRoute() {
                 PresentationIndexView(navController = navController)
             }
             composable(route = AppView.PresentationHistory.name) {
-                PresentationHistoryView()
+                PresentationHistoryView(navController, presentationViewModel)
             }
 
             composable(route = AppView.TakePresentation.name) {
@@ -223,19 +245,24 @@ fun AppRoute() {
                 )
             }
 
-            composable(route = AppView.FollowUpQuestion.name) {
+            composable(route = "${AppView.FollowUpQuestion.name}/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
                 PresentationQNAView(
                     navController = navController,
-                    presentationViewModel = presentationViewModel
+                    presentationViewModel = presentationViewModel,
+                    presentationId = id
                 )
             }
 
-            composable(route = AppView.PresentationFeedback.name) {
+            composable(route = "${AppView.PresentationFeedback.name}/{id}") {backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
                 PresentationFeedbackView(
                     navController = navController,
-                    presentationViewModel = presentationViewModel
+                    presentationViewModel = presentationViewModel,
+                    presentationId = id
                 )
             }
+
             composable(route = AppView.Profile.name) {
                 ProfileIndexView(navController = navController, authViewModel = authViewModel)
             }

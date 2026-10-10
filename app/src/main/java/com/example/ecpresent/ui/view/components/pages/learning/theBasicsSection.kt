@@ -30,9 +30,9 @@ import com.example.ecpresent.ui.viewmodel.LearningViewModel
 fun TheBasicsSection(navController: NavController, learningViewModel: LearningViewModel, showAll: Boolean = false) {
     val learningState by learningViewModel.learningUIState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        learningViewModel.getAllLearnings()
-    }
+//    LaunchedEffect(Unit) {
+//        learningViewModel.getAllLearnings()
+//    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -64,6 +64,11 @@ fun TheBasicsSection(navController: NavController, learningViewModel: LearningVi
 
 
         when (val state = learningState) {
+            is LearningUIState.Initial -> {
+                LaunchedEffect(Unit) {
+                    learningViewModel.getAllLearnings()
+                }
+            }
             is LearningUIState.Success -> {
                 if(!showAll){
                     LazyRow(

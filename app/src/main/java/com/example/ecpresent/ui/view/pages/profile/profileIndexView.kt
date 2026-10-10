@@ -39,10 +39,12 @@ import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.view.components.pages.profile.OverallRatingSection
 import com.example.ecpresent.ui.view.components.pages.profile.PersonalInformationSection
 import com.example.ecpresent.ui.viewmodel.AuthViewModel
+import com.example.ecpresent.ui.viewmodel.PresentationViewModel
 
 @Composable
 fun ProfileIndexView(
     authViewModel: AuthViewModel = viewModel(),
+    presentationViewModel: PresentationViewModel = viewModel(),
     navController: NavController
 ) {
 
@@ -96,8 +98,13 @@ fun ProfileIndexView(
                         Column(
                             verticalArrangement = Arrangement.spacedBy(24.dp),
                         ) {
-                            PersonalInformationSection(authViewModel = authViewModel)
-                            OverallRatingSection()
+                            PersonalInformationSection(
+                                authViewModel = authViewModel,
+                                navController = navController
+                            )
+                            OverallRatingSection(
+                                presentationViewModel = presentationViewModel
+                            )
                             Button(
                                 onClick = {
                                     authViewModel.logout(onSuccess = {

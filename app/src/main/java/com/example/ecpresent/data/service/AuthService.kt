@@ -3,16 +3,24 @@ package com.example.ecpresent.data.service
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
+import com.example.ecpresent.data.dto.UpdateUserRequest
 import com.example.ecpresent.data.dto.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 
 interface AuthService {
     @POST("api/register")
     suspend fun register(
+        @Body request: RegisterUserRequest
+    ): Response<BaseResponse<UserResponse>>
+
+    @POST("api/register-from-guest")
+    suspend fun registerFromGuest(
+        @Header("Authorization") token: String,
         @Body request: RegisterUserRequest
     ): Response<BaseResponse<UserResponse>>
 
@@ -28,4 +36,11 @@ interface AuthService {
     suspend fun getProfileById(
         @Header("Authorization") token: String
     ): Response<BaseResponse<UserResponse>>
+
+    @PUT("api/update-profile")
+    suspend fun updateProfile(
+        @Header("Authorization") token: String,
+        @Body request: UpdateUserRequest
+    ): Response<BaseResponse<UserResponse>>
+
 }

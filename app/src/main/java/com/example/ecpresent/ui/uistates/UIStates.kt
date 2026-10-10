@@ -1,12 +1,13 @@
 package com.example.ecpresent.ui.uistates
 
-
-import com.example.ecpresent.data.dto.Answer
+import com.example.ecpresent.data.dto.AverageIndicatorResponse
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
+import com.example.ecpresent.ui.model.Answer
 import com.example.ecpresent.ui.model.User
 import com.example.ecpresent.ui.model.LearningProgress
 import com.example.ecpresent.ui.model.Learning
+import com.example.ecpresent.ui.model.Presentation
 
 sealed interface LoginUIState {
     object Initial : LoginUIState
@@ -43,7 +44,6 @@ sealed interface LearningProgressDetailsUIState {
     data class Error(val message: String) : LearningProgressDetailsUIState
 }
 
-
 sealed interface ProfileUIState {
     object Initial : ProfileUIState
     object Loading : ProfileUIState
@@ -55,25 +55,36 @@ sealed interface ProfileUIState {
 sealed interface UploadPresentationUIState {
     object Initial : UploadPresentationUIState
     object Loading : UploadPresentationUIState
-    // Video sudah terkirim, menunggu analisis AI selesai di backend (polling)
-    data class Processing(val stage: String?, val elapsedSeconds: Int, val attempt: Int) : UploadPresentationUIState
-    data class Success(val data: PresentationAnalysisResponse) : UploadPresentationUIState
+    data class Success(val data: Presentation) : UploadPresentationUIState
     data class Error(val message: String) : UploadPresentationUIState
-
+}
+sealed class PresentationIndexUIState {
+    object Initial : PresentationIndexUIState()
+    object Loading : PresentationIndexUIState()
+    data class Success(val data: List<Presentation>) : PresentationIndexUIState()
+    data class Error(val msg: String) : PresentationIndexUIState()
 }
 
-sealed class QnAUIState {
-    object Idle : QnAUIState()
-    object Submitting : QnAUIState()
-    data class AnswerScored(val answer: Answer) : QnAUIState()
-    data class Error(val msg: String) : QnAUIState()
+sealed interface QnAUIState {
+    object Initial : QnAUIState
+    object Loading : QnAUIState
+    object OnUserSubmitAnswer: QnAUIState
+    data class Success(val data: PresentationAnalysisResponse) : QnAUIState
+    data class AnswerScored(val answer: Answer) : QnAUIState
+    data class Error(val msg: String) : QnAUIState
+}
+sealed interface FeedbackUIState {
+    object Initial : FeedbackUIState
+    object Loading : FeedbackUIState
+    data class Success(val data: PresentationFeedbackResponse) : FeedbackUIState
+    object Deleted : FeedbackUIState
+    object NotesUpdated : FeedbackUIState
+    data class Error(val msg: String) : FeedbackUIState
 }
 
-sealed class FeedbackUIState {
-    object Idle : FeedbackUIState()
-    object Loading : FeedbackUIState()
-    data class Success(val data: PresentationFeedbackResponse) : FeedbackUIState()
-    object Deleted : FeedbackUIState()
-    object NotesUpdated : FeedbackUIState()
-    data class Error(val msg: String) : FeedbackUIState()
+sealed interface AverageScoreUIState {
+    object Initial : AverageScoreUIState
+    object Loading : AverageScoreUIState
+    data class Success(val data: AverageIndicatorResponse) : AverageScoreUIState
+    data class Error(val msg: String) : AverageScoreUIState
 }

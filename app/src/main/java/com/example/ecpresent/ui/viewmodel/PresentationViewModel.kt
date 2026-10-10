@@ -4,63 +4,45 @@ import android.app.Application
 import android.net.Uri
 import android.os.CountDownTimer
 import android.os.SystemClock
+import android.util.Log
+import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
-import com.example.ecpresent.data.dto.Answer
 import com.example.ecpresent.data.dto.ClientMetricsRequest
-import com.example.ecpresent.data.dto.LoginUserRequest
-import com.example.ecpresent.data.dto.PresentationAnalysisResponse
+import com.example.ecpresent.ui.uistates.PresentationIndexUIState
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
-import com.example.ecpresent.data.dto.RegisterUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
-import com.example.ecpresent.data.repository.PresentationRepository
-import com.example.ecpresent.ui.model.Avatar
-import com.example.ecpresent.ui.model.User
-import com.example.ecpresent.ui.model.Learning
-import com.example.ecpresent.ui.model.LearningProgress
-import com.example.ecpresent.ui.model.toLearning
-import com.example.ecpresent.ui.model.toLearningProgress
+import com.example.ecpresent.ui.uistates.AverageScoreUIState
 import com.example.ecpresent.ui.uistates.FeedbackUIState
-import com.example.ecpresent.ui.uistates.LearningDetailsUIState
-import com.example.ecpresent.ui.uistates.LearningProgressUIState
-import com.example.ecpresent.ui.uistates.LearningUIState
-import com.example.ecpresent.ui.uistates.LoginUIState
-import com.example.ecpresent.ui.uistates.ProfileUIState
 import com.example.ecpresent.ui.uistates.QnAUIState
 import com.example.ecpresent.ui.uistates.UploadPresentationUIState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 class PresentationViewModel(application: Application) : AndroidViewModel(application) {
-    companion object {
-        private const val ANALYSIS_POLL_INTERVAL_MS = 2_000L
-        private const val ANALYSIS_CLIENT_TIMEOUT_MS = 20 * 60 * 1_000L
-    }
-
-    private data class AnalysisResult(
-        val outcome: String,
-        val data: PresentationAnalysisResponse?,
-        val pollCount: Int
-    )
-
     private val presentationRepository = ServerContainer().serverPresentationRepository
     private val dataStoreManager = DataStoreManager(application)
     private val _uploadPresentationUIState = MutableStateFlow<UploadPresentationUIState>(UploadPresentationUIState.Initial)
     val uploadPresentationUIState: StateFlow<UploadPresentationUIState> = _uploadPresentationUIState.asStateFlow()
+    private val _presentationIndexState = MutableStateFlow<PresentationIndexUIState>(PresentationIndexUIState.Initial)
+    val presentationIndexState = _presentationIndexState.asStateFlow()
+    private val _qnaState = MutableStateFlow<QnAUIState>(QnAUIState.Initial)
+    val qnaState: StateFlow<QnAUIState> = _qnaState.asStateFlow()
 
-    private val _qnaState = MutableStateFlow<QnAUIState>(QnAUIState.Idle)
-    val qnaState = _qnaState.asStateFlow()
-
-    private val _feedbackState = MutableStateFlow<FeedbackUIState>(FeedbackUIState.Idle)
+    private val _feedbackState = MutableStateFlow<FeedbackUIState>(FeedbackUIState.Initial)
     val feedbackState = _feedbackState.asStateFlow()
+
+    private val _averageScoreState = MutableStateFlow<AverageScoreUIState>(AverageScoreUIState.Initial)
+    val averageScoreState: StateFlow<AverageScoreUIState> = _averageScoreState.asStateFlow()
 
     private val _isRecording = MutableStateFlow(false)
     val isRecording = _isRecording.asStateFlow()
@@ -74,15 +56,15 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
 
     var activePresentationId: Int? = null
         private set
-    var activeQuestion: String? = null
-        private set
 
     var activeFeedbackData: PresentationFeedbackResponse? = null
         private set
+
+    // Lama request upload terakhir, dikirim bersama metrik klien setelah analisis selesai
+    private var lastUploadRequestMs: Long = 0
     fun uploadPresentation(fileUri: Uri, title: String) {
         viewModelScope.launch {
             _uploadPresentationUIState.value = UploadPresentationUIState.Loading
-            val startedAt = SystemClock.elapsedRealtime()
             try {
                 val token = dataStoreManager.tokenFlow.first()
                 if (token.isNullOrEmpty()) {
@@ -90,60 +72,24 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
                     return@launch
                 }
 
-                val context = getApplication<Application>()
-                val (videoFile, videoDurationMs) = withContext(Dispatchers.IO) {
-                    presentationRepository.prepareVideoFile(context, fileUri) to
-                        presentationRepository.getVideoDurationMs(context, fileUri)
-                }
-                val preparedAt = SystemClock.elapsedRealtime()
+                val uploadStartedAt = SystemClock.elapsedRealtime()
+                val response = presentationRepository.uploadPresentation(
+                    token = token,
+                    fileUri = fileUri,
+                    context = getApplication(),
+                    title = title
+                )
+                lastUploadRequestMs = SystemClock.elapsedRealtime() - uploadStartedAt
 
-                val response = try {
-                    presentationRepository.uploadPresentation(token, videoFile, title, videoDurationMs)
-                } finally {
-                    videoFile.delete()
-                }
-                val uploadedAt = SystemClock.elapsedRealtime()
-
-                val presentation = response.body()?.data
-                if (!response.isSuccessful || presentation == null) {
+                if (response.isSuccessful && response.body() != null) {
+                    val presentation = response.body()!!.data
+                    _uploadPresentationUIState.value = UploadPresentationUIState.Success(presentation)
+                    _qnaState.value = QnAUIState.Initial
+                } else {
                     val errorBody = response.errorBody()?.string()
                     _uploadPresentationUIState.value =
                         UploadPresentationUIState.Error("Upload failed: ${response.code()} - $errorBody")
-                    return@launch
                 }
-
-                activePresentationId = presentation.id
-                activeQuestion = null
-                _uploadPresentationUIState.value =
-                    UploadPresentationUIState.Processing(null, ((uploadedAt - startedAt) / 1000).toInt(), 1)
-
-                val result = awaitAnalysis(token, presentation.id, startedAt)
-                val finishedAt = SystemClock.elapsedRealtime()
-
-                val analysis = result.data
-                _uploadPresentationUIState.value = when {
-                    analysis?.question != null && (result.outcome == "SUCCESS" || result.outcome == "FALLBACK") -> {
-                        activeQuestion = analysis.question.question
-                        UploadPresentationUIState.Success(analysis)
-                    }
-                    result.outcome == "FAILED" -> UploadPresentationUIState.Error(
-                        analysis?.failureReason ?: "The AI analysis failed. Please upload your video again."
-                    )
-                    else -> UploadPresentationUIState.Error(
-                        "The analysis is taking longer than expected. Please try again later."
-                    )
-                }
-
-                sendClientMetrics(
-                    token, presentation.id, ClientMetricsRequest(
-                        clientPrepareMs = preparedAt - startedAt,
-                        clientRequestMs = uploadedAt - preparedAt,
-                        clientWaitMs = finishedAt - uploadedAt,
-                        clientTotalMs = finishedAt - startedAt,
-                        clientPollCount = result.pollCount,
-                        clientOutcome = result.outcome
-                    )
-                )
             } catch (e: Exception) {
                 e.printStackTrace()
                 _uploadPresentationUIState.value = UploadPresentationUIState.Error(e.message ?: "Unknown error")
@@ -151,46 +97,86 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    // Analisis video berjalan asinkron di backend, jadi status di-polling sampai selesai, gagal, atau timeout
-    private suspend fun awaitAnalysis(token: String, presentationId: Int, startedAt: Long): AnalysisResult {
-        var pollCount = 0
-        val pollStartedAt = SystemClock.elapsedRealtime()
-        while (SystemClock.elapsedRealtime() - pollStartedAt < ANALYSIS_CLIENT_TIMEOUT_MS) {
-            delay(ANALYSIS_POLL_INTERVAL_MS)
-            pollCount++
-            val analysis = try {
-                presentationRepository.getAnalysis(token, presentationId).body()?.data
+    fun getAnalysis(presentationId: String) {
+        viewModelScope.launch {
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _qnaState.value = QnAUIState.Error("User not logged in")
+                    return@launch
+                }
+
+                // Analisis video di backend bisa memakan beberapa menit, jadi polling dilakukan
+                // sampai hasil siap, backend melaporkan FAILED, atau batas waktu klien terlewati
+                var attempts = 0
+                val delayMillis = 2000L
+                val pollStartedAt = SystemClock.elapsedRealtime()
+                var outcome = "CLIENT_TIMEOUT"
+
+                while (SystemClock.elapsedRealtime() - pollStartedAt < ANALYSIS_CLIENT_TIMEOUT_MS) {
+                    val response = try {
+                        presentationRepository.getAnalysis(
+                            token = token,
+                            id = presentationId
+                        )
+                    } catch (e: Exception) {
+                        null // gangguan jaringan sesaat: lanjut polling
+                    }
+                    attempts++
+
+                    if (response != null && response.isSuccessful && response.body() != null) {
+                        val analysisData = response.body()!!.data
+                        val isAnalysisReady = analysisData != null &&
+                                !analysisData.question?.question.isNullOrEmpty()
+
+                        if (analysisData?.status == "FAILED") {
+                            outcome = "FAILED"
+                            _qnaState.value = QnAUIState.Error(
+                                analysisData.failureReason ?: "The AI analysis failed. Please upload your video again."
+                            )
+                            break
+                        } else if (isAnalysisReady) {
+                            outcome = if (analysisData?.processing?.status == "FALLBACK") "FALLBACK" else "SUCCESS"
+                            _qnaState.value = QnAUIState.Success(analysisData)
+                            break
+                        } else {
+                            Log.d("Polling", "Data belum siap (${analysisData?.processing?.stage}), mencoba lagi...")
+                        }
+                    }
+                    delay(delayMillis)
+                }
+
+                if (outcome == "CLIENT_TIMEOUT") {
+                    _qnaState.value = QnAUIState.Error("The analysis is taking longer than expected. Please try again later.")
+                }
+                sendClientMetrics(token, presentationId, SystemClock.elapsedRealtime() - pollStartedAt, attempts, outcome)
             } catch (e: Exception) {
-                null // gangguan jaringan sesaat: lanjut polling
-            } ?: continue
-
-            if (analysis.status == "FAILED") return AnalysisResult("FAILED", analysis, pollCount)
-            if (analysis.feedback != null && analysis.question != null) {
-                val outcome = if (analysis.processing?.status == "FALLBACK") "FALLBACK" else "SUCCESS"
-                return AnalysisResult(outcome, analysis, pollCount)
+                e.printStackTrace()
+                _qnaState.value = QnAUIState.Error(e.message ?: "Unknown error")
             }
-
-            _uploadPresentationUIState.value = UploadPresentationUIState.Processing(
-                stage = analysis.processing?.stage,
-                elapsedSeconds = ((SystemClock.elapsedRealtime() - startedAt) / 1000).toInt(),
-                attempt = analysis.processing?.generateAttempts?.coerceAtLeast(1) ?: 1
-            )
         }
-        return AnalysisResult("CLIENT_TIMEOUT", null, pollCount)
     }
-
-    private suspend fun sendClientMetrics(token: String, presentationId: Int, metrics: ClientMetricsRequest) {
+    private suspend fun sendClientMetrics(token: String, presentationId: String, waitMs: Long, pollCount: Int, outcome: String) {
         try {
-            presentationRepository.sendClientMetrics(token, presentationId, metrics)
+            presentationRepository.sendClientMetrics(
+                token, presentationId, ClientMetricsRequest(
+                    clientPrepareMs = 0,
+                    clientRequestMs = lastUploadRequestMs,
+                    clientWaitMs = waitMs,
+                    clientTotalMs = lastUploadRequestMs + waitMs,
+                    clientPollCount = pollCount,
+                    clientOutcome = outcome
+                )
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     fun startTimer(onFinish: () -> Unit) {
-        _timer.value = 10
+        _timer.value = 30
         countDownTimer?.cancel()
-        countDownTimer = object : CountDownTimer(10000, 1000) {
+        countDownTimer = object : CountDownTimer(30000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 _timer.value = (millisUntilFinished / 1000).toInt()
             }
@@ -205,46 +191,58 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         countDownTimer?.cancel()
     }
 
-    fun submitAnswer(audioFile: File) {
+    fun submitAnswer(audioFile: File, presentationId: String) {
         stopTimer()
         _isRecording.value = false
 
         viewModelScope.launch {
-            _qnaState.value = QnAUIState.Submitting
+            _qnaState.value = QnAUIState.OnUserSubmitAnswer
             try {
                 val token = dataStoreManager.tokenFlow.first() ?: return@launch
-                val id = activePresentationId?.toString() ?: return@launch
-
-                val response = presentationRepository.submitAnswer(token, id, audioFile)
+                val response = presentationRepository.submitAnswer(token, presentationId, audioFile)
 
                 if (response.isSuccessful && response.body()?.data != null) {
                     _qnaState.value = QnAUIState.AnswerScored(response.body()!!.data)
+                    _feedbackState.value = FeedbackUIState.Initial
                 } else {
-                    _qnaState.value = QnAUIState.Error("Gagal: ${response.code()}")
+                    val errorBodyString = response.errorBody()?.string() // Baca pesan error dari server
+                    android.util.Log.e("DEBUG_ERROR", "Code: ${response.code()}")
+                    android.util.Log.e("DEBUG_ERROR", "Message: $errorBodyString")
+
+                    // Tampilkan pesan asli ke UI agar Anda tahu kenapa
+                    _qnaState.value = QnAUIState.Error("Gagal (${response.code()}): $errorBodyString")
                 }
             } catch (e: Exception) {
-                _qnaState.value = QnAUIState.Error(e.message ?: "Error")
+                _qnaState.value = QnAUIState.Error("CONNECTION ERROR PLEASE RETRY" ?: "Error")
             }
         }
     }
 
-    fun getFinalFeedback() {
+
+    fun getFinalFeedback(presentationId: String) {
         viewModelScope.launch {
             _feedbackState.value = FeedbackUIState.Loading
             try {
                 val token = dataStoreManager.tokenFlow.first() ?: return@launch
-                val id = activePresentationId?.toString() ?: return@launch
 
-                val response = presentationRepository.getFinalFeedback(token, id)
+                val response = presentationRepository.getFinalFeedback(token, presentationId)
 
                 if (response.isSuccessful && response.body()?.data != null) {
                     val data = response.body()!!.data
-                    activeFeedbackData = data
                     _feedbackState.value = FeedbackUIState.Success(data)
-                    // Reset notes jika ada data baru
                     _feedbackNotes.value = data.personalNotes ?: "" // Jika Anda punya field ini di DTO feedback
                 } else {
-                    _feedbackState.value = FeedbackUIState.Error("Gagal memuat feedback")
+                    val errorCode = response.code() // Misal: 404, 500, 401
+                    val errorBody = response.errorBody()?.string() // Pesan asli dari backend
+
+                    // Catat di Logcat (Filter: "API_DEBUG")
+                    android.util.Log.e("API_DEBUG", "Gagal Load Feedback!")
+                    android.util.Log.e("API_DEBUG", "URL: ${response.raw().request.url}")
+                    android.util.Log.e("API_DEBUG", "Code: $errorCode")
+                    android.util.Log.e("API_DEBUG", "Pesan: $errorBody")
+
+                    // Tampilkan error code ke layar agar Anda langsung tahu
+                    _feedbackState.value = FeedbackUIState.Error("Err $errorCode: $errorBody")
                 }
             } catch (e: Exception) {
                 _feedbackState.value = FeedbackUIState.Error(e.message ?: "Error")
@@ -252,6 +250,29 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    fun getAverageScore(){
+        viewModelScope.launch {
+            _averageScoreState.value = AverageScoreUIState.Loading
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _averageScoreState.value = AverageScoreUIState.Error("Token not found")
+                    return@launch
+                }
+                val response = presentationRepository.getAverageScore(token)
+
+                if (response.isSuccessful && response.body()?.data != null) {
+                    val data = response.body()!!.data
+                    _averageScoreState.value = AverageScoreUIState.Success(data)
+                } else {
+                    val errorMsg = response.errorBody()?.string() ?: "Failed to load average scores"
+                    _averageScoreState.value = AverageScoreUIState.Error(errorMsg)
+                }
+            } catch (e: Exception) {
+                _averageScoreState.value = AverageScoreUIState.Error(e.message ?: "Unknown Error")
+            }
+        }
+    }
     fun onNotesChanged(newNotes: String) {
         _feedbackNotes.value = newNotes
     }
@@ -273,7 +294,6 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    // 2. Delete Presentation (Uses activePresentationId)
     fun deletePresentation(onSuccess: () -> Unit) {
         viewModelScope.launch {
             _feedbackState.value = FeedbackUIState.Loading
@@ -301,7 +321,64 @@ class PresentationViewModel(application: Application) : AndroidViewModel(applica
 
     fun resetState() {
         _uploadPresentationUIState.value = UploadPresentationUIState.Initial
-        _qnaState.value = QnAUIState.Idle
-        _feedbackState.value = FeedbackUIState.Idle
+        _qnaState.value = QnAUIState.Initial
+        _feedbackState.value = FeedbackUIState.Initial
+    }
+    fun getPresentationHistory() {
+        viewModelScope.launch {
+            _presentationIndexState.value = PresentationIndexUIState.Loading
+            try {
+                val token = dataStoreManager.tokenFlow.first()
+                if (token.isNullOrEmpty()) {
+                    _presentationIndexState.value = PresentationIndexUIState.Error("Session expired")
+                    return@launch
+                }
+
+                val response = presentationRepository.getPresentationHistory(token)
+
+                if (response.isSuccessful && response.body()?.data != null) {
+                    val presentations = response.body()!!.data
+
+                    _presentationIndexState.value = PresentationIndexUIState.Success(presentations)
+
+                    if (presentations.isNotEmpty()) {
+                        activePresentationId = presentations.maxByOrNull { it.id }?.id
+                    }
+                } else {
+                    _presentationIndexState.value = PresentationIndexUIState.Error("Failed to fetch data")
+                }
+            } catch (e: Exception) {
+                _presentationIndexState.value = PresentationIndexUIState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun formatTimeStamp(dateString: String): String {
+        try {
+            val inputFormatter = DateTimeFormatter.ISO_DATE_TIME
+            val dateTime = LocalDateTime.parse(dateString, inputFormatter)
+
+            val now = LocalDateTime.now()
+
+            val daysDiff = ChronoUnit.DAYS.between(dateTime.toLocalDate(), now.toLocalDate())
+
+            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+            return when (daysDiff) {
+                0L -> "Today, ${dateTime.format(timeFormatter)}"
+                1L -> "Yesterday, ${dateTime.format(timeFormatter)}"
+                else -> {
+                    val dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm",
+                        java.util.Locale.getDefault())
+                    dateTime.format(dateFormatter)
+                }
+            }
+        } catch (e: Exception) {
+            return dateString
+        }
+    }
+
+    companion object {
+        private const val ANALYSIS_CLIENT_TIMEOUT_MS = 20 * 60 * 1000L
     }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ecpresent.data.container.ServerContainer
 import com.example.ecpresent.data.dto.LoginUserRequest
 import com.example.ecpresent.data.dto.RegisterUserRequest
+import com.example.ecpresent.data.dto.UpdateUserRequest
 import com.example.ecpresent.data.local.DataStoreManager
 import com.example.ecpresent.ui.model.toUser
 import com.example.ecpresent.ui.uistates.LoginUIState
@@ -101,6 +102,55 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Di dalam AuthViewModel.kt
+
+    fun updateAvatar(newAvatarId: Int, passwordUser: String) {
+        viewModelScope.launch {
+            // 1. Ambil Token
+            val rawToken = dataStoreManager.tokenFlow.first()
+            if (rawToken.isNullOrEmpty()) {
+                _profileUIState.value = ProfileUIState.Error("Token kosong")
+                return@launch
+            }
+
+            // 2. Ambil Data Lama (Email & Username)
+            val currentState = _profileUIState.value
+
+            if (currentState is ProfileUIState.Success) {
+                // --- PERBAIKAN 1: Ganti .user jadi .data ---
+                val oldData = currentState.data
+
+                // 3. Gabungkan Data (Wajib isi semua sesuai request temanmu)
+                val request = UpdateUserRequest(
+                    avatarId = newAvatarId,
+                    email = oldData.email ?: "",
+                    username = oldData.username ?: "",
+                    password = passwordUser
+                )
+
+                try {
+                    // --- PERBAIKAN 2: Tambahkan tulisan "Bearer " manual ---
+                    // Karena di Repository fungsi updateProfile-mu tidak otomatis nambahin Bearer
+                    val formattedToken = "Bearer $rawToken"
+
+                    val response = authRepository.updateProfile(formattedToken, request)
+
+                    if (response.isSuccessful) {
+                        getProfileById() // Refresh biar gambar berubah
+                    } else {
+                        val errorMsg = response.errorBody()?.string() ?: "Gagal update"
+                        _profileUIState.value = ProfileUIState.Error(errorMsg)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    _profileUIState.value = ProfileUIState.Error(e.message ?: "Error")
+                }
+            } else {
+                _profileUIState.value = ProfileUIState.Error("Data profil belum siap")
+            }
+        }
+    }
+
     fun register(username: String, email: String, pass: String, confirmPass: String) {
         viewModelScope.launch {
             if (pass != confirmPass) {
@@ -159,6 +209,56 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 e.printStackTrace()
                 _loginUIState.value = LoginUIState.Error(e.localizedMessage ?: "Connection error")
+            }
+        }
+    }
+    fun guestRegister(username: String, email: String, pass: String, confirmPass: String) {
+        viewModelScope.launch {
+            // Validasi input
+            if (username.isBlank() || email.isBlank() || pass.isBlank()) {
+                _loginUIState.value = LoginUIState.Error("Please fill all fields")
+                return@launch
+            }
+
+            if (pass != confirmPass) {
+                _loginUIState.value = LoginUIState.Error("Password mismatch")
+                return@launch
+            }
+
+            _loginUIState.value = LoginUIState.Loading
+
+            try {
+                // ✅ Ambil token dengan logging
+                val rawToken = dataStoreManager.tokenFlow.first()
+
+                if (rawToken.isNullOrEmpty()) {
+                    _loginUIState.value = LoginUIState.Error("Please continue as guest first before registering")
+                    return@launch
+                }
+
+                val request = RegisterUserRequest(username = username, email = email, password = pass)
+
+                val response = authRepository.registerUserFromGuest(rawToken, request)
+
+                if (response.isSuccessful && response.body() != null) {
+                    val userResponse = response.body()!!.data
+                    val newToken = userResponse.token
+
+                    if (newToken.isNotEmpty()) {
+                        dataStoreManager.saveToken(newToken)
+
+                        val user = userResponse.toUser()
+                        _loginUIState.value = LoginUIState.Success(user)
+                        _profileUIState.value = ProfileUIState.Success(user)
+                    } else {
+                        _loginUIState.value = LoginUIState.Error("Register successful but no token received")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    _loginUIState.value = LoginUIState.Error("Register failed: ${response.code()} - $errorBody")
+                }
+            } catch (e: Exception) {
+                _loginUIState.value = LoginUIState.Error(e.message ?: "Unknown error")
             }
         }
     }

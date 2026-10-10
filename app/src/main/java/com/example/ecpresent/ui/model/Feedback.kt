@@ -3,17 +3,20 @@ package com.example.ecpresent.ui.model
 import com.example.ecpresent.enum.GradeEnum
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse as FeedbackDto
 data class Feedback (
-    val id: Int,
-    val presentationId: Int,
-    val expression: Float,
-    val intonation: Float,
-    val posture: Float,
-    val videoScore: Float,
-    val audioScore: Float,
+    val id: String,
+    val presentationId: String,
+    val expression: Double,
+    val intonation: Double,
+    val posture: Double,
+    val videoScore: Double,
+    val audioScore: Double,
     val overallRating: Float,
     val grade: GradeEnum,
     val videoSuggestion: String,
-    val audioSuggestion: String
+    val audioSuggestion: String,
+    val personalNotes: String,
+    val createdAt: String,
+    val updatedAt: String
 )
 
 fun FeedbackDto.toUiModel(): Feedback {
@@ -25,8 +28,8 @@ fun FeedbackDto.toUiModel(): Feedback {
         posture = this.posture,
         videoScore = this.videoScore,
 
-        audioScore = this.audioScore ?: 0f,
-        overallRating = this.overallRating ?: 0f,
+        audioScore = this.audioScore ?: 0.0,
+        overallRating = (this.overallRating ?: 0.0).toFloat(),
 
         grade = try {
             if (this.grade != null) GradeEnum.valueOf(this.grade) else GradeEnum.E
@@ -35,7 +38,10 @@ fun FeedbackDto.toUiModel(): Feedback {
         },
 
         videoSuggestion = this.videoSuggestion,
-        audioSuggestion = this.audioSuggestion ?: "No audio feedback available yet."
+        audioSuggestion = this.audioSuggestion ?: "No audio feedback available yet.",
+        personalNotes = this.personalNotes ?: "",
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
     )
 }
 

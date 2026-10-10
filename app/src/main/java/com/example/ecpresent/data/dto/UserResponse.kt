@@ -9,6 +9,8 @@ data class UserResponse(
     val username: String?,
     @SerializedName("email")
     val email: String?,
+    @SerializedName("password")
+    val password: String?,
     @SerializedName("token")
     val token: String,
     @SerializedName("avatar_id")

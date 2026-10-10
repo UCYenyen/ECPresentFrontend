@@ -3,14 +3,14 @@ package com.example.ecpresent.data.repository
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import com.example.ecpresent.data.dto.Answer
+import com.example.ecpresent.data.dto.AverageIndicatorResponse
 import com.example.ecpresent.data.dto.BaseResponse
 import com.example.ecpresent.data.dto.ClientMetricsRequest
 import com.example.ecpresent.data.dto.PresentationAnalysisResponse
 import com.example.ecpresent.data.dto.PresentationFeedbackResponse
-import com.example.ecpresent.data.dto.PresentationListResponse
-import com.example.ecpresent.data.dto.PresentationResponse
 import com.example.ecpresent.data.service.PresentationService
+import com.example.ecpresent.ui.model.Answer
+import com.example.ecpresent.ui.model.Presentation
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -20,16 +20,59 @@ import java.io.File
 import java.io.FileOutputStream
 
 class PresentationRepository(private val service: PresentationService) {
+    suspend fun uploadPresentation(token: String, fileUri: Uri, context: Context, title: String): Response<BaseResponse<Presentation>> {
+        val formattedToken = "Bearer $token"
+        val file = getFileFromUri(context, fileUri, "temp_video.mp4") ?: throw Exception("Gagal memproses file video")
 
-    // Menyalin video dari Uri ke cache supaya bisa dikirim sebagai multipart
-    fun prepareVideoFile(context: Context, fileUri: Uri): File {
-        return getFileFromUri(context, fileUri, "temp_video.mp4") ?: throw Exception("Gagal memproses file video")
+        val requestFile = file.asRequestBody("video/*".toMediaTypeOrNull())
+        val videoPart = MultipartBody.Part.createFormData("video", file.name, requestFile)
+        val titlePart = title.toRequestBody("text/plain".toMediaTypeOrNull())
+        val durationPart = getVideoDurationMs(context, fileUri)?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        return service.createPresentation(formattedToken, videoPart, titlePart, durationPart)
     }
 
-    fun getVideoDurationMs(context: Context, fileUri: Uri): Long? {
+    suspend fun getAnalysis(token: String, id: String): Response<BaseResponse<PresentationAnalysisResponse>>{
+        val formattedToken = "Bearer $token"
+        return service.getPresentationAnalysis(formattedToken, id)
+    }
+
+    suspend fun sendClientMetrics(token: String, presentationId: String, metrics: ClientMetricsRequest): Response<Unit> {
+        val formattedToken = "Bearer $token"
+        return service.sendClientMetrics(formattedToken, presentationId, metrics)
+    }
+
+    suspend fun submitAnswer(token: String, presentationId: String, audioFile: File): Response<BaseResponse<Answer>> {
+        val formattedToken = "Bearer $token"
+        val requestFile = audioFile.asRequestBody("audio/m4a".toMediaTypeOrNull())
+        val audioPart = MultipartBody.Part.createFormData("audio", audioFile.name, requestFile)
+
+        return service.submitAnswer(formattedToken, presentationId, audioPart)
+    }
+
+    suspend fun getFinalFeedback(token: String, presentationId: String): Response<BaseResponse<PresentationFeedbackResponse>> {
+        val formattedToken = "Bearer $token"
+        return service.getFinalFeedback(formattedToken, presentationId)
+    }
+
+    suspend fun getAverageScore(token: String): Response<BaseResponse<AverageIndicatorResponse>>{
+        val formattedToken = "Bearer $token"
+        return service.getAverageScore(formattedToken)
+    }
+
+
+    suspend fun updateNotes(token: String, presentationId: Int, notes: String): Response<BaseResponse<PresentationFeedbackResponse>> {
+        return service.updateNotes("Bearer $token", presentationId.toString(), notes)
+    }
+
+    suspend fun deletePresentation(token: String, presentationId: Int): Response<BaseResponse<Unit>> {
+        return service.deletePresentation("Bearer $token", presentationId.toString())
+    }
+
+    private fun getVideoDurationMs(context: Context, uri: Uri): Long? {
         val retriever = MediaMetadataRetriever()
         return try {
-            retriever.setDataSource(context, fileUri)
+            retriever.setDataSource(context, uri)
             retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
         } catch (e: Exception) {
             null
@@ -37,52 +80,6 @@ class PresentationRepository(private val service: PresentationService) {
             retriever.release()
         }
     }
-
-    suspend fun uploadPresentation(token: String, file: File, title: String, videoDurationMs: Long?): Response<BaseResponse<PresentationResponse>> {
-        val formattedToken = "Bearer $token"
-
-        // Backend mengharapkan 'video' sesuai 'uploadVideo.single('video')'
-        val requestFile = file.asRequestBody("video/*".toMediaTypeOrNull())
-        val videoPart = MultipartBody.Part.createFormData("video", file.name, requestFile)
-
-        // Backend membaca title dari req.body
-        val titlePart = title.toRequestBody("text/plain".toMediaTypeOrNull())
-        val durationPart = videoDurationMs?.toString()?.toRequestBody("text/plain".toMediaTypeOrNull())
-
-        return service.createPresentation(formattedToken, videoPart, titlePart, durationPart)
-    }
-
-    suspend fun getAnalysis(token: String, presentationId: Int): Response<BaseResponse<PresentationAnalysisResponse>> {
-        return service.getPresentationAnalysis("Bearer $token", presentationId)
-    }
-
-    suspend fun sendClientMetrics(token: String, presentationId: Int, metrics: ClientMetricsRequest): Response<Unit> {
-        return service.sendClientMetrics("Bearer $token", presentationId, metrics)
-    }
-
-
-
-    suspend fun submitAnswer(token: String, presentationId: String, audioFile: File): Response<BaseResponse<Answer>> {
-        val formattedToken = "Bearer $token"
-        // Gunakan audio/mp4 atau audio/m4a sesuai format MediaRecorder
-        val requestFile = audioFile.asRequestBody("audio/mp4".toMediaTypeOrNull())
-        val audioPart = MultipartBody.Part.createFormData("audio", audioFile.name, requestFile)
-
-        return service.submitAnswer(formattedToken, presentationId, audioPart)
-    }
-
-    suspend fun getFinalFeedback(token: String, presentationId: String): Response<BaseResponse<PresentationFeedbackResponse>> {
-        return service.getFinalFeedback("Bearer $token", presentationId)
-    }
-
-    suspend fun updateNotes(token: String, presentationId: Int, notes: String): Response<BaseResponse<PresentationFeedbackResponse>> {
-        return service.updateNotes("Bearer $token", presentationId, notes)
-    }
-
-    suspend fun deletePresentation(token: String, presentationId: Int): Response<BaseResponse<Unit>> {
-        return service.deletePresentation("Bearer $token", presentationId)
-    }
-
 
     private fun getFileFromUri(context: Context, uri: Uri, defaultFileName: String): File? {
         return try {
@@ -102,5 +99,8 @@ class PresentationRepository(private val service: PresentationService) {
         }
     }
 
-
+    suspend fun getPresentationHistory(token: String): Response<BaseResponse<List<Presentation>>> {
+        val formattedToken = "Bearer $token"
+        return service.getPresentationHistory(formattedToken)
+    }
 }

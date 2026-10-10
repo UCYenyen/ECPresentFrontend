@@ -3,20 +3,20 @@ package com.example.ecpresent.data.dto
 import com.google.gson.annotations.SerializedName
 
 data class PresentationFeedbackResponse(
-    val id: Int,
+    val id: String,
     @SerializedName("presentation_id")
-    val presentationId: Int,
+    val presentationId: String,
 
-    val expression: Float,
-    val intonation: Float,
-    val posture: Float,
+    val expression: Double,
+    val intonation: Double,
+    val posture: Double,
 
     @SerializedName("video_score")
-    val videoScore: Float,
+    val videoScore: Double,
     @SerializedName("audio_score")
-    val audioScore: Float?,
+    val audioScore: Double?,
     @SerializedName("overall_rating")
-    val overallRating: Float?,
+    val overallRating: Double?,
     val grade: String?,
 
     @SerializedName("video_suggestion")
@@ -31,6 +31,7 @@ data class PresentationFeedbackResponse(
     val status: String,
     @SerializedName("personal_notes")
     val personalNotes: String?,
+
     val createdAt: String,
     val updatedAt: String,
 
